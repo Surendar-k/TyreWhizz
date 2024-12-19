@@ -33,7 +33,7 @@ const RoleBasedAuthPage = () => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!email || !password || (isSignup && !confirmPassword)) {
       Alert.alert('Error', 'All fields are required.');
       return;
@@ -55,37 +55,26 @@ const RoleBasedAuthPage = () => {
         return;
       }
   
-      // Mock account creation logic (you can replace it with API call later)
-      Alert.alert(
-        'Account Created',
-        'Your account has been successfully created. You can now log in with your credentials.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              setIsSignup(false); // Switch to login view
-            },
-          },
-        ]
-      );
+      try {
+        const response = await mockServerResponse('signup');
+        Alert.alert('Success', response, [
+          { text: 'OK', onPress: () => setIsSignup(false) },
+        ]);
+      } catch (error) {
+        Alert.alert('Error', error);
+      }
     } else {
-      // Mock login validation
-      if (email === 'test@example.com' && password === 'password123') {
-        Alert.alert(
-          'Login Successful',
-          '',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.navigate('HomePage'), // Navigate to HomePage
-            },
-          ]
-        );
-      } else {
-        Alert.alert('Error', 'Incorrect email or password.');
+      try {
+        const response = await mockServerResponse('login');
+        Alert.alert('Success', response, [
+          { text: 'OK', onPress: () => navigation.navigate('HomePage') },
+        ]);
+      } catch (error) {
+        Alert.alert('Error', error);
       }
     }
   };
+  
   
 
   return (
