@@ -5,7 +5,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 const RoleBasedAuthPage = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { userType } = route.params; // Get the selected user type (driver, organization, technician)
+  const { userType } = route.params;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,28 +33,45 @@ const RoleBasedAuthPage = () => {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
+    // Check for empty fields
     if (!email || !password || (isSignup && !confirmPassword)) {
       Alert.alert('Error', 'All fields are required.');
       return;
     }
   
+    // Validate email format
     if (!validateEmail(email)) {
       Alert.alert('Error', 'Invalid email format.');
       return;
     }
   
+    // Validate password length
     if (!validatePassword(password)) {
       Alert.alert('Error', 'Password must be at least 8 characters long.');
       return;
     }
   
+    // Additional validation for sign-up
     if (isSignup) {
       if (password !== confirmPassword) {
         Alert.alert('Error', 'Passwords do not match.');
         return;
       }
   
+      // Simulate server response for account creation
+      mockServerResponse('signup')
+        .then((message) => {
+          Alert.alert('Success', message, [
+            {
+              text: 'OK',
+              onPress: () => setIsSignup(false),
+            },
+          ]);
+        })
+        .catch((error) => {
+          Alert.alert('Error', error);
+        });
       try {
         const response = await mockServerResponse('signup');
         Alert.alert('Success', response, [
@@ -64,16 +81,22 @@ const RoleBasedAuthPage = () => {
         Alert.alert('Error', error);
       }
     } else {
-      try {
-        const response = await mockServerResponse('login');
-        Alert.alert('Success', response, [
-          { text: 'OK', onPress: () => navigation.navigate('HomePage') },
-        ]);
-      } catch (error) {
-        Alert.alert('Error', error);
-      }
+      // Simulate server response for login
+      mockServerResponse('login')
+        .then((message) => {
+          Alert.alert('Success', message, [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('HomePage'),
+            },
+          ]);
+        })
+        .catch((error) => {
+          Alert.alert('Error', error);
+        });
     }
   };
+  
   
   
 
