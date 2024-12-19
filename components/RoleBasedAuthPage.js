@@ -69,11 +69,11 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     // Successful login
     showModal(`Login successful. Welcome back, ${userType}!`, false);
     if (userType === 'driver') {
-      navigation.replace('DriverHomePage');
+      navigation.replace('DriverPage');
     } else if (userType === 'organization') {
-      navigation.replace('OrganizationHomePage');
+      navigation.replace('OrganizationPage');
     } else if (userType === 'technician') {
-      navigation.replace('TechnicianHomePage');
+      navigation.replace('TechnicianPage');
     }
   };
 

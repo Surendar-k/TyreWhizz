@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const DriverPage = () => {
+const TechnicianPage = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the Driver Dashboard</Text>
-      <Text style={styles.content}>Here you can view and manage your driving tasks.</Text>
-      {/* Add other driver-related components and functionalities */}
+      <Text style={styles.title}>Welcome to the Technician Dashboard</Text>
+      <Text style={styles.content}>Here you can manage and track your service tasks.</Text>
+      {/* Add other technician-related components and functionalities */}
     </View>
   );
 };
@@ -31,4 +31,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DriverPage;
+export default TechnicianPage;

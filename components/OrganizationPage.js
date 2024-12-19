@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const DriverPage = () => {
+const OrganizationPage = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the Driver Dashboard</Text>
-      <Text style={styles.content}>Here you can view and manage your driving tasks.</Text>
-      {/* Add other driver-related components and functionalities */}
+      <Text style={styles.title}>Welcome to the Organization Dashboard</Text>
+      <Text style={styles.content}>Here you can manage the organization details and other related tasks.</Text>
+      {/* Add other organization-related components and functionalities */}
     </View>
   );
 };
@@ -31,4 +31,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DriverPage;
+export default OrganizationPage;
