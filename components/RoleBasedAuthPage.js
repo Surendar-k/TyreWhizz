@@ -1,122 +1,117 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  StyleSheet,
+  TouchableWithoutFeedback,
+} from 'react-native';
 
-const RoleBasedAuthPage = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { userType } = route.params;
-
+const RoleBasedAuthPage = ({ route, navigation }) => {
+  const { userType } = route.params; // Retrieve the role selected (driver, organization, technician)
+  const [isSignup, setIsSignup] = useState(false); // Toggle between Login and Signup
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
+  const [accounts, setAccounts] = useState({}); // Store user accounts locally for simplicity
+  const [popupMessage, setPopupMessage] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password) => password.length >= 8;
-
-  const mockServerResponse = (type) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (type === 'signup' && email === 'test@example.com') {
-          reject('This email is already registered.');
-        } else if (type === 'login' && (email !== 'test@example.com' || password !== 'password123')) {
-          reject('Incorrect email or password.');
-        } else {
-          resolve(`${type.charAt(0).toUpperCase() + type.slice(1)} successful!`);
-        }
-      }, 1500);
-    });
-  };
-
-  const handleSubmit = () => {
-    // Check for empty fields
-    if (!email || !password || (isSignup && !confirmPassword)) {
-      Alert.alert('Error', 'All fields are required.');
+  const handleAuthAction = () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Email and password are required.');
       return;
     }
-  
-    // Validate email format
-    if (!validateEmail(email)) {
-      Alert.alert('Error', 'Invalid email format.');
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+    if (!emailRegex.test(email)) {
+      showModal('Invalid email format. Please enter a valid email.', true);
       return;
     }
-  
-    // Validate password length
-    if (!validatePassword(password)) {
-      Alert.alert('Error', 'Password must be at least 8 characters long.');
+    if (password.length < 6) {
+      showModal('Password must be at least 6 characters long.', true);
       return;
     }
-  
-    // Additional validation for sign-up
+
     if (isSignup) {
       if (password !== confirmPassword) {
-        Alert.alert('Error', 'Passwords do not match.');
+        showModal('Passwords do not match.', true);
         return;
       }
-  
-      // Simulate server response for account creation
-      mockServerResponse('signup')
-        .then((message) => {
-          Alert.alert('Success', message, [
-            {
-              text: 'OK',
-              onPress: () => setIsSignup(false),
-            },
-          ]);
-        })
-        .catch((error) => {
-          Alert.alert('Error', error);
-        });
-      try {
-        const response = await mockServerResponse('signup');
-        Alert.alert('Success', response, [
-          { text: 'OK', onPress: () => setIsSignup(false) },
-        ]);
-      } catch (error) {
-        Alert.alert('Error', error);
+
+      if (accounts[email]) {
+        showModal('Account already exists with this email.', true);
+        return;
       }
-    } else {
-      // Simulate server response for login
-      mockServerResponse('login')
-        .then((message) => {
-          Alert.alert('Success', message, [
-            {
-              text: 'OK',
-              onPress: () => navigation.navigate('HomePage'),
-            },
-          ]);
-        })
-        .catch((error) => {
-          Alert.alert('Error', error);
-        });
+
+      // Create account
+      setAccounts({ ...accounts, [email]: password });
+      showModal(`Account successfully created for ${email} as ${userType}`, false);
+      setIsSignup(false); // Switch to login mode
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      return;
+    }
+
+    if (!accounts[email]) {
+      showModal('Account does not exist. Please sign up.', true);
+      return;
+    }
+
+    if (accounts[email] !== password) {
+      showModal('Password does not match the registered password.', true);
+      return;
+    }
+
+    // Successful login
+    showModal(`Login successful. Welcome back, ${userType}!`, false);
+    if (userType === 'driver') {
+      navigation.replace('DriverHomePage');
+    } else if (userType === 'organization') {
+      navigation.replace('OrganizationHomePage');
+    } else if (userType === 'technician') {
+      navigation.replace('TechnicianHomePage');
     }
   };
-  
-  
-  
+
+  const showModal = (message, isError) => {
+    setPopupMessage(message);
+    setModalVisible(true);
+    setTimeout(() => setModalVisible(false), 3000); // Auto-hide modal after 3 seconds
+  };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
-
       <Text style={styles.title}>
-        {isSignup
-          ? `${userType.charAt(0).toUpperCase() + userType.slice(1)} Signup`
-          : `${userType.charAt(0).toUpperCase() + userType.slice(1)} Login`}
+        {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
       </Text>
+
+      <Modal
+        visible={isModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalText}>{popupMessage}</Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       <TextInput
         style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
@@ -125,6 +120,7 @@ const RoleBasedAuthPage = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
+
       {isSignup && (
         <TextInput
           style={styles.input}
@@ -135,15 +131,13 @@ const RoleBasedAuthPage = () => {
         />
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>{isSignup ? 'Sign Up' : 'Login'}</Text>
+      <TouchableOpacity style={styles.button} onPress={handleAuthAction}>
+        <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.switchButton} onPress={() => setIsSignup(!isSignup)}>
-        <Text style={styles.switchButtonText}>
-          {isSignup
-            ? 'Already have an account? Login'
-            : 'Don\'t have an account? Sign Up'}
+      <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
+        <Text style={styles.toggleText}>
+          {isSignup ? 'Already have an account? Login' : "Don't have an account? Signup"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -165,47 +159,58 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   input: {
-    width: '100%',
+    width: '80%',
     height: 50,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#ccc',
     borderRadius: 8,
+    marginBottom: 10,
     paddingHorizontal: 10,
-    marginBottom: 15,
     backgroundColor: '#fff',
   },
   button: {
-    width: '100%',
+    width: '80%',
     height: 50,
     backgroundColor: '#6200ee',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 15,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  switchButton: {
-    marginTop: 15,
-  },
-  switchButtonText: {
+  toggleText: {
     color: '#6200ee',
     fontSize: 14,
+    fontWeight: 'bold',
   },
-  backButton: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    padding: 10,
-    backgroundColor: '#6200ee',
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#fff',
     borderRadius: 8,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    elevation: 5,
   },
-  backButtonText: {
-    color: '#fff',
+  modalText: {
     fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });
 
