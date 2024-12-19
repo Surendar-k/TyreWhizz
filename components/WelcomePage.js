@@ -5,13 +5,12 @@ const logoimg = require('../assets/logo.png');
 
 const WelcomePage = ({ navigation }) => {
   useEffect(() => {
-    // Navigate to HomePage after 3 seconds
+    // Navigate to UserTypeSelectionPage after 2 seconds
     const timer = setTimeout(() => {
-      navigation.replace('HomePage'); // Replace ensures WelcomePage doesn't stay in the stack
+      navigation.replace('UserTypeSelectionPage'); // Replace ensures WelcomePage doesn't stay in the stack
     }, 2000);
 
-    // Cleanup the timer
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); // Cleanup the timer
   }, [navigation]);
 
   return (
