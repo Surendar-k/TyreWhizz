@@ -5,7 +5,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 const RoleBasedAuthPage = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { userType } = route.params; // Get the selected user type (driver, organization, technician)
+  const { userType } = route.params;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,58 +34,61 @@ const RoleBasedAuthPage = () => {
   };
 
   const handleSubmit = () => {
+    // Check for empty fields
     if (!email || !password || (isSignup && !confirmPassword)) {
       Alert.alert('Error', 'All fields are required.');
       return;
     }
   
+    // Validate email format
     if (!validateEmail(email)) {
       Alert.alert('Error', 'Invalid email format.');
       return;
     }
   
+    // Validate password length
     if (!validatePassword(password)) {
       Alert.alert('Error', 'Password must be at least 8 characters long.');
       return;
     }
   
+    // Additional validation for sign-up
     if (isSignup) {
       if (password !== confirmPassword) {
         Alert.alert('Error', 'Passwords do not match.');
         return;
       }
   
-      // Mock account creation logic (you can replace it with API call later)
-      Alert.alert(
-        'Account Created',
-        'Your account has been successfully created. You can now log in with your credentials.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              setIsSignup(false); // Switch to login view
-            },
-          },
-        ]
-      );
-    } else {
-      // Mock login validation
-      if (email === 'test@example.com' && password === 'password123') {
-        Alert.alert(
-          'Login Successful',
-          '',
-          [
+      // Simulate server response for account creation
+      mockServerResponse('signup')
+        .then((message) => {
+          Alert.alert('Success', message, [
             {
               text: 'OK',
-              onPress: () => navigation.navigate('HomePage'), // Navigate to HomePage
+              onPress: () => setIsSignup(false),
             },
-          ]
-        );
-      } else {
-        Alert.alert('Error', 'Incorrect email or password.');
-      }
+          ]);
+        })
+        .catch((error) => {
+          Alert.alert('Error', error);
+        });
+    } else {
+      // Simulate server response for login
+      mockServerResponse('login')
+        .then((message) => {
+          Alert.alert('Success', message, [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('HomePage'),
+            },
+          ]);
+        })
+        .catch((error) => {
+          Alert.alert('Error', error);
+        });
     }
   };
+  
   
 
   return (
