@@ -1,17 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-const DriverPage = ({ navigation }) => {
+const DriverPage = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to the Driver Dashboard</Text>
-      <Text style={styles.content}>
-        Here you can view and manage your driving tasks.
-      </Text>
-      <Button
-        title="Register"
-        onPress={() => navigation.navigate('RegisterPage')}
-      />
+      <Text style={styles.content}>Here you can view and manage your driving tasks.</Text>
+      {/* Add other driver-related components and functionalities */}
     </View>
   );
 };
@@ -28,13 +23,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
-    textAlign: 'center',
-    marginBottom: 20,
   },
   content: {
     fontSize: 16,
     color: '#555',
-    marginBottom: 20,
+    marginTop: 10,
   },
 });
 
