@@ -16,7 +16,6 @@ const RegisterPage = ({ navigation }) => {
     licenseExpiry: '',
     vehicleType: '',
     registrationNumber: '',
-    mileage: '',
   });
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -26,8 +25,7 @@ const RegisterPage = ({ navigation }) => {
       !form.licenseNumber ||
       !form.licenseExpiry ||
       !form.vehicleType ||
-      !form.registrationNumber ||
-      !form.mileage
+      !form.registrationNumber
     ) {
       Alert.alert('Error', 'Please fill in all fields.');
     } else {
@@ -82,16 +80,6 @@ const RegisterPage = ({ navigation }) => {
           onChangeText={(text) =>
             setForm({ ...form, registrationNumber: text })
           }
-        />
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Current Mileage:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter current mileage"
-          keyboardType="numeric"
-          onChangeText={(text) => setForm({ ...form, mileage: text })}
         />
       </View>
 
