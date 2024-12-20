@@ -39,7 +39,7 @@ const OrganizationPage = () => {
       </View>
     );
   }
-
+  const navigation = useNavigation();
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -68,10 +68,16 @@ const OrganizationPage = () => {
       </View>
 
       {/* Navigation Options */}
+      
       <View style={styles.navigation}>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Tire Monitoring</Text>
-        </TouchableOpacity>
+      
+
+      <TouchableOpacity
+      style={styles.navButton}
+      onPress={() => navigation.navigate('TireMonitoring')}>
+        <Text style={styles.navText}>Tire Monitoring</Text>
+       </TouchableOpacity>
+
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navText}>Issue Reports</Text>
         </TouchableOpacity>
@@ -87,8 +93,8 @@ const OrganizationPage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#6A0DAD' }, // Updated to match the image color
-  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#6A0DAD' }, // Updated
+  container: { flex: 1, backgroundColor: '#f9f9f9' },
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f9f9f9' },
   header: { padding: 20, backgroundColor: '#4CAF50', alignItems: 'center' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
   role: { fontSize: 16, color: '#fff' },
@@ -99,13 +105,7 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   cardValue: { fontSize: 18, fontWeight: 'bold', color: '#4CAF50' },
   navigation: { padding: 20 },
-  navButton: { 
-    marginVertical: 10, 
-    padding: 15, 
-    backgroundColor: '#6A0DAD', // Updated to match the button color in the image
-    borderRadius: 10, 
-    alignItems: 'center' 
-  },
+  navButton: { marginVertical: 10, padding: 15, backgroundColor: '#4CAF50', borderRadius: 10, alignItems: 'center' },
   navText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
 
