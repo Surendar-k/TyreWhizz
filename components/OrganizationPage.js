@@ -82,9 +82,12 @@ const OrganizationPage = () => {
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navText}>Issue Reports</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Mechanic Assistance</Text>
+        <TouchableOpacity
+         style={styles.navButton}
+         onPress={() => navigation.navigate('DriversList')}>
+        <Text style={styles.navText}>Drivers</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navText}>Analytics</Text>
         </TouchableOpacity>

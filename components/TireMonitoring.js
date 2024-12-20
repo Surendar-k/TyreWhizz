@@ -5,7 +5,6 @@ const TireMonitoring = ({ navigation }) => {
   const [vehicleData, setVehicleData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Simulated fetch function
   const fetchVehicleData = async () => {
     try {
       const mockData = [
@@ -27,6 +26,22 @@ const TireMonitoring = ({ navigation }) => {
         },
         {
           id: '3',
+          vehicleName: 'Car 303',
+          tireStatus: 'Overheated',
+          issues: 2,
+          pressure: '40 PSI',
+          temperature: '45°C',
+        },
+        {
+          id: '4',
+          vehicleName: 'Car 303',
+          tireStatus: 'Overheated',
+          issues: 2,
+          pressure: '40 PSI',
+          temperature: '45°C',
+        },
+        {
+          id: '5',
           vehicleName: 'Car 303',
           tireStatus: 'Overheated',
           issues: 2,
@@ -66,6 +81,7 @@ const TireMonitoring = ({ navigation }) => {
       <FlatList
         data={vehicleData}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.flatListContent} // Adds padding for the entire list
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.vehicleName}>{item.vehicleName}</Text>
@@ -84,7 +100,7 @@ const TireMonitoring = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', padding: 20 },
+  container: { flex: 1, backgroundColor: '#f9f9f9', paddingHorizontal: 20, paddingTop: 20 },
   backButton: {
     position: 'absolute',
     top: 40,
@@ -101,14 +117,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { 
+  title: {
     marginTop: 80, // Adds space below the back button
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    marginBottom: 20, 
-    color: '#4CAF50', 
-    textAlign: 'center' 
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#4CAF50',
+    textAlign: 'center',
   },
+  flatListContent: { paddingBottom: 20 }, // Adds extra padding to the bottom of the list
   card: { backgroundColor: '#fff', padding: 15, marginBottom: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5 },
   vehicleName: { fontSize: 18, fontWeight: 'bold' },
   tireStatus: { fontSize: 16, marginTop: 5, color: '#333' },
