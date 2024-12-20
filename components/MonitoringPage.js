@@ -22,6 +22,7 @@ const MonitoringPage = ({ navigation }) => {
   
   const scrollViewRef = useRef(null);
 
+  
   const getProgressColor = (pressure) => {
     if (pressure >= 70) {
       return '#28a745';
