@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 
-const OrganizationCheckPage = ({ navigation }) => {
+const OrganisationCheckPage = ({ navigation }) => {
   const [language, setLanguage] = useState('en'); // 'en', 'ta', 'te', 'hi'
   const [isMember, setIsMember] = useState(null); // null, 'yes', 'no'
   const [organization, setOrganization] = useState('');
@@ -110,4 +110,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrganizationCheckPage;
+export default OrganisationCheckPage;
