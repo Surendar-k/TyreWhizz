@@ -8,7 +8,8 @@ import DriverPage from './components/DriverPage';
 import OrganizationPage from './components/OrganizationPage';
 import TechnicianPage from './components/TechnicianPage';
 import RegisterPage from './components/RegisterPage'; // Add this import
-
+import OrganizationCheckPage from './components/OrganizationCheckPage'; // New Import
+import LoadingPage from './components/LoadingPage'; // New Import
 
 const Stack = createStackNavigator();
 
@@ -23,6 +24,9 @@ const App = () => {
         <Stack.Screen name="OrganizationPage" component={OrganizationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
         <Stack.Screen name="RegisterPage" component={RegisterPage} />
+        <Stack.Screen name="OrganizationCheckPage" component={OrganizationCheckPage} />
+        <Stack.Screen name="LoadingPage" component={LoadingPage} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
