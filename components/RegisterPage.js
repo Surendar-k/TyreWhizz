@@ -30,6 +30,9 @@ const RegisterPage = ({ navigation }) => {
       Alert.alert('Error', 'Please fill in all fields.');
     } else {
       setSuccessMessage('Hurray! Registration completed successfully!');
+      setTimeout(() => {
+        navigation.navigate('OrganizationCheckPage');
+      }, 2000); // Redirect after 2 seconds
     }
   };
 
@@ -44,7 +47,6 @@ const RegisterPage = ({ navigation }) => {
           onChangeText={(text) => setForm({ ...form, name: text })}
         />
       </View>
-
       <View style={styles.formGroup}>
         <Text style={styles.label}>License Number:</Text>
         <TextInput
@@ -53,7 +55,6 @@ const RegisterPage = ({ navigation }) => {
           onChangeText={(text) => setForm({ ...form, licenseNumber: text })}
         />
       </View>
-
       <View style={styles.formGroup}>
         <Text style={styles.label}>License Expiry Date:</Text>
         <TextInput
@@ -62,7 +63,6 @@ const RegisterPage = ({ navigation }) => {
           onChangeText={(text) => setForm({ ...form, licenseExpiry: text })}
         />
       </View>
-
       <View style={styles.formGroup}>
         <Text style={styles.label}>Vehicle Type:</Text>
         <TextInput
@@ -71,7 +71,6 @@ const RegisterPage = ({ navigation }) => {
           onChangeText={(text) => setForm({ ...form, vehicleType: text })}
         />
       </View>
-
       <View style={styles.formGroup}>
         <Text style={styles.label}>Registration Number:</Text>
         <TextInput
@@ -82,9 +81,7 @@ const RegisterPage = ({ navigation }) => {
           }
         />
       </View>
-
       <Button title="Submit" onPress={handleSubmit} />
-
       {successMessage ? (
         <View style={styles.successMessage}>
           <Text style={styles.successText}>{successMessage}</Text>

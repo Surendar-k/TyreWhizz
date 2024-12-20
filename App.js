@@ -10,6 +10,8 @@ import TechnicianPage from './components/TechnicianPage';
 import RegisterPage from './components/RegisterPage'; // Add this import
 import TireMonitoring from './components/TireMonitoring';
 
+import OrganizationCheckPage from './components/OrganizationCheckPage'; // New Import
+import LoadingPage from './components/LoadingPage'; // New Import
 
 const Stack = createStackNavigator();
 
