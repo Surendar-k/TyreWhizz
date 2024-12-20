@@ -67,6 +67,7 @@ const OrganizationPage = () => {
         </View>
       </View>
 
+      
       {/* Navigation Options */}
       
       <View style={styles.navigation}>
@@ -107,7 +108,8 @@ const styles = StyleSheet.create({
   navigation: { padding: 20 },
   navButton: { marginVertical: 10, padding: 15, backgroundColor: '#4CAF50', borderRadius: 10, alignItems: 'center' },
   navText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-});
+} 
+);
 
 
 export default OrganizationPage;
