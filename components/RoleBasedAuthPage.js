@@ -75,6 +75,15 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     } else if (userType === 'technician') {
       navigation.replace('TechnicianPage');
     }
+    // Inside your handleAuthAction function
+if (userType === 'driver') {
+  navigation.replace('MonitoringPage', { userType: 'driver' });
+} else if (userType === 'organization') {
+  navigation.replace('MonitoringPage', { userType: 'organization' });
+} else if (userType === 'technician') {
+  navigation.replace('MonitoringPage', { userType: 'technician' });
+}
+
   };
 
   const showModal = (message, isError) => {
