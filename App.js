@@ -9,9 +9,7 @@ import OrganizationPage from './components/OrganizationPage';
 import TechnicianPage from './components/TechnicianPage';
 import RegisterPage from './components/RegisterPage'; // Add this import
 import TireMonitoring from './components/TireMonitoring';
-
-
-import OrganisationCheckPage from './components/OrganisationCheckPage';
+import OrganisationCheckPage from '.components/OrganisationCheckPage';
 
 const Stack = createStackNavigator();
 
@@ -30,6 +28,9 @@ const App = () => {
        
         
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
+        
+        <Stack.Screen name="OrganisationCheckPage" component={OrganisationCheckPage} />
+
 
       </Stack.Navigator>
     </NavigationContainer>
