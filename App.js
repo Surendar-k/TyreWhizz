@@ -7,6 +7,7 @@ import RoleBasedAuthPage from './components/RoleBasedAuthPage'; // Adjust path a
 import DriverPage from './components/DriverPage';
 import OrganizationPage from './components/OrganizationPage';
 import TechnicianPage from './components/TechnicianPage';
+import MonitoringPage from './components/MonitoringPage';
 
 
 const Stack = createStackNavigator();
@@ -21,6 +22,7 @@ const App = () => {
         <Stack.Screen name="DriverPage" component={DriverPage} />
         <Stack.Screen name="OrganizationPage" component={OrganizationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
+        <Stack.Screen name="MonitoringPage" component={MonitoringPage}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
