@@ -70,16 +70,16 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     showModal(`Login successful. Welcome back, ${userType}!`, false);
     if (userType === 'driver') {
       navigation.replace('DriverPage');
-    } else if (userType === 'organization') {
-      navigation.replace('OrganizationPage');
+    } else if (userType === 'organisation') {
+      navigation.replace('OrganisationPage');
     } else if (userType === 'technician') {
       navigation.replace('TechnicianPage');
     }
     // Inside your handleAuthAction function
 if (userType === 'driver') {
   navigation.replace('MonitoringPage', { userType: 'driver' });
-} else if (userType === 'organization') {
-  navigation.replace('MonitoringPage', { userType: 'organization' });
+} else if (userType === 'organisation') {
+  navigation.replace('MonitoringPage', { userType: 'organisation' });
 } else if (userType === 'technician') {
   navigation.replace('MonitoringPage', { userType: 'technician' });
 }
