@@ -4,12 +4,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import WelcomePage from './components/WelcomePage'; // Adjust the path as needed
 import UserTypeSelectionPage from './components/UserTypeSelectionPage';
 import RoleBasedAuthPage from './components/RoleBasedAuthPage'; // Adjust path as needed
-import DriverPage from './components/DriverPage';
-import OrganizationPage from './components/OrganizationPage';
-import TechnicianPage from './components/TechnicianPage';
-import RegisterPage from './components/RegisterPage'; // Add this import
-import TireMonitoring from './components/TireMonitoring';
-import OrganisationCheckPage from './components/OrganisationCheckPage';
+import DriverPage from './components/driver/DriverPage';
+import OrganizationPage from './components/organisation/OrganizationPage';
+import TechnicianPage from './components/technician/TechnicianPage';
+import RegisterPage from './components/driver/RegisterPage'; // Add this import
+import TireMonitoring from './components/organisation/TireMonitoring';
+import OrganisationCheckPage from './components/driver/OrganisationCheckPage';
 
 
 const Stack = createStackNavigator();
