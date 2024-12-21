@@ -24,8 +24,8 @@ const RoleBasedAuthPage = ({ navigation }) => {
   const handleDirectNavigation = () => {
     if (userType === 'driver') {
       navigation.replace('DriverPage');
-    } else if (userType === 'organization') {
-      navigation.replace('OrganizationPage');
+    } else if (userType === 'organisation') {
+      navigation.replace('OrganisationPage');
     } else if (userType === 'technician') {
       navigation.replace('TechnicianPage');
     }
@@ -102,7 +102,7 @@ const RoleBasedAuthPage = ({ navigation }) => {
         style={styles.picker}
       >
         <Picker.Item label="Driver" value="driver" />
-        <Picker.Item label="Organization" value="organization" />
+        <Picker.Item label="Organisation" value="organisation" />
         <Picker.Item label="Technician" value="technician" />
       </Picker>
 
