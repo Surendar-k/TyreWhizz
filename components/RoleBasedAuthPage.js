@@ -102,7 +102,7 @@ const RoleBasedAuthPage = ({ navigation }) => {
         style={styles.picker}
       >
         <Picker.Item label="Driver" value="driver" />
-        <Picker.Item label="Organization" value="organization" />
+        <Picker.Item label="Organisation" value="organisation" />
         <Picker.Item label="Technician" value="technician" />
       </Picker>
 
