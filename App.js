@@ -4,10 +4,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import WelcomePage from './components/WelcomePage'; // Adjust the path as needed
 import UserTypeSelectionPage from './components/UserTypeSelectionPage';
 import RoleBasedAuthPage from './components/RoleBasedAuthPage'; // Adjust path as needed
-import DriverPage from './components/DriverPage';
-import OrganizationPage from './components/OrganizationPage';
-import TechnicianPage from './components/TechnicianPage';
-import TireMonitoring from './components/TireMonitoring';
+import DriverPage from './components/driver/DriverPage';
+import OrganizationPage from './components/organisation/OrganizationPage';
+import TechnicianPage from './components/technician/TechnicianPage';
+import RegisterPage from './components/driver/RegisterPage'; // Add this import
+import TireMonitoring from './components/organisation/TireMonitoring';
+import OrganisationCheckPage from './components/driver/OrganisationCheckPage';
 
 
 const Stack = createStackNavigator();
@@ -22,8 +24,10 @@ const App = () => {
         <Stack.Screen name="DriverPage" component={DriverPage} />
         <Stack.Screen name="OrganizationPage" component={OrganizationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
-        <Stack.Screen name="TireMonitoring" component={TireMonitoring} />        
-        
+        <Stack.Screen name="RegisterPage" component={RegisterPage} />
+        <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
+        <Stack.Screen name="LoadingPage" component={LoadingPage} />
+        <Stack.Screen name="OrganisationCheckPage" component={OrganisationCheckPage} />
 
 
       </Stack.Navigator>

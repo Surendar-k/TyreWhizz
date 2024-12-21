@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-
 const OrganizationPage = () => {
   const [fleetData, setFleetData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   // Simulated fetch function (replace with actual API call later)
   const fetchFleetData = async () => {
@@ -39,9 +39,14 @@ const OrganizationPage = () => {
       </View>
     );
   }
-  const navigation = useNavigation();
+
   return (
     <ScrollView style={styles.container}>
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>TyreWhizz</Text>
@@ -68,22 +73,21 @@ const OrganizationPage = () => {
       </View>
 
       {/* Navigation Options */}
-      
       <View style={styles.navigation}>
-      
-
-      <TouchableOpacity
-      style={styles.navButton}
-      onPress={() => navigation.navigate('TireMonitoring')}>
-        <Text style={styles.navText}>Tire Monitoring</Text>
-       </TouchableOpacity>
-
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate('TireMonitoring')}>
+          <Text style={styles.navText}>Tire Monitoring</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navText}>Issue Reports</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Mechanic Assistance</Text>
+        <TouchableOpacity
+         style={styles.navButton}
+         onPress={() => navigation.navigate('DriversList')}>
+        <Text style={styles.navText}>Drivers</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navText}>Analytics</Text>
         </TouchableOpacity>
@@ -95,6 +99,14 @@ const OrganizationPage = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f9f9f9' },
+  backButton: {
+    padding: 10,
+    backgroundColor: '#4CAF50',
+    alignSelf: 'flex-start',
+    margin: 10,
+    borderRadius: 5,
+  },
+  backButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   header: { padding: 20, backgroundColor: '#4CAF50', alignItems: 'center' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
   role: { fontSize: 16, color: '#fff' },
@@ -108,6 +120,5 @@ const styles = StyleSheet.create({
   navButton: { marginVertical: 10, padding: 15, backgroundColor: '#4CAF50', borderRadius: 10, alignItems: 'center' },
   navText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
-
 
 export default OrganizationPage;

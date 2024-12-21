@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 
-const TireMonitoring = () => {
+const TireMonitoring = ({ navigation }) => {
   const [vehicleData, setVehicleData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Simulated fetch function
   const fetchVehicleData = async () => {
     try {
       const mockData = [
@@ -33,13 +32,29 @@ const TireMonitoring = () => {
           pressure: '40 PSI',
           temperature: '45°C',
         },
+        {
+          id: '4',
+          vehicleName: 'Car 303',
+          tireStatus: 'Overheated',
+          issues: 2,
+          pressure: '40 PSI',
+          temperature: '45°C',
+        },
+        {
+          id: '5',
+          vehicleName: 'Car 303',
+          tireStatus: 'Overheated',
+          issues: 2,
+          pressure: '40 PSI',
+          temperature: '45°C',
+        },
       ];
       setTimeout(() => {
         setVehicleData(mockData);
         setLoading(false);
       }, 1000);
     } catch (error) {
-      console.error("Error fetching vehicle data:", error);
+      console.error('Error fetching vehicle data:', error);
       setLoading(false);
     }
   };
@@ -59,10 +74,14 @@ const TireMonitoring = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Tire Monitoring</Text>
       <FlatList
         data={vehicleData}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.flatListContent} // Adds padding for the entire list
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.vehicleName}>{item.vehicleName}</Text>
@@ -81,9 +100,32 @@ const TireMonitoring = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', padding: 20 },
+  container: { flex: 1, backgroundColor: '#f9f9f9', paddingHorizontal: 20, paddingTop: 20 },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    backgroundColor: '#6200ee',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    zIndex: 1, // Ensures back button is on top
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#4CAF50' },
+  title: {
+    marginTop: 80, // Adds space below the back button
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#4CAF50',
+    textAlign: 'center',
+  },
+  flatListContent: { paddingBottom: 20 }, // Adds extra padding to the bottom of the list
   card: { backgroundColor: '#fff', padding: 15, marginBottom: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5 },
   vehicleName: { fontSize: 18, fontWeight: 'bold' },
   tireStatus: { fontSize: 16, marginTop: 5, color: '#333' },
@@ -91,6 +133,5 @@ const styles = StyleSheet.create({
   button: { marginTop: 10, padding: 10, backgroundColor: '#4CAF50', borderRadius: 5, alignItems: 'center' },
   buttonText: { color: '#fff', fontSize: 16 },
 });
-
 
 export default TireMonitoring;
