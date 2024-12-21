@@ -96,6 +96,7 @@ const TireMonitoring = ({ navigation }) => {
   onPress={() => navigation.navigate('MonitoringPage', { vehicle: item })}>
   <Text style={styles.buttonText}>View Details</Text>
 </TouchableOpacity>
+
           </View>
         )}
       />

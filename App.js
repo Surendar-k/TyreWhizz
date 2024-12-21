@@ -31,7 +31,7 @@ const App = () => {
         <Stack.Screen name="OrganisationDriverList" component={OrganisationDriverList} />
         <Stack.Screen name="OrganisationDriverDetail" component={OrganisationDriverDetail} />
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
-     
+        
 
 
       </Stack.Navigator>
