@@ -8,7 +8,6 @@ import DriverPage from './components/driver/DriverPage';
 import OrganisationPage from './components/organisation/OrganisationPage';
 import TechnicianPage from './components/technician/TechnicianPage';
 import TireMonitoring from './components/organisation/TireMonitoring';
-import OrganisationCheckPage from './components/driver/OrganisationCheckPage';
 import OrganisationDriverList from './components/organisation/OrganisationDriverList';
 import OrganisationDriverDetail from './components/organisation/OrganisationDriverDetail';
 import MonitoringPage from './components/driver/MonitoringPage';
