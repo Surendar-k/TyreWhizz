@@ -22,9 +22,9 @@ const UserTypeSelectionPage = () => {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => handleSelection('organization')}
+        onPress={() => handleSelection('organisation')}
       >
-        <Text style={styles.buttonText}>Organization</Text>
+        <Text style={styles.buttonText}>Organisation</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
