@@ -29,8 +29,7 @@ const App = () => {
        
         
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
-        
-      
+     
 
 
       </Stack.Navigator>
