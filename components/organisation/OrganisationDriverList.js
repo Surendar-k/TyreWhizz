@@ -14,41 +14,35 @@ const OrganisationDriverList = ({ navigation }) => {
     { id: '1', name: 'John Doe', vehicle: 'Truck A', contact: '123-456-7890' },
     { id: '2', name: 'Jane Smith', vehicle: 'Van B', contact: '987-654-3210' },
     { id: '3', name: 'Mike Johnson', vehicle: 'Car C', contact: '456-789-1230' },
-    { id: '4', name: 'Mike Johnson', vehicle: 'Car C', contact: '456-789-1230' },
-    { id: '5', name: 'Mike Johnson', vehicle: 'Car C', contact: '456-789-1230' },
-    { id: '6', name: 'Mike Johnson', vehicle: 'Car C', contact: '456-789-1230' },
-    { id: '7', name: 'Mike Johnson', vehicle: 'Car C', contact: '456-789-1230' },
+    { id: '4', name: 'Mike Jo', vehicle: 'Car E', contact: '456-739-1230' },
+    { id: '5', name: 'Mike Joh', vehicle: 'Car P', contact: '456-789-1200' },
+    { id: '6', name: 'Mie Lhnson', vehicle: 'Car O', contact: '496-789-1230' },
+    { id: '7', name: 'Mike Johnon', vehicle: 'Car N', contact: '456-787-1230' },
   ]);
 
   const [showAddDriver, setShowAddDriver] = useState(false);
   const [newDriver, setNewDriver] = useState({ name: '', vehicle: '', contact: '' });
 
   // Delete driver from the list
-  
   const deleteDriver = (id) => {
-    console.log("Deleting driver with id:", id);  // Debugging line
     Alert.alert('Delete Driver', 'Are you sure you want to delete this driver?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
-          setDrivers((prevDrivers) => {
-            const updatedDrivers = prevDrivers.filter((driver) => driver.id !== id);
-            console.log("Updated drivers:", updatedDrivers); // Debugging line
-            return updatedDrivers;
-          });
+          setDrivers((prevDrivers) => prevDrivers.filter((driver) => driver.id !== id));
         },
       },
     ]);
   };
-  
+
   // Add a new driver
   const addDriver = () => {
     if (newDriver.name && newDriver.vehicle && newDriver.contact) {
       setDrivers((prev) => [
         ...prev,
-        { id: (prev.length + 1).toString(), ...newDriver },
+        { id: Date.now().toString(), ...newDriver }, // Ensure a unique id
       ]);
       setNewDriver({ name: '', vehicle: '', contact: '' });
       setShowAddDriver(false);
@@ -77,11 +71,10 @@ const OrganisationDriverList = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-              <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
-      <Text style={styles.title}>Drivers List</Text>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
 
-      {/* Add Driver Button */}
+      <Text style={styles.title}>Drivers List</Text>
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setShowAddDriver(!showAddDriver)}
@@ -89,7 +82,6 @@ const OrganisationDriverList = ({ navigation }) => {
         <Text style={styles.addText}>Add Driver</Text>
       </TouchableOpacity>
 
-      {/* Add Driver Form */}
       {showAddDriver && (
         <View style={styles.addDriverForm}>
           <TextInput
@@ -116,11 +108,13 @@ const OrganisationDriverList = ({ navigation }) => {
         </View>
       )}
 
-      {/* Drivers List */}
+      {/* Scrollable FlatList */}
       <FlatList
         data={drivers}
         renderItem={renderDriverItem}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        extraData={drivers} // Ensure re-renders when drivers change
       />
     </View>
   );
