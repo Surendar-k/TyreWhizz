@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'rea
 import { CircularProgress } from 'react-native-circular-progress';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FontAwesome } from '@expo/vector-icons';
-const cartopimg = require('../assets/car-top-view.png');
+const cartopimg = require('../../assets/car-top-view.png');
 
 const MonitoringPage = ({ navigation }) => {
   const [selectedFeature, setSelectedFeature] = useState('pressure'); // State for selected feature
@@ -35,7 +35,7 @@ const MonitoringPage = ({ navigation }) => {
 
   const renderContent = () => {
     switch (selectedFeature) {
-      case 'pressure':
+      case 'temperature':
         return (
           <View style={styles.carImageContainer}>
             <Image source={cartopimg} style={styles.carImage} />

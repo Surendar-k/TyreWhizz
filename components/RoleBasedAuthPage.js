@@ -8,10 +8,10 @@ import {
   Modal,
   StyleSheet,
   TouchableWithoutFeedback,
+  Picker,
 } from 'react-native';
 
-const RoleBasedAuthPage = ({ route, navigation }) => {
-  const { userType } = route.params; // Retrieve the role selected (driver, organization, technician)
+const RoleBasedAuthPage = ({ navigation }) => {
   const [isSignup, setIsSignup] = useState(false); // Toggle between Login and Signup
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,13 +19,25 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   const [accounts, setAccounts] = useState({}); // Store user accounts locally for simplicity
   const [popupMessage, setPopupMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [userType, setUserType] = useState('driver'); // Default role
+
+  const handleDirectNavigation = () => {
+    if (userType === 'driver') {
+      navigation.replace('DriverPage');
+    } else if (userType === 'organisation') {
+      navigation.replace('OrganisationPage');
+    } else if (userType === 'technician') {
+      navigation.replace('TechnicianPage');
+    }
+  };
 
   const handleAuthAction = () => {
     if (!email || !password) {
       Alert.alert('Error', 'Email and password are required.');
       return;
     }
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; 
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       showModal('Invalid email format. Please enter a valid email.', true);
       return;
@@ -68,22 +80,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     // Successful login
     showModal(`Login successful. Welcome back, ${userType}!`, false);
-    if (userType === 'driver') {
-      navigation.replace('DriverPage');
-    } else if (userType === 'organization') {
-      navigation.replace('OrganizationPage');
-    } else if (userType === 'technician') {
-      navigation.replace('TechnicianPage');
-    }
-    // Inside your handleAuthAction function
-if (userType === 'driver') {
-  navigation.replace('MonitoringPage', { userType: 'driver' });
-} else if (userType === 'organization') {
-  navigation.replace('MonitoringPage', { userType: 'organization' });
-} else if (userType === 'technician') {
-  navigation.replace('MonitoringPage', { userType: 'technician' });
-}
-
+    handleDirectNavigation();
   };
 
   const showModal = (message, isError) => {
@@ -94,10 +91,25 @@ if (userType === 'driver') {
 
   return (
     <View style={styles.container}>
-
-<TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
+      <Text style={styles.title}>Select your role</Text>
+
+      <Picker
+        selectedValue={userType}
+        onValueChange={(itemValue) => setUserType(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Driver" value="driver" />
+        <Picker.Item label="Organisation" value="organisation" />
+        <Picker.Item label="Technician" value="technician" />
+      </Picker>
+
+      <TouchableOpacity style={styles.directButton} onPress={handleDirectNavigation}>
+        <Text style={styles.directButtonText}>Continue without Login</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>
         {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
       </Text>
@@ -171,6 +183,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
+  picker: {
+    width: '80%',
+    height: 50,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  directButton: {
+    width: '80%',
+    height: 50,
+    backgroundColor: '#ff5722',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  directButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   input: {
     width: '80%',
     height: 50,
@@ -180,20 +213,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    backgroundColor: '#6200ee',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   button: {
     width: '80%',

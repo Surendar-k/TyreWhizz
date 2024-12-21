@@ -74,6 +74,7 @@ const TireMonitoring = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
@@ -89,9 +90,13 @@ const TireMonitoring = ({ navigation }) => {
             <Text style={styles.details}>Pressure: {item.pressure}</Text>
             <Text style={styles.details}>Temperature: {item.temperature}</Text>
             <Text style={styles.details}>Issues: {item.issues}</Text>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>View Details</Text>
-            </TouchableOpacity>
+            
+            <TouchableOpacity
+  style={styles.button}
+  onPress={() => navigation.navigate('MonitoringPage', { vehicle: item })}>
+  <Text style={styles.buttonText}>View Details</Text>
+</TouchableOpacity>
+
           </View>
         )}
       />
