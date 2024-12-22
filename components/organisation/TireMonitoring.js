@@ -10,7 +10,7 @@ const TireMonitoring = ({ navigation }) => {
       const mockData = [
         {
           id: '1',
-          vehicleName: 'Truck 101',
+          Vehicle_no: 'TN-01-AB-1234',
           tireStatus: 'Good',
           issues: 0,
           pressure: '35 PSI',
@@ -18,7 +18,7 @@ const TireMonitoring = ({ navigation }) => {
         },
         {
           id: '2',
-          vehicleName: 'Van 202',
+          Vehicle_no: 'TN-02-BC-2345',
           tireStatus: 'Low Pressure',
           issues: 1,
           pressure: '25 PSI',
@@ -26,23 +26,7 @@ const TireMonitoring = ({ navigation }) => {
         },
         {
           id: '3',
-          vehicleName: 'Car 303',
-          tireStatus: 'Overheated',
-          issues: 2,
-          pressure: '40 PSI',
-          temperature: '45°C',
-        },
-        {
-          id: '4',
-          vehicleName: 'Car 303',
-          tireStatus: 'Overheated',
-          issues: 2,
-          pressure: '40 PSI',
-          temperature: '45°C',
-        },
-        {
-          id: '5',
-          vehicleName: 'Car 303',
+          Vehicle_no: 'TN-03-CD-3456',
           tireStatus: 'Overheated',
           issues: 2,
           pressure: '40 PSI',
@@ -74,29 +58,37 @@ const TireMonitoring = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.title}>Tire Monitoring</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Tire Monitoring</Text>
+      </View>
+
+      {/* Role Information */}
+      <View style={styles.roleContainer}>
+        <Text style={styles.role}>Logged in as: Organization</Text>
+      </View>
+
+      {/* List of Vehicle Data */}
       <FlatList
         data={vehicleData}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.flatListContent} // Adds padding for the entire list
+        contentContainerStyle={styles.flatListContent}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.vehicleName}>{item.vehicleName}</Text>
+            <Text style={styles.Vehicle_no}>Vehicle No: {item.Vehicle_no}</Text>
             <Text style={styles.tireStatus}>Status: {item.tireStatus}</Text>
             <Text style={styles.details}>Pressure: {item.pressure}</Text>
             <Text style={styles.details}>Temperature: {item.temperature}</Text>
             <Text style={styles.details}>Issues: {item.issues}</Text>
-            
             <TouchableOpacity
-  style={styles.button}
-  onPress={() => navigation.navigate('MonitoringPage', { vehicle: item })}>
-  <Text style={styles.buttonText}>View Details</Text>
-</TouchableOpacity>
-
+              style={styles.button}
+              onPress={() => navigation.navigate('MonitoringPage', { vehicle: item })}
+            >
+              <Text style={styles.buttonText}>View Details</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -105,37 +97,53 @@ const TireMonitoring = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', paddingHorizontal: 20, paddingTop: 20 },
+  container: { flex: 1, backgroundColor: '#f9f9f9' },
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: '#4CAF50',
+  },
   backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    backgroundColor: '#6200ee',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    width: 40, // Fixed width
+    height: 40, // Fixed height
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     borderRadius: 5,
-    zIndex: 1, // Ensures back button is on top
+    padding: 0, // No extra padding
   },
   backButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: {
-    marginTop: 80, // Adds space below the back button
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
     color: '#4CAF50',
+    fontSize: 30,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
-  flatListContent: { paddingBottom: 20 }, // Adds extra padding to the bottom of the list
-  card: { backgroundColor: '#fff', padding: 15, marginBottom: 15, borderRadius: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5 },
-  vehicleName: { fontSize: 18, fontWeight: 'bold' },
+  roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
+  role: { fontSize: 16, color: '#333' },
+  title: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginLeft: -40, // Center aligns the title
+  },
+  flatListContent: { paddingHorizontal: 20, paddingBottom: 20 },
+  card: { backgroundColor: '#fff', padding: 15, marginBottom: 15, borderRadius: 10 },
+  Vehicle_no: { fontSize: 18, fontWeight: 'bold' },
   tireStatus: { fontSize: 16, marginTop: 5, color: '#333' },
   details: { fontSize: 14, marginTop: 5, color: '#666' },
-  button: { marginTop: 10, padding: 10, backgroundColor: '#4CAF50', borderRadius: 5, alignItems: 'center' },
+  button: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#4CAF50',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
   buttonText: { color: '#fff', fontSize: 16 },
 });
 

@@ -13,10 +13,11 @@ import OrganisationCheckPage from './components/driver/OrganisationCheckPage';
 import OrganisationDriverList from './components/organisation/OrganisationDriverList';
 import OrganisationDriverDetail from './components/organisation/OrganisationDriverDetail';
 import MonitoringPage from './components/driver/MonitoringPage';
+import OrganisationVehicleList from './components/organisation/OrganisationVehicleList';
+import OrganisationAnalytics from './components/organisation/OrganisationAnalytics';
 
 
 const Stack = createStackNavigator();
-
 const App = () => {
   return (
     <NavigationContainer>
@@ -31,9 +32,11 @@ const App = () => {
         <Stack.Screen name="OrganisationCheckPage" component={OrganisationCheckPage}/>
         <Stack.Screen name="OrganisationDriverList" component={OrganisationDriverList} />
         <Stack.Screen name="OrganisationDriverDetail" component={OrganisationDriverDetail} />
+        <Stack.Screen name="OrganisationVehicleList" component={OrganisationVehicleList}/>
+        <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics}/>
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
         <Stack.Screen name="MonitoringPage" component={MonitoringPage}/>
-     
+        
 
 
       </Stack.Navigator>

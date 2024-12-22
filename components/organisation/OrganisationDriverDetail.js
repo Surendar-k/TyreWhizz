@@ -2,173 +2,120 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
   TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
 } from 'react-native';
 
-const OrganisationDriverList = ({ navigation }) => {
-  const [drivers, setDrivers] = useState([
-    { id: '1', name: 'John Doe', vehicle: 'Truck A', contact: '123-456-7890' },
-    { id: '2', name: 'Jane Smith', vehicle: 'Van B', contact: '987-654-3210' },
-    { id: '3', name: 'Mike Johnson', vehicle: 'Car C', contact: '456-789-1230' },
-    { id: '4', name: 'Mike Jo', vehicle: 'Car E', contact: '456-739-1230' },
-    { id: '5', name: 'Mike Joh', vehicle: 'Car P', contact: '456-789-1200' },
-    { id: '6', name: 'Mie Lhnson', vehicle: 'Car O', contact: '496-789-1230' },
-    { id: '7', name: 'Mike Johnon', vehicle: 'Car N', contact: '456-787-1230' },
-  ]);
+const OrganisationDriverDetail = ({ route, navigation }) => {
+  const { driver } = route.params;
+  const [updatedDriver, setUpdatedDriver] = useState({ ...driver });
 
-  const [showAddDriver, setShowAddDriver] = useState(false);
-  const [newDriver, setNewDriver] = useState({ name: '', vehicle: '', contact: '' });
-
-  const deleteDriver = (id) => {
-    console.log('Driver ID to delete:', id);
-    Alert.alert('Delete Driver', 'Are you sure you want to delete this driver?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          setDrivers((prevDrivers) => {
-            console.log('Before deletion:', prevDrivers); // Log drivers before deletion
-            const updatedDrivers = prevDrivers.filter((driver) => driver.id !== id);
-            console.log('After deletion:', updatedDrivers); // Log drivers after deletion
-            return updatedDrivers;
-          });
-        },
-      },
-    ]);
+  const updateDriverDetails = () => {
+    Alert.alert('Success', 'Driver details updated successfully!');
+    navigation.goBack(); // Return to the list page
   };
-  
-
-  // Add a new driver
-  const addDriver = () => {
-    if (newDriver.name && newDriver.vehicle && newDriver.contact) {
-      setDrivers((prev) => [
-        ...prev,
-        { id: Date.now().toString(), ...newDriver },
-      ]);
-      setNewDriver({ name: '', vehicle: '', contact: '' });
-      setShowAddDriver(false);
-    } else {
-      Alert.alert('Error', 'Please fill all fields to add a driver.');
-    }
-  };
-
-  const renderDriverItem = ({ item }) => (
-    <View style={styles.card}>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('OrganisationDriverDetail', { driver: item })}
-        style={{ flex: 1 }}
-      >
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.vehicle}>Vehicle: {item.vehicle}</Text>
-        <Text style={styles.contact}>Contact: {item.contact}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => deleteDriver(item.id)} style={styles.deleteButton}>
-        <Text style={styles.deleteText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
-  
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>TyreWhizz</Text>
+      </View>
 
-      <Text style={styles.title}>Drivers List</Text>
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setShowAddDriver(!showAddDriver)}
-      >
-        <Text style={styles.addText}>Add Driver</Text>
-      </TouchableOpacity>
+      {/* Role Information */}
+      <View style={styles.roleContainer}>
+        <Text style={styles.role}>Logged in as: Organization</Text>
+      </View>
 
-      {showAddDriver && (
-        <View style={styles.addDriverForm}>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={newDriver.name}
-            onChangeText={(text) => setNewDriver((prev) => ({ ...prev, name: text }))}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Vehicle"
-            value={newDriver.vehicle}
-            onChangeText={(text) => setNewDriver((prev) => ({ ...prev, vehicle: text }))}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Contact"
-            value={newDriver.contact}
-            onChangeText={(text) => setNewDriver((prev) => ({ ...prev, contact: text }))}
-          />
-          <TouchableOpacity style={styles.saveButton} onPress={addDriver}>
-            <Text style={styles.saveText}>Save</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      <FlatList
-        data={drivers}
-        renderItem={renderDriverItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        style={{ flex: 1 }}
+      {/* Update Driver Section */}
+      <Text style={styles.pageTitle}>Update Driver</Text>
+      <TextInput
+        style={styles.input}
+        value={updatedDriver.name}
+        onChangeText={(text) =>
+          setUpdatedDriver((prev) => ({ ...prev, name: text }))
+        }
+        placeholder="Name"
       />
-    </View>
+      <TextInput
+        style={styles.input}
+        value={updatedDriver.vehicle}
+        onChangeText={(text) =>
+          setUpdatedDriver((prev) => ({ ...prev, vehicle: text }))
+        }
+        placeholder="Vehicle"
+      />
+      <TextInput
+        style={styles.input}
+        value={updatedDriver.contact}
+        onChangeText={(text) =>
+          setUpdatedDriver((prev) => ({ ...prev, contact: text }))
+        }
+        placeholder="Contact"
+      />
+      <TouchableOpacity style={styles.saveButton} onPress={updateDriverDetails}>
+        <Text style={styles.saveText}>Save Changes</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  backButton: {
-    padding: 10,
-    backgroundColor: '#4CAF50',
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-    borderRadius: 5,
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#f9f9f9',
   },
-  backButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  container: { flex: 1, padding: 20, backgroundColor: '#f9f9f9' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-  card: {
+  header: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    elevation: 2,
+    alignItems: 'center',
+    justifyContent: 'space-between', 
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: '#4CAF50',
   },
-  name: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  vehicle: { fontSize: 16, color: '#555', marginVertical: 5 },
-  contact: { fontSize: 14, color: '#888' },
-  deleteButton: {
-    backgroundColor: '#ff4d4d',
-    padding: 10,
-    borderRadius: 5,
+  backButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#fff',
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  deleteText: { color: '#fff', fontWeight: 'bold' },
-  addButton: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#6a0dad',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
+  backButtonText: {
+    color: '#4CAF50',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
-  addText: { color: '#fff', fontWeight: 'bold' },
-  addDriverForm: { marginBottom: 20 },
+  title: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginRight: 40, // Offsets the title to center it
+  },
+  roleContainer: {
+    padding: 10,
+    backgroundColor: '#e8f5e9',
+    alignItems: 'center',
+  },
+  role: { fontSize: 16, color: '#333' },
+  pageTitle: { fontSize: 24, fontWeight: 'bold', marginVertical: 20 },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
     padding: 10,
-    marginVertical: 5,
+    marginVertical: 10,
     borderRadius: 5,
     backgroundColor: '#fff',
   },
@@ -177,8 +124,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
+    marginTop: 20,
   },
   saveText: { color: '#fff', fontWeight: 'bold' },
 });
 
-export default OrganisationDriverList;
+export default OrganisationDriverDetail;

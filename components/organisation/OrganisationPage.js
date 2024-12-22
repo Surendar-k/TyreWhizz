@@ -95,8 +95,9 @@ const OrganisationPage = () => {
         >
           <Text style={styles.navText}>Tire Monitoring</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Issue Reports</Text>
+        <TouchableOpacity style={styles.navButton}
+        onPress={() => navigation.navigate('OrganisationVehicleList')}>
+          <Text style={styles.navText}>Vehicle</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navButton}
@@ -104,8 +105,9 @@ const OrganisationPage = () => {
         >
           <Text style={styles.navText}>Drivers</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <Text style={styles.navText}>Analytics</Text>
+        <TouchableOpacity style={styles.navButton}
+        onPress={() => navigation.navigate('OrganisationAnalytics')}>
+          <Text style={styles.navText}>Analytics Report</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -118,20 +120,34 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'space-between', 
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     backgroundColor: '#4CAF50',
   },
   backButton: {
-    marginRight: 15,
-    backgroundColor: '#fff',
-    padding:3,
-    borderRadius: 5,
+    width: 40, // Set a fixed width for the button
+    height: 40, // Set a fixed height for the button
     justifyContent: 'center',
     alignItems: 'center',
-    width:40,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 0, // Remove extra padding
   },
-  backButtonText: { color: '#4CAF50', fontSize: 40, fontWeight: 'heavy' },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#fff', flex: 1, textAlign: 'center' },
+  backButtonText: { 
+    color: '#4CAF50', 
+    fontSize: 30, 
+    fontWeight: 'bold', 
+    textAlign: 'center', 
+  },
+  title: { 
+    flex: 2, 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#fff', 
+    textAlign: 'center',
+    marginLeft: -40, 
+  },
   roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
   role: { fontSize: 16, color: '#333' },
   summary: { padding: 20 },
@@ -150,5 +166,8 @@ const styles = StyleSheet.create({
   },
   navText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
+
+
+
 
 export default OrganisationPage;
