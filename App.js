@@ -11,6 +11,8 @@ import TireMonitoring from './components/organisation/TireMonitoring';
 import OrganisationDriverList from './components/organisation/OrganisationDriverList';
 import OrganisationDriverDetail from './components/organisation/OrganisationDriverDetail';
 import MonitoringPage from './components/driver/MonitoringPage';
+import PersonalDetailsPage from './PersonalDetailsPage';
+import BusinessDetailsPage from './BusinessDetailsPage';
 
 const Stack = createStackNavigator();
 
@@ -28,9 +30,12 @@ const App = () => {
         <Stack.Screen name="OrganisationDriverDetail" component={OrganisationDriverDetail} />
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
         <Stack.Screen name="MonitoringPage" component={MonitoringPage} />
+        <Stack.Screen name="PersonalDetailsPage" component={PersonalDetailsPage} />
+        <Stack.Screen name="BusinessDetailsPage" component={BusinessDetailsPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 export default App;
+

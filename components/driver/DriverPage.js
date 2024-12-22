@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  TextInput,
-  Alert,
-  Image,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Image, Modal, ScrollView } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as ImagePicker from 'expo-image-picker';
+import { useNavigation } from '@react-navigation/native'; // Import navigation
 
 const DriverPage = () => {
+  const navigation = useNavigation(); // Hook to use navigation
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'personalBusiness', title: 'Personal/Business' },
@@ -34,7 +25,6 @@ const DriverPage = () => {
     organizationId: '',
     ownerName: '',
   });
-  const [vehicleList, setVehicleList] = useState([]);
   const [selectedRide, setSelectedRide] = useState('');
 
   // Functions for Profile Picture Modal
@@ -61,6 +51,18 @@ const DriverPage = () => {
   const handleRemoveImage = () => {
     setProfileImage(null);
     setIsModalVisible(false);
+  };
+
+  const handleSubmit = () => {
+    if (selectedOption === 'Personal') {
+      // Redirect to Personal Details Page
+      navigation.navigate('PersonalDetailsPage');
+    } else if (selectedOption === 'Business') {
+      // Redirect to Business Details Page
+      navigation.navigate('BusinessDetailsPage');
+    } else {
+      Alert.alert('Error', 'Please select an account type and fill out details.');
+    }
   };
 
   const renderPersonalBusinessTab = () => (
@@ -130,11 +132,6 @@ const DriverPage = () => {
               setPersonalDetails((prev) => ({ ...prev, registrationNumber: text }))
             }
           />
-          <Button
-            title="Submit Personal Details"
-            color="blue"
-            onPress={() => Alert.alert('Success', 'Personal details submitted!')}
-          />
         </>
       ) : (
         <>
@@ -166,11 +163,6 @@ const DriverPage = () => {
               setBusinessDetails((prev) => ({ ...prev, ownerName: text }))
             }
           />
-          <Button
-            title="Submit Business Details"
-            color="blue"
-            onPress={() => Alert.alert('Success', 'Business details submitted!')}
-          />
         </>
       );
 
@@ -191,13 +183,9 @@ const DriverPage = () => {
             inputIOS: { color: 'black' },
           }}
         />
-        <Button
-          title="Submit Ride"
-          color="blue"
-          onPress={() =>
-            Alert.alert('Success', `You selected ${selectedRide || 'no ride yet'}.`)
-          }
-        />
+        <TouchableOpacity style={styles.footerButton} onPress={handleSubmit}>
+          <Text style={styles.footerButtonText}>SUBMIT</Text>
+        </TouchableOpacity>
       </ScrollView>
     );
   };
@@ -217,7 +205,7 @@ const DriverPage = () => {
           <TabBar
             {...props}
             indicatorStyle={{ backgroundColor: '#007bff' }}
-            style={{ backgroundColor: '#f0f0f0' }}
+            style={{ backgroundColor: '#fff' }}
             renderLabel={({ route }) => (
               <Text style={{ color: 'black', fontSize: 16 }}>{route.title}</Text>
             )}
@@ -282,13 +270,27 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: 'black',
   },
+  footerButton: {
+    backgroundColor: 'blue',
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50, // Oval shape
+    marginTop: 40, // Move it down
+  },
+  footerButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  modalContent: { backgroundColor: '#fff', borderRadius: 10, padding: 20, alignItems: 'center' },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
   modalOption: { fontSize: 18, marginVertical: 10, color: '#007bff' },
 });
 
