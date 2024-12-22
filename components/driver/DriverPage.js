@@ -16,8 +16,6 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as ImagePicker from 'expo-image-picker';
 
 const DriverPage = () => {
-  const [profileImage, setProfileImage] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'owner', title: 'Owner' },
