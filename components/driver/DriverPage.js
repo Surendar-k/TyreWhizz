@@ -18,17 +18,22 @@ import * as ImagePicker from 'expo-image-picker';
 const DriverPage = () => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'owner', title: 'Owner' },
-    { key: 'vehicles', title: 'Vehicles' },
+    { key: 'personalBusiness', title: 'Personal/Business' },
+    { key: 'vehicles', title: 'Manage Vehicles' },
   ]);
-
-  const [ownerDetails, setOwnerDetails] = useState({
+  const [profileImage, setProfileImage] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [personalDetails, setPersonalDetails] = useState({
     name: '',
     vehicleNumber: '',
     registrationNumber: '',
-    ride: '',
   });
-
+  const [businessDetails, setBusinessDetails] = useState({
+    organizationName: '',
+    organizationId: '',
+    ownerName: '',
+  });
   const [vehicleList, setVehicleList] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
@@ -57,20 +62,7 @@ const DriverPage = () => {
     setIsModalVisible(false);
   };
 
-  const handleSubmitOwner = () => {
-    Alert.alert("Owner Details Submitted Successfully");
-  };
-
-  const addVehicle = () => {
-    if (selectedVehicle) {
-      setVehicleList([...vehicleList, selectedVehicle]);
-      setSelectedVehicle(null);
-    } else {
-      Alert.alert("Error", "Please select a vehicle before adding.");
-    }
-  };
-
-  const renderOwnerTab = () => (
+  const renderPersonalBusinessTab = () => (
     <ScrollView contentContainerStyle={styles.tabContainer}>
       <TouchableOpacity onPress={() => setIsModalVisible(true)}>
         <View style={styles.profileImageContainer}>
@@ -83,6 +75,31 @@ const DriverPage = () => {
           )}
         </View>
       </TouchableOpacity>
+      <Text style={styles.heading}>Select Account Type</Text>
+      <Button
+        title="Personal"
+        color="black"
+        onPress={() => {
+          setSelectedOption('Personal');
+          setIndex(1);
+        }}
+      />
+      <Button
+        title="Business"
+        color="black"
+        onPress={() => {
+          setSelectedOption('Business');
+          setIndex(1);
+        }}
+      />
+    </ScrollView>
+  );
+
+  const renderVehiclesTab = () => {
+    const formFields =
+      selectedOption === 'Personal' ? (
+        <>
+          <Text style={styles.heading}>Personal Details</Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
