@@ -11,8 +11,8 @@ import TireMonitoring from './components/organisation/TireMonitoring';
 import OrganisationDriverList from './components/organisation/OrganisationDriverList';
 import OrganisationDriverDetail from './components/organisation/OrganisationDriverDetail';
 import MonitoringPage from './components/driver/MonitoringPage';
-import PersonalDetailsPage from './PersonalDetailsPage';
-import BusinessDetailsPage from './BusinessDetailsPage';
+import PersonalDetailsPage from './components/driver/PersonalDetailsPage';
+import BusinessDetailsPage from '.components/driver/BusinessDetailsPage';
 
 const Stack = createStackNavigator();
 
