@@ -13,6 +13,8 @@ import OrganisationDriverDetail from './components/organisation/OrganisationDriv
 import MonitoringPage from './components/driver/MonitoringPage';
 import PersonalDetailsPage from './components/driver/PersonalDetailsPage';
 import BusinessDetailsPage from './components/driver/BusinessDetailsPage';
+import OrganisationAnalytics from './components/organisation/OrganisationAnalytics';
+import OrganisationVehicleList from './components/organisation/OrganisationVehicleList';
 
 const Stack = createStackNavigator();
 const App = () => {

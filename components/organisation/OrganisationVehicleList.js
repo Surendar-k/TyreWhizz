@@ -12,9 +12,9 @@ import {
 
 const OrganisationVehicleList = ({ navigation }) => {
   const [vehicles, setVehicles] = useState([
-    { id: '1', name: 'Truck A', Vehicle_No: 'TN-01-AB-1234', type: 'Truck', capacity: '10 Tons' },
-    { id: '2', name: 'Van B', Vehicle_No: 'TN-02-BC-2345', type: 'Van', capacity: '2 Tons' },
-    { id: '3', name: 'Car C', Vehicle_No: 'TN-03-CD-3456', type: 'Car', capacity: '1 Ton' },
+    { id: '1',  Vehicle_No: 'TN-01-AB-1234', type: 'Truck', capacity: '10 Tons' },
+    { id: '2',  Vehicle_No: 'TN-02-BC-2345', type: 'Van', capacity: '2 Tons' },
+    { id: '3',  Vehicle_No: 'TN-03-CD-3456', type: 'Car', capacity: '1 Ton' },
   ]);
 
   const [filteredVehicles, setFilteredVehicles] = useState(vehicles);
@@ -67,10 +67,10 @@ const OrganisationVehicleList = ({ navigation }) => {
         onPress={() => navigation.navigate('OrganisationVehicleDetail', { vehicle: item })}
         style={{ flex: 1 }}
       >
-        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.vehicleNo}>Vehicle No: {item.Vehicle_No}</Text>
         <Text style={styles.type}>Type: {item.type}</Text>
         <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
-        <Text style={styles.vehicleNo}>Vehicle No: {item.Vehicle_No}</Text>
+        
       </TouchableOpacity>
       <TouchableOpacity onPress={() => deleteVehicle(item.id)} style={styles.deleteButton}>
         <Text style={styles.deleteText}>Delete</Text>
@@ -231,10 +231,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     elevation: 2,
   },
-  name: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  vehicleNo:{ fontSize: 18, fontWeight: 'bold', color: '#333' },
   type: { fontSize: 16, color: '#555', marginVertical: 5 },
   capacity: { fontSize: 14, color: '#888' },
-  vehicleNo: { fontSize: 14, color: '#666' },
+  
   deleteButton: {
     backgroundColor: '#ff4d4d',
     padding: 10,
