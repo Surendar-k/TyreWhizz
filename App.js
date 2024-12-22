@@ -7,15 +7,12 @@ import RoleBasedAuthPage from './components/RoleBasedAuthPage'; // Adjust path a
 import DriverPage from './components/driver/DriverPage';
 import OrganisationPage from './components/organisation/OrganisationPage';
 import TechnicianPage from './components/technician/TechnicianPage';
-import RegisterPage from './components/driver/RegisterPage'; // Add this import
 import TireMonitoring from './components/organisation/TireMonitoring';
-import OrganisationCheckPage from './components/driver/OrganisationCheckPage';
 import OrganisationDriverList from './components/organisation/OrganisationDriverList';
 import OrganisationDriverDetail from './components/organisation/OrganisationDriverDetail';
 import MonitoringPage from './components/driver/MonitoringPage';
-import OrganisationVehicleList from './components/organisation/OrganisationVehicleList';
-import OrganisationAnalytics from './components/organisation/OrganisationAnalytics';
-
+import PersonalDetailsPage from './components/driver/PersonalDetailsPage';
+import BusinessDetailsPage from './components/driver/BusinessDetailsPage';
 
 const Stack = createStackNavigator();
 const App = () => {
@@ -28,20 +25,18 @@ const App = () => {
         <Stack.Screen name="DriverPage" component={DriverPage} />
         <Stack.Screen name="OrganisationPage" component={OrganisationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
-        <Stack.Screen name="RegisterPage" component={RegisterPage} />
-        <Stack.Screen name="OrganisationCheckPage" component={OrganisationCheckPage}/>
         <Stack.Screen name="OrganisationDriverList" component={OrganisationDriverList} />
         <Stack.Screen name="OrganisationDriverDetail" component={OrganisationDriverDetail} />
         <Stack.Screen name="OrganisationVehicleList" component={OrganisationVehicleList}/>
         <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics}/>
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
-        <Stack.Screen name="MonitoringPage" component={MonitoringPage}/>
-        
-
-
+        <Stack.Screen name="MonitoringPage" component={MonitoringPage} />
+        <Stack.Screen name="PersonalDetailsPage" component={PersonalDetailsPage} />
+        <Stack.Screen name="BusinessDetailsPage" component={BusinessDetailsPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 export default App;
+
