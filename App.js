@@ -16,6 +16,7 @@ import BusinessDetailsPage from './components/driver/BusinessDetailsPage';
 import OrganisationAnalytics from './components/organisation/OrganisationAnalytics';
 import OrganisationVehicleList from './components/organisation/OrganisationVehicleList';
 
+
 const Stack = createStackNavigator();
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
         <Stack.Screen name="MonitoringPage" component={MonitoringPage} />
         <Stack.Screen name="PersonalDetailsPage" component={PersonalDetailsPage} />
         <Stack.Screen name="BusinessDetailsPage" component={BusinessDetailsPage} />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );
