@@ -35,7 +35,6 @@ const DriverPage = () => {
     ownerName: '',
   });
   const [vehicleList, setVehicleList] = useState([]);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedRide, setSelectedRide] = useState('');
 
   // Functions for Profile Picture Modal
@@ -78,22 +77,24 @@ const DriverPage = () => {
         </View>
       </TouchableOpacity>
       <Text style={styles.heading}>Select Account Type</Text>
-      <Button
-        title="Personal"
-        color="black"
+      <TouchableOpacity
+        style={styles.buttonStyle}
         onPress={() => {
           setSelectedOption('Personal');
           setIndex(1);
         }}
-      />
-      <Button
-        title="Business"
-        color="black"
+      >
+        <Text style={styles.buttonText}>PERSONAL</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.buttonStyle, styles.spaceBetweenButtons]}
         onPress={() => {
           setSelectedOption('Business');
           setIndex(1);
         }}
-      />
+      >
+        <Text style={styles.buttonText}>BUSINESS</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 
@@ -131,7 +132,7 @@ const DriverPage = () => {
           />
           <Button
             title="Submit Personal Details"
-            color="black"
+            color="blue"
             onPress={() => Alert.alert('Success', 'Personal details submitted!')}
           />
         </>
@@ -167,7 +168,7 @@ const DriverPage = () => {
           />
           <Button
             title="Submit Business Details"
-            color="black"
+            color="blue"
             onPress={() => Alert.alert('Success', 'Business details submitted!')}
           />
         </>
@@ -192,7 +193,7 @@ const DriverPage = () => {
         />
         <Button
           title="Submit Ride"
-          color="black"
+          color="blue"
           onPress={() =>
             Alert.alert('Success', `You selected ${selectedRide || 'no ride yet'}.`)
           }
@@ -262,6 +263,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imagePlaceholderText: { color: '#888' },
+  buttonStyle: {
+    backgroundColor: 'blue',
+    borderRadius: 25,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 10,
+    alignItems: 'center',
+  },
+  buttonText: { color: 'white', fontWeight: 'bold' },
+  spaceBetweenButtons: { marginTop: 20 },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
