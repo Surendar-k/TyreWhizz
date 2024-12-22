@@ -36,12 +36,14 @@ const DriverPage = () => {
   });
   const [vehicleList, setVehicleList] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedRide, setSelectedRide] = useState('');
 
+  // Functions for Profile Picture Modal
   const handleImageUpload = async () => {
     setIsModalVisible(false);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert("Permission Denied", "We need permission to access your photos!");
+      Alert.alert('Permission Denied', 'We need permission to access your photos!');
       return;
     }
 
@@ -100,75 +102,107 @@ const DriverPage = () => {
       selectedOption === 'Personal' ? (
         <>
           <Text style={styles.heading}>Personal Details</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        value={ownerDetails.name}
-        onChangeText={(text) =>
-          setOwnerDetails((prevDetails) => ({ ...prevDetails, name: text }))
-        }
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Vehicle Number"
-        value={ownerDetails.vehicleNumber}
-        onChangeText={(text) =>
-          setOwnerDetails((prevDetails) => ({ ...prevDetails, vehicleNumber: text }))
-        }
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Registration Number"
-        value={ownerDetails.registrationNumber}
-        onChangeText={(text) =>
-          setOwnerDetails((prevDetails) => ({ ...prevDetails, registrationNumber: text }))
-        }
-      />
-      <Text style={styles.label}>Pick your ride</Text>
-      <RNPickerSelect
-        onValueChange={(value) =>
-          setOwnerDetails((prevDetails) => ({ ...prevDetails, ride: value }))
-        }
-        items={[
-          { label: '2-Wheeler', value: '2-wheeler' },
-          { label: '4-Wheeler', value: '4-wheeler' },
-        ]}
-        style={{
-          inputIOS: styles.picker,
-          inputAndroid: styles.picker,
-        }}
-        value={ownerDetails.ride}
-        placeholder={{ label: 'Select Ride', value: null }}
-      />
-      <Button title="Submit Owner Details" onPress={handleSubmitOwner} />
-    </ScrollView>
-  );
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            placeholderTextColor="gray"
+            value={personalDetails.name}
+            onChangeText={(text) =>
+              setPersonalDetails((prev) => ({ ...prev, name: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Vehicle Number"
+            placeholderTextColor="gray"
+            value={personalDetails.vehicleNumber}
+            onChangeText={(text) =>
+              setPersonalDetails((prev) => ({ ...prev, vehicleNumber: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Registration Number"
+            placeholderTextColor="gray"
+            value={personalDetails.registrationNumber}
+            onChangeText={(text) =>
+              setPersonalDetails((prev) => ({ ...prev, registrationNumber: text }))
+            }
+          />
+          <Button
+            title="Submit Personal Details"
+            color="black"
+            onPress={() => Alert.alert('Success', 'Personal details submitted!')}
+          />
+        </>
+      ) : (
+        <>
+          <Text style={styles.heading}>Business Details</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Organization Name"
+            placeholderTextColor="gray"
+            value={businessDetails.organizationName}
+            onChangeText={(text) =>
+              setBusinessDetails((prev) => ({ ...prev, organizationName: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Organization ID"
+            placeholderTextColor="gray"
+            value={businessDetails.organizationId}
+            onChangeText={(text) =>
+              setBusinessDetails((prev) => ({ ...prev, organizationId: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Owner Name"
+            placeholderTextColor="gray"
+            value={businessDetails.ownerName}
+            onChangeText={(text) =>
+              setBusinessDetails((prev) => ({ ...prev, ownerName: text }))
+            }
+          />
+          <Button
+            title="Submit Business Details"
+            color="black"
+            onPress={() => Alert.alert('Success', 'Business details submitted!')}
+          />
+        </>
+      );
 
-  const renderVehiclesTab = () => (
-    <ScrollView contentContainerStyle={styles.tabContainer}>
-      <Text style={styles.heading}>Manage Vehicles</Text>
-      <RNPickerSelect
-        onValueChange={(value) => setSelectedVehicle(value)}
-        items={[
-          { label: 'MH12 AB1234 - 2 Wheeler', value: 'MH12 AB1234 - 2 Wheeler' },
-          { label: 'MH14 XY5678 - 4 Wheeler', value: 'MH14 XY5678 - 4 Wheeler' },
-        ]}
-        style={{ inputIOS: styles.picker, inputAndroid: styles.picker }}
-        placeholder={{ label: 'Select Vehicle', value: null }}
-      />
-      <TouchableOpacity onPress={addVehicle} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add Vehicle</Text>
-      </TouchableOpacity>
-      {vehicleList.map((vehicle, index) => (
-        <Text key={index} style={styles.vehicleItem}>
-          {vehicle}
-        </Text>
-      ))}
-    </ScrollView>
-  );
+    return (
+      <ScrollView contentContainerStyle={styles.tabContainer}>
+        {formFields}
+        <Text style={styles.heading}>Pick Your Ride</Text>
+        <RNPickerSelect
+          onValueChange={(value) => setSelectedRide(value)}
+          items={[
+            { label: '2-Wheeler', value: '2-wheeler' },
+            { label: '3-Wheeler', value: '3-wheeler' },
+            { label: '4-Wheeler', value: '4-wheeler' },
+            { label: '6-Wheeler', value: '6-wheeler' },
+          ]}
+          style={{
+            inputAndroid: { color: 'black' },
+            inputIOS: { color: 'black' },
+          }}
+        />
+        <Button
+          title="Submit Ride"
+          color="black"
+          onPress={() =>
+            Alert.alert('Success', `You selected ${selectedRide || 'no ride yet'}.`)
+          }
+        />
+      </ScrollView>
+    );
+  };
 
   const renderScene = SceneMap({
-    owner: renderOwnerTab,
+    personalBusiness: renderPersonalBusinessTab,
     vehicles: renderVehiclesTab,
   });
 
@@ -189,97 +223,62 @@ const DriverPage = () => {
           />
         )}
       />
+      <Modal
+        transparent={true}
+        visible={isModalVisible}
+        animationType="slide"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={handleImageUpload}>
+              <Text style={styles.modalOption}>Edit Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleRemoveImage}>
+              <Text style={styles.modalOption}>Delete Profile</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setIsModalVisible(false)}>
+              <Text style={styles.modalOption}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  tabContainer: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  profileImageContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  tabContainer: { flex: 1, alignItems: 'center', padding: 20 },
+  heading: { fontSize: 20, fontWeight: 'bold', marginVertical: 10, color: 'black' },
+  profileImageContainer: { marginBottom: 20 },
+  profileImage: { width: 100, height: 100, borderRadius: 50 },
   imagePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#f0f0f0',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ddd',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  imagePlaceholderText: { color: '#888' },
+  input: {
     borderWidth: 1,
     borderColor: '#ddd',
-  },
-  imagePlaceholderText: {
-    color: '#aaa',
-    fontSize: 14,
-  },
-  input: {
+    borderRadius: 5,
+    padding: 10,
     width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: '#f9f9f9',
+    marginBottom: 15,
+    color: 'black',
   },
-  label: {
-    fontSize: 16,
-    color: '#333',
-    alignSelf: 'flex-start',
-    marginBottom: 8,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  picker: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    color: '#333',
-    backgroundColor: '#f9f9f9',
-    marginBottom: 16,
-    width: '100%',
-  },
-  heading: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-  },
-  addButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginTop: 16,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  vehicleItem: {
-    fontSize: 16,
-    color: '#555',
-    padding: 8,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    width: '100%',
-    textAlign: 'center',
-  },
+  modalContent: { backgroundColor: '#fff', borderRadius: 10, padding: 20, alignItems: 'center' },
+  modalOption: { fontSize: 18, marginVertical: 10, color: '#007bff' },
 });
 
 export default DriverPage;
