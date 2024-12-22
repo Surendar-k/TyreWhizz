@@ -12,7 +12,7 @@ import OrganisationDriverList from './components/organisation/OrganisationDriver
 import OrganisationDriverDetail from './components/organisation/OrganisationDriverDetail';
 import MonitoringPage from './components/driver/MonitoringPage';
 import PersonalDetailsPage from './components/driver/PersonalDetailsPage';
-import BusinessDetailsPage from '.components/driver/BusinessDetailsPage';
+import BusinessDetailsPage from './components/driver/BusinessDetailsPage';
 
 const Stack = createStackNavigator();
 
