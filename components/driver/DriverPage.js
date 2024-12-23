@@ -1,4 +1,3 @@
-// DriverPage.js
 import React, { useState } from 'react';
 import {
   View,
@@ -7,7 +6,6 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  
   Image,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';

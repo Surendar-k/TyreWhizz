@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const OrganisationPage = () => {
@@ -7,19 +7,13 @@ const OrganisationPage = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+  const [isEditMode, setIsEditMode] = useState(false); // Track edit mode
+  
   const [profileData, setProfileData] = useState({
     organizationName: 'TyreWhizz Inc.',
     managerName: 'John Doe',
     email: 'john.doe@example.com',
     phone: '+1 123-456-7890',
-  });
-
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
   });
 
   const toggleProfileDrawer = () => {
@@ -30,15 +24,16 @@ const OrganisationPage = () => {
     setIsEditMode(!isEditMode);
   };
 
+  // Simulated fetch function (replace with actual API call later)
   const fetchFleetData = async () => {
     try {
       const mockData = {
         totalVehicles: 50,
         activeIssues: 5,
         resolvedIssues: [
-          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
-          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
-          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
+          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 }, 
+          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 }, 
+          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 }, 
         ],
       };
 
@@ -59,40 +54,16 @@ const OrganisationPage = () => {
     ).length;
   };
 
+  useEffect(() => {
+    fetchFleetData();
+  }, []);
+
   const handleProfileChange = (field, value) => {
     setProfileData({
       ...profileData,
       [field]: value,
     });
   };
-
-  const handlePasswordChange = () => {
-    // Logic for password change validation
-    const { currentPassword, newPassword, confirmPassword } = passwordData;
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert('Error', 'All fields are required');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New password and confirm password do not match');
-      return;
-    }
-
-    // Simulate password change success
-    Alert.alert('Success', 'Password changed successfully');
-    setIsModalVisible(false); // Close modal after successful change
-  };
-
-  const handleLogout = () => {
-    // Simulate logout
-    Alert.alert('Logged Out', 'You have been logged out');
-    // Redirect to login screen or reset navigation state here
-  };
-
-  useEffect(() => {
-    fetchFleetData();
-  }, []);
 
   if (loading) {
     return (
@@ -111,7 +82,7 @@ const OrganisationPage = () => {
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
         <TouchableOpacity style={styles.profileButton} onPress={toggleProfileDrawer}>
-          <Text style={styles.profileButtonText}>☰</Text>
+          <Text style={styles.profileButtonText}>☰</Text> {/* Profile Icon */}
         </TouchableOpacity>
       </View>
 
@@ -160,11 +131,11 @@ const OrganisationPage = () => {
           )}
 
           <Text style={styles.sectionHeader}>Account Settings</Text>
-          <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.button}>
+          <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Change Password</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.logoutButton}>
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
@@ -206,42 +177,6 @@ const OrganisationPage = () => {
           <Text style={styles.navText}>Analytics Report</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Change Password Modal */}
-      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Change Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Current Password"
-              value={passwordData.currentPassword}
-              onChangeText={(text) => setPasswordData({ ...passwordData, currentPassword: text })}
-              secureTextEntry
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="New Password"
-              value={passwordData.newPassword}
-              onChangeText={(text) => setPasswordData({ ...passwordData, newPassword: text })}
-              secureTextEntry
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm New Password"
-              value={passwordData.confirmPassword}
-              onChangeText={(text) => setPasswordData({ ...passwordData, confirmPassword: text })}
-              secureTextEntry
-            />
-            <TouchableOpacity style={styles.button} onPress={handlePasswordChange}>
-              <Text style={styles.buttonText}>Change Password</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => setIsModalVisible(false)}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </ScrollView>
   );
 };
@@ -398,24 +333,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#333',
     fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Transparent black background
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
   },
 });
 
