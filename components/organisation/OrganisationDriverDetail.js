@@ -10,19 +10,17 @@ import {
 } from 'react-native';
 
 const OrganisationDriverDetail = ({ route, navigation }) => {
-  const { driver, onUpdate } = route.params;
+  const { driver } = route.params;
   const [updatedDriver, setUpdatedDriver] = useState({ ...driver });
 
   const updateDriverDetails = () => {
-    if (onUpdate) {
-      onUpdate(updatedDriver); // Send updated data back to the list
-    }
     Alert.alert('Success', 'Driver details updated successfully!');
     navigation.goBack(); // Return to the list page
   };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -33,10 +31,12 @@ const OrganisationDriverDetail = ({ route, navigation }) => {
         <Text style={styles.title}>TyreWhizz</Text>
       </View>
 
+      {/* Role Information */}
       <View style={styles.roleContainer}>
         <Text style={styles.role}>Logged in as: Organization</Text>
       </View>
 
+      {/* Update Driver Section */}
       <Text style={styles.pageTitle}>Update Driver</Text>
       <TextInput
         style={styles.input}
