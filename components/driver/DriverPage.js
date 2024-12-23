@@ -7,7 +7,7 @@ import {
   TextInput,
   StyleSheet,
   ScrollView,
-  Modal,
+  
   Image,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
