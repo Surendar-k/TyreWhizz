@@ -1,17 +1,16 @@
 // BusinessDetailsPage.js
 import React from 'react';
-import { View, Text, StyleSheet, Button, Modal, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Modal, FlatList, TouchableOpacity, Image, Button } from 'react-native';
 
 const BusinessDetailsPage = ({ route }) => {
   const { name, vehicleNumber, vehicleType, vehicleImage } = route.params;
   const [modalVisible, setModalVisible] = React.useState(false);
   const [selectedVehicle, setSelectedVehicle] = React.useState(null);
 
-  const vehicles = [
-    { id: '1', name: 'Car', number: 'ABC123', organization: 'XYZ Corp', image: require('./path/to/image1.jpg') },
-    { id: '2', name: 'Truck', number: 'LMN789', organization: 'ABC Inc', image: require('./path/to/image2.jpg') },
-    // Add more vehicles as needed
-  ];
+  // Create an array to hold vehicles (simulating a database or state)
+  const vehicles = vehicleImage ? [
+    { id: '1', name: 'User Vehicle', number: vehicleNumber, image: vehicleImage },
+  ] : [];
 
   const handleVehicleSelect = (vehicle) => {
     setSelectedVehicle(vehicle);
@@ -24,7 +23,7 @@ const BusinessDetailsPage = ({ route }) => {
       <Text>Name: {name}</Text>
       <Text>Vehicle Number: {vehicleNumber}</Text>
       <Text>Vehicle Type: {vehicleType}</Text>
-      <Image style={styles.image} source={vehicleImage} />
+      {vehicleImage && <Image style={styles.image} source={{ uri: vehicleImage.uri }} />}
 
       <FlatList
         data={vehicles}
@@ -45,10 +44,9 @@ const BusinessDetailsPage = ({ route }) => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Image style={styles.modalImage} source={selectedVehicle.image} />
+              <Image style={styles.modalImage} source={{ uri: selectedVehicle.image.uri }} />
               <Text>Name: {selectedVehicle.name}</Text>
               <Text>Vehicle Number: {selectedVehicle.number}</Text>
-              <Text>Organization: {selectedVehicle.organization}</Text>
               <Button title="Close" onPress={() => setModalVisible(false)} />
             </View>
           </View>
