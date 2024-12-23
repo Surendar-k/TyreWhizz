@@ -29,9 +29,9 @@ const App = () => {
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
         <Stack.Screen name="OrganisationDriverList" component={OrganisationDriverList} />
         <Stack.Screen name="OrganisationDriverDetail" component={OrganisationDriverDetail} />
-        <Stack.Screen name="OrganisationVehicleList" component={OrganisationVehicleList}/>
-        <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics}/>
-        <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
+        <Stack.Screen name="OrganisationVehicleList" component={OrganisationVehicleList} />
+        <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics} />
+        <Stack.Screen name="TireMonitoring" component={TireMonitoring}  />
         <Stack.Screen name="MonitoringPage" component={MonitoringPage} />
         <Stack.Screen name="PersonalDetailsPage" component={PersonalDetailsPage} />
         <Stack.Screen name="BusinessDetailsPage" component={BusinessDetailsPage} />

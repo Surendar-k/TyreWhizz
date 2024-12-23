@@ -1,27 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+  const [profileData, setProfileData] = useState({
+    organizationName: 'TyreWhizz Inc.',
+    managerName: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '+1 123-456-7890',
+  });
 
-  // Simulated fetch function (replace with actual API call later)
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const toggleProfileDrawer = () => {
+    setIsProfileOpen(!isProfileOpen);
+  };
+  
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+  };
+
   const fetchFleetData = async () => {
     try {
-      // Simulating API response
       const mockData = {
         totalVehicles: 50,
         activeIssues: 5,
         resolvedIssues: [
-          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 }, // Resolved 1 hour ago
-          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 }, // Resolved 2 hours ago
-          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 }, // Resolved 25 hours ago
+          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
+          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
+          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
         ],
       };
 
-      // Simulating network delay
       setTimeout(() => {
         setFleetData(mockData);
         setLoading(false);
@@ -32,12 +52,42 @@ const OrganisationPage = () => {
     }
   };
 
-  // Calculate resolved issues in the last 24 hours
   const getResolvedIssuesLast24Hrs = () => {
     const now = Date.now();
     return fleetData.resolvedIssues.filter(
       (issue) => now - issue.timestamp <= 1000 * 60 * 60 * 24
     ).length;
+  };
+
+  const handleProfileChange = (field, value) => {
+    setProfileData({
+      ...profileData,
+      [field]: value,
+    });
+  };
+
+  const handlePasswordChange = () => {
+    // Logic for password change validation
+    const { currentPassword, newPassword, confirmPassword } = passwordData;
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      Alert.alert('Error', 'All fields are required');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'New password and confirm password do not match');
+      return;
+    }
+
+    // Simulate password change success
+    Alert.alert('Success', 'Password changed successfully');
+    setIsModalVisible(false); // Close modal after successful change
+  };
+
+  const handleLogout = () => {
+    // Simulate logout
+    Alert.alert('Logged Out', 'You have been logged out');
+    // Redirect to login screen or reset navigation state here
   };
 
   useEffect(() => {
@@ -55,20 +105,75 @@ const OrganisationPage = () => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header with Back Button */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
+        <TouchableOpacity style={styles.profileButton} onPress={toggleProfileDrawer}>
+          <Text style={styles.profileButtonText}>☰</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Role Information */}
+      {/* Profile Section */}
+      {isProfileOpen && (
+        <View style={styles.profileDrawer}>
+          <TouchableOpacity onPress={toggleProfileDrawer} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
+          <Text style={styles.profileTitle}>Profile</Text>
+
+          <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
+            <Text style={styles.editButtonText}>{isEditMode ? 'Save' : 'Edit'}</Text>
+          </TouchableOpacity>
+
+          {isEditMode ? (
+            <>
+              <TextInput
+                style={styles.input}
+                value={profileData.organizationName}
+                onChangeText={(text) => handleProfileChange('organizationName', text)}
+              />
+              <TextInput
+                style={styles.input}
+                value={profileData.managerName}
+                onChangeText={(text) => handleProfileChange('managerName', text)}
+              />
+              <TextInput
+                style={styles.input}
+                value={profileData.email}
+                onChangeText={(text) => handleProfileChange('email', text)}
+              />
+              <TextInput
+                style={styles.input}
+                value={profileData.phone}
+                onChangeText={(text) => handleProfileChange('phone', text)}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={styles.profileText}>Organization Name: {profileData.organizationName}</Text>
+              <Text style={styles.profileText}>Manager: {profileData.managerName}</Text>
+              <Text style={styles.profileText}>Email: {profileData.email}</Text>
+              <Text style={styles.profileText}>Phone: {profileData.phone}</Text>
+            </>
+          )}
+
+          <Text style={styles.sectionHeader}>Account Settings</Text>
+          <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.button}>
+            <Text style={styles.buttonText}>Change Password</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <View style={styles.roleContainer}>
         <Text style={styles.role}>Logged in as: Organization</Text>
       </View>
 
-      {/* Fleet Summary */}
       <View style={styles.summary}>
         <Text style={styles.sectionTitle}>Fleet Summary</Text>
         <View style={styles.summaryCards}>
@@ -87,35 +192,146 @@ const OrganisationPage = () => {
         </View>
       </View>
 
-      {/* Navigation Options */}
       <View style={styles.navigation}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate('TireMonitoring')}
-        >
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TireMonitoring')}>
           <Text style={styles.navText}>Tire Monitoring</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}
-        onPress={() => navigation.navigate('OrganisationVehicleList')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationVehicleList')}>
           <Text style={styles.navText}>Vehicle</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate('OrganisationDriverList')}
-        >
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationDriverList')}>
           <Text style={styles.navText}>Drivers</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}
-        onPress={() => navigation.navigate('OrganisationAnalytics')}>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationAnalytics')}>
           <Text style={styles.navText}>Analytics Report</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Change Password Modal */}
+      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Change Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Current Password"
+              value={passwordData.currentPassword}
+              onChangeText={(text) => setPasswordData({ ...passwordData, currentPassword: text })}
+              secureTextEntry
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="New Password"
+              value={passwordData.newPassword}
+              onChangeText={(text) => setPasswordData({ ...passwordData, newPassword: text })}
+              secureTextEntry
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm New Password"
+              value={passwordData.confirmPassword}
+              onChangeText={(text) => setPasswordData({ ...passwordData, confirmPassword: text })}
+              secureTextEntry
+            />
+            <TouchableOpacity style={styles.button} onPress={handlePasswordChange}>
+              <Text style={styles.buttonText}>Change Password</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => setIsModalVisible(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9f9f9' },
+  profileDrawer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '70%',
+    height: '100%',
+    backgroundColor: '#ffffff',
+    elevation: 5,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    zIndex: 999, 
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 10,
+    backgroundColor: '#4CAF50',
+    borderRadius: 15,
+  },
+  closeButtonText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  profileTitle: { 
+    fontSize: 22, 
+    fontWeight: 'bold', 
+    marginBottom: 20, 
+    color: '#333' 
+  },
+  profileText: { 
+    fontSize: 16, 
+    marginBottom: 10, 
+    color: '#333',
+  },
+  editButton: {
+    alignSelf: 'flex-end',
+    marginTop: -30,
+    marginRight: 0,
+    padding: 10,
+    backgroundColor: '#4CAF50',
+    borderRadius: 15,
+  },
+  editButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  input: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingLeft: 10,
+  },
+  logoutButton: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: '#4CAF50',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 5,
+  },
+  profileButtonText: {
+    color: '#4CAF50',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f9f9f9' },
   header: {
     flexDirection: 'row',
@@ -126,13 +342,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   backButton: {
-    width: 40, // Set a fixed width for the button
-    height: 40, // Set a fixed height for the button
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
-    padding: 0, // Remove extra padding
+    padding: 0,
   },
   backButtonText: { 
     color: '#4CAF50', 
@@ -165,9 +381,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    color: '#4CAF50',
+  },
+  button: {
+    marginVertical: 5,
+    padding: 12,
+    backgroundColor: '#e8f5e9',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#333',
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Transparent black background
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
 });
-
-
-
 
 export default OrganisationPage;

@@ -68,7 +68,23 @@ const OrganisationDriverList = ({ navigation }) => {
   const renderDriverItem = ({ item }) => (
     <View style={styles.card}>
       <TouchableOpacity
-        onPress={() => navigation.navigate('OrganisationDriverDetail', { driver: item })}
+        onPress={() =>
+          navigation.navigate('OrganisationDriverDetail', {
+            driver: item,
+            onUpdate: (updatedDriver) => {
+              setDrivers((prevDrivers) =>
+                prevDrivers.map((driver) =>
+                  driver.id === updatedDriver.id ? updatedDriver : driver
+                )
+              );
+              setFilteredDrivers((prevDrivers) =>
+                prevDrivers.map((driver) =>
+                  driver.id === updatedDriver.id ? updatedDriver : driver
+                )
+              );
+            },
+          })
+        }
         style={{ flex: 1 }}
       >
         <Text style={styles.name}>{item.name}</Text>
@@ -81,6 +97,7 @@ const OrganisationDriverList = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
+  
 
   return (
     <ScrollView>
