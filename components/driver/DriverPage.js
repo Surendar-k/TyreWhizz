@@ -1,217 +1,338 @@
-// DriverPage.js
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   TextInput,
-  StyleSheet,
-  ScrollView,
-  
+  TouchableOpacity,
   Image,
+  Modal,
+  StyleSheet,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
 const DriverPage = () => {
-  const [isSidebarVisible, setSidebarVisible] = useState(false);
+  const navigation = useNavigation();
+  const [isPopupVisible, setPopupVisible] = useState(false);
   const [formType, setFormType] = useState(null);
   const [name, setName] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
-  const [vehicleType, setVehicleType] = useState('');
   const [organisation, setOrganisation] = useState('');
   const [vehicleImage, setVehicleImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handleImageUpload = () => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: false,
-    };
-
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else {
-        setVehicleImage(response.assets[0]);
+    launchImageLibrary(
+      { mediaType: 'photo', includeBase64: true },
+      (response) => {
+        if (response.assets && response.assets.length > 0) {
+          const imageUri = response.assets[0].uri;
+          setVehicleImage(imageUri);
+        }
       }
-    });
+    );
+  };
+
+  const handleProfileImageUpload = () => {
+    launchImageLibrary(
+      { mediaType: 'photo', includeBase64: true },
+      (response) => {
+        if (response.assets && response.assets.length > 0) {
+          const imageUri = response.assets[0].uri;
+          setProfileImage(imageUri);
+        }
+      }
+    );
   };
 
   const handleSubmit = () => {
     if (formType === 'personal') {
-      console.log('Personal Details Submitted:', { name, vehicleNumber, vehicleType, vehicleImage });
+      console.log('Personal Details Submitted:', { name, vehicleNumber, vehicleImage });
+      navigation.navigate('DetailsPage', { personalDetails: { name, vehicleNumber }, isDarkMode });
     } else if (formType === 'business') {
-      console.log('Business Details Submitted:', { name, organisation, vehicleType, vehicleImage });
+      console.log('Business Details Submitted:', { name, organisation, vehicleNumber, vehicleImage });
+      navigation.navigate('DetailsPage', { businessDetails: { name, organisation, vehicleNumber }, isDarkMode });
     }
-    // Reset form
+    resetForm();
+  };
+
+  const resetForm = () => {
     setName('');
     setVehicleNumber('');
-    setVehicleType('');
     setOrganisation('');
     setVehicleImage(null);
-    setSidebarVisible(false);
+    setProfileImage(null);
+    setPopupVisible(false);
     setFormType(null);
   };
 
   const renderForm = () => {
-    if (formType === 'personal') {
-      return (
-        <>
+    return (
+      <View style={styles.formContainer(isDarkMode)}>
+        <TextInput
+          style={styles.input(isDarkMode)}
+          placeholder={formType === 'personal' ? "Name" : "Business Name"}
+          value={name}
+          onChangeText={setName}
+        />
+        {formType === 'business' && (
           <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Vehicle Number"
-            value={vehicleNumber}
-            onChangeText={setVehicleNumber}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Type of Vehicle"
-            value={vehicleType}
-            onChangeText={setVehicleType}
-          />
-        </>
-      );
-    } else if (formType === 'business') {
-      return (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Organisation"
+            style={styles.input(isDarkMode)}
+            placeholder="Organisation ID"
             value={organisation}
             onChangeText={setOrganisation}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Type of Vehicle"
-            value={vehicleType}
-            onChangeText={setVehicleType}
-          />
-        </>
-      );
-    }
+        )}
+        <TextInput
+          style={styles.input(isDarkMode)}
+          placeholder="Vehicle Number"
+          value={vehicleNumber}
+          onChangeText={setVehicleNumber}
+        />
+        <TouchableOpacity onPress={handleImageUpload} style={styles.uploadButton(isDarkMode)}>
+          <Text style={styles.buttonText(isDarkMode)}>Upload Vehicle Image</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSubmit} style={styles.submitButton(isDarkMode)}>
+          <Text style={styles.buttonText(isDarkMode)}>
+            Submit {formType === 'personal' ? 'Personal' : 'Business'} Details
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
-    <View style={styles.container}>
-      {/* Hamburger Menu Icon */}
-      <TouchableOpacity onPress={() => setSidebarVisible(!isSidebarVisible)}>
-        <Icon name="bars" size={30} />
-      </TouchableOpacity>
+    <View style={styles.container(isDarkMode)}>
+      <View style={styles.header}>
+        <Text style={styles.headerText(isDarkMode)}>Tyre Whizz</Text>
+        <TouchableOpacity onPress={() => setIsDarkMode(!isDarkMode)} style={styles.themeToggleButton}>
+          <Text style={styles.themeToggleText}>{isDarkMode ? '🌞' : '🌙'}</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Sidebar */}
-      {isSidebarVisible && (
-        <View style={styles.sidebar}>
-          <TouchableOpacity style={styles.sidebarItem} onPress={() => { setFormType('personal'); setSidebarVisible(false); }}>
-            <Text style={styles.sidebarText}>Personal Details</Text>
+      <View style={styles.iconContainer}>
+        <TouchableOpacity onPress={() => setPopupVisible(true)}>
+          <View style={styles.iconCircle}>
+            <Text style={styles.icon}>👤</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <View style={styles.iconCircle}>
+            <Text style={styles.icon}>🔔</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <View style={styles.iconCircle}>
+            <Text style={styles.icon}>⚠️</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.profileSection}>
+        <TouchableOpacity onPress={handleProfileImageUpload} style={styles.profileButton}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          ) : (
+            <Text style={styles.uploadProfileText(isDarkMode)}>Upload Profile Image</Text>
+          )}
+        </TouchableOpacity>
+        <Text style={styles.nameText}>{name || 'Your Name'}</Text>
+        {name ? (
+          <TouchableOpacity onPress={() => setName('')} style={styles.editNameButton}>
+            <Text style={styles.editIcon}>+</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.sidebarItem} onPress={() => { setFormType('business'); setSidebarVisible(false); }}>
-            <Text style={styles.sidebarText}>Business Details</Text>
-          </TouchableOpacity>
-        </View>
+        ) : (
+          <TextInput
+            style={styles.nameInput(isDarkMode)}
+            placeholder="Enter your name"
+            value={name}
+            onChangeText={setName}
+          />
+        )}
+      </View>
+
+      {isPopupVisible && (
+        <Modal transparent visible={isPopupVisible}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.popup}>
+              <Text style={styles.popupTitle}>Choose Details</Text>
+              <TouchableOpacity onPress={() => { setFormType('personal'); setPopupVisible(false); }}>
+                <Text style={styles.popupButton(isDarkMode)}>Personal Details</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { setFormType('business'); setPopupVisible(false); }}>
+                <Text style={styles.popupButton(isDarkMode)}>Business Details</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       )}
 
-      {/* Main Form View */}
-      <ScrollView style={styles.formContainer}>
-        {renderForm()}
-
-        <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
-          <Text style={styles.uploadText}>Upload Vehicle Image</Text>
-        </TouchableOpacity>
-
-        {vehicleImage && (
-          <Image source={{ uri: vehicleImage.uri }} style={styles.imagePreview} />
-        )}
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitText}>Submit {formType === 'personal' ? 'Personal' : 'Business'} Details</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      {formType && renderForm()}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: (isDarkMode) => ({
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  sidebar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 200,
-    height: '100%',
-    backgroundColor: '#8B4513',
-    padding: 20,
-    zIndex: 1,
-  },
-  sidebarItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#fff',
-  },
-  sidebarText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  formContainer: {
-    marginLeft: isSidebarVisible ? 220 : 0, // Shift content when sidebar is open
-    padding: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 10,
-    marginVertical: 10,
-  },
-  uploadButton: {
-    backgroundColor: '#007BFF',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: isDarkMode ? '#000' : '#f0f4f8',
+  }),
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 20,
+    backgroundColor: '#007BFF',
+    padding: 20,
+    borderRadius: 5,
+    marginBottom: 20,
   },
-  uploadText: {
-    color: '#fff',
+  headerText: (isDarkMode) => ({
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: isDarkMode ? '#fff' : '#fff',
+  }),
+  themeToggleButton: {
+    padding: 10,
   },
-  imagePreview: {
+  themeToggleText: {
+    fontSize: 24,
+  },
+  profileSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  profileButton: {
     width: 100,
     height: 100,
-    marginVertical: 10,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
+    borderRadius: 50,
+    backgroundColor: '#f0f4f8',
     justifyContent: 'center',
-  },
-  submitButton: {
-    backgroundColor: '#28a745',
-    padding: 15,
-    borderRadius: 25, // Oval shape
-    flex: 0.8,
     alignItems: 'center',
-    marginVertical: 20,
+    borderWidth: 2,
+    borderColor: '#007BFF',
+    overflow: 'hidden',
+    marginBottom: 10,
   },
-  submitText: {
+  profileImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 50,
+  },
+  uploadProfileText: (isDarkMode) => ({
+    textAlign: 'center',
+    color: isDarkMode ? '#fff' : '#007BFF',
+  }),
+  nameText: {
+    fontSize: 20,
+    fontWeight: 'bold',
     color: '#fff',
   },
+  nameInput: (isDarkMode) => ({
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    width: '80%',
+    textAlign: 'center',
+    backgroundColor: isDarkMode ? '#555' : '#fff',
+    color: isDarkMode ? '#fff' : '#000',
+  }),
+  editNameButton: {
+    marginTop: 10,
+  },
+  editIcon: {
+    fontSize: 24,
+    color: '#007BFF',
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderBottomWidth: 2,
+    borderColor: '#007BFF',
+    borderRadius: 10,
+    paddingBottom: 10,
+    marginBottom: 20,
+  },
+  iconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icon: {
+    fontSize: 24,
+    color: '#007BFF',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  popup: {
+    width: 300,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  popupTitle: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  popupButton: (isDarkMode) => ({
+    fontSize: 18,
+    color: '#007BFF',
+    marginVertical: 10,
+  }),
+  formContainer: (isDarkMode) => ({
+    padding: 20,
+    backgroundColor: isDarkMode ? '#333' : '#fff',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  }),
+  input: (isDarkMode) => ({
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: isDarkMode ? '#555' : '#fff',
+    color: isDarkMode ? '#fff' : '#000',
+  }),
+  uploadButton: (isDarkMode) => ({
+    backgroundColor: isDarkMode ? '#007BFF' : '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  }),
+  submitButton: (isDarkMode) => ({
+    backgroundColor: '#28a745',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  }),
+  deleteButton: {
+    backgroundColor: '#dc3545',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: (isDarkMode) => ({
+    color: isDarkMode ? '#fff' : '#fff',
+    fontSize: 16,
+  }),
 });
 
 export default DriverPage;
