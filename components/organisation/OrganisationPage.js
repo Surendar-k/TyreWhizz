@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput } from 'react-native';
-=======
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
->>>>>>> parent of b4f597f (Profile section added)
 import { useNavigation } from '@react-navigation/native';
 
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-<<<<<<< HEAD
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // Track edit mode
   
@@ -28,8 +23,6 @@ const OrganisationPage = () => {
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
   };
-=======
->>>>>>> parent of b4f597f (Profile section added)
 
   // Simulated fetch function (replace with actual API call later)
   const fetchFleetData = async () => {
@@ -39,15 +32,9 @@ const OrganisationPage = () => {
         totalVehicles: 50,
         activeIssues: 5,
         resolvedIssues: [
-<<<<<<< HEAD
           { id: 1, timestamp: Date.now() - 1000 * 60 * 60 }, 
           { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 }, 
           { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 }, 
-=======
-          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 }, // Resolved 1 hour ago
-          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 }, // Resolved 2 hours ago
-          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 }, // Resolved 25 hours ago
->>>>>>> parent of b4f597f (Profile section added)
         ],
       };
 
@@ -74,16 +61,6 @@ const OrganisationPage = () => {
     fetchFleetData();
   }, []);
 
-<<<<<<< HEAD
-  const handleProfileChange = (field, value) => {
-    setProfileData({
-      ...profileData,
-      [field]: value,
-    });
-  };
-
-=======
->>>>>>> parent of b4f597f (Profile section added)
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -101,72 +78,9 @@ const OrganisationPage = () => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
-<<<<<<< HEAD
-        <TouchableOpacity style={styles.profileButton} onPress={toggleProfileDrawer}>
-          <Text style={styles.profileButtonText}>☰</Text> {/* Profile Icon */}
-        </TouchableOpacity>
-      </View>
-
-      {/* Profile Section */}
-      {isProfileOpen && (
-        <View style={styles.profileDrawer}>
-          <TouchableOpacity onPress={toggleProfileDrawer} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
-          <Text style={styles.profileTitle}>Profile</Text>
-
-          <TouchableOpacity onPress={toggleEditMode} style={styles.editButton}>
-            <Text style={styles.editButtonText}>{isEditMode ? 'Save' : 'Edit'}</Text>
-          </TouchableOpacity>
-
-          {isEditMode ? (
-            <>
-              <TextInput
-                style={styles.input}
-                value={profileData.organizationName}
-                onChangeText={(text) => handleProfileChange('organizationName', text)}
-              />
-              <TextInput
-                style={styles.input}
-                value={profileData.managerName}
-                onChangeText={(text) => handleProfileChange('managerName', text)}
-              />
-              <TextInput
-                style={styles.input}
-                value={profileData.email}
-                onChangeText={(text) => handleProfileChange('email', text)}
-              />
-              <TextInput
-                style={styles.input}
-                value={profileData.phone}
-                onChangeText={(text) => handleProfileChange('phone', text)}
-              />
-            </>
-          ) : (
-            <>
-              <Text style={styles.profileText}>Organization Name: {profileData.organizationName}</Text>
-              <Text style={styles.profileText}>Manager: {profileData.managerName}</Text>
-              <Text style={styles.profileText}>Email: {profileData.email}</Text>
-              <Text style={styles.profileText}>Phone: {profileData.phone}</Text>
-            </>
-          )}
-
-          <Text style={styles.sectionHeader}>Account Settings</Text>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Change Password</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-=======
       </View>
 
       {/* Role Information */}
->>>>>>> parent of b4f597f (Profile section added)
       <View style={styles.roleContainer}>
         <Text style={styles.role}>Logged in as: Organization</Text>
       </View>
@@ -268,27 +182,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-<<<<<<< HEAD
-  sectionHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#4CAF50',
-  },
-  button: {
-    marginVertical: 5,
-    padding: 12,
-    backgroundColor: '#e8f5e9',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#333',
-    fontSize: 16,
-  },
-=======
->>>>>>> parent of b4f597f (Profile section added)
 });
 
 
