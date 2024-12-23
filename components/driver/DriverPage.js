@@ -1,128 +1,114 @@
+// DriverPage.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Image, Alert, TouchableOpacity, ScrollView } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { View, Text, Button, TextInput, TouchableOpacity, Modal, StyleSheet, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Make sure to install react-native-vector-icons
 
-const DriverPage = ({ detailsType, setDetailsType, handleSave, imageUri, setImageUri, handleImagePick }) => {
+const DriverPage = ({ navigation }) => {
+  const [isSidebarVisible, setSidebarVisible] = useState(false);
+  const [name, setName] = useState('');
+  const [vehicleNumber, setVehicleNumber] = useState('');
+  const [vehicleType, setVehicleType] = useState('');
+  const [vehicleImage, setVehicleImage] = useState(null); // Placeholder for image
+
+  const handleSubmit = (type) => {
+    if (type === 'personal') {
+      navigation.navigate('PersonalDetailsPage', { name, vehicleNumber, vehicleType, vehicleImage });
+    } else {
+      navigation.navigate('BusinessDetailsPage', { name, vehicleNumber, vehicleType, vehicleImage });
+    }
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.switchContainer}>
-        <TouchableOpacity
-          style={[
-            styles.switchButton,
-            detailsType === 'Personal' && styles.activeButton,
-          ]}
-          onPress={() => setDetailsType('Personal')}
-        >
-          <Text style={styles.switchText}>Personal Details</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.switchButton,
-            detailsType === 'Business' && styles.activeButton,
-          ]}
-          onPress={() => setDetailsType('Business')}
-        >
-          <Text style={styles.switchText}>Business Details</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.heading}>{detailsType} Details Form</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        value={detailsType === 'Personal' ? detailsType.name : detailsType.organization}
-        onChangeText={(text) => detailsType === 'Personal' ? setDetailsType({...detailsType, name: text}) : setDetailsType({...detailsType, organization: text})}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Register Number"
-        value={detailsType.registerNumber}
-        onChangeText={(text) => setDetailsType({...detailsType, registerNumber: text})}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Vehicle Number"
-        value={detailsType.vehicleNumber}
-        onChangeText={(text) => setDetailsType({...detailsType, vehicleNumber: text})}
-      />
-      {detailsType === 'Business' && (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Organization"
-            value={detailsType.organization}
-            onChangeText={(text) => setDetailsType({...detailsType, organization: text})}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="ID"
-            value={detailsType.id}
-            onChangeText={(text) => setDetailsType({...detailsType, id: text})}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Pincode"
-            keyboardType="numeric"
-            value={detailsType.pincode}
-            onChangeText={(text) => setDetailsType({...detailsType, pincode: text})}
-          />
-        </>
-      )}
-      <Button title="Pick an Image" onPress={handleImagePick} />
-      {imageUri && (
-        <Image source={{ uri: imageUri }} style={styles.image} />
-      )}
-      <TouchableOpacity
-        style={styles.saveButton}
-        onPress={handleSave}
-      >
-        <Text style={styles.saveButtonText}>Save Details</Text>
+    <View style={styles.container}>
+      <TouchableOpacity onPress={() => setSidebarVisible(!isSidebarVisible)}>
+        <Icon name="bars" size={30} />
       </TouchableOpacity>
-    </ScrollView>
+      
+      {isSidebarVisible && (
+        <View style={styles.sidebar}>
+          <Text style={styles.sidebarItem} onPress={() => setSidebarVisible(false)}>Profile Upload</Text>
+          <Text style={styles.sidebarItem} onPress={() => setSidebarVisible(false)}>Business Details</Text>
+          {/* Add more sidebar items as needed */}
+        </View>
+      )}
+      
+      <ScrollView style={styles.form}>
+        <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
+        <TextInput style={styles.input} placeholder="Vehicle Number" value={vehicleNumber} onChangeText={setVehicleNumber} />
+        <TextInput style={styles.input} placeholder="Type of Vehicle" value={vehicleType} onChangeText={setVehicleType} />
+        
+        {/* Placeholder for image upload */}
+        <TouchableOpacity style={styles.uploadButton}>
+          <Text style={styles.uploadText}>Upload Vehicle Image</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.submitButton} onPress={() => handleSubmit('personal')}>
+            <Text style={styles.submitText}>Submit Personal Details</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.submitButton} onPress={() => handleSubmit('business')}>
+            <Text style={styles.submitText}>Submit Business Details</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: '#f2f2f2', flex: 1 },
-  heading: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  input: {
-    borderColor: '#ddd',
-    borderWidth: 1,
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 8,
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  sidebar: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 200,
     backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 20,
+  sidebarItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
-  switchButton: {
+  form: {
+    padding: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     padding: 10,
-    backgroundColor: '#ddd',
-    marginHorizontal: 5,
-    borderRadius: 8,
-  },
-  activeButton: { backgroundColor: '#6200ea' },
-  switchText: { color: '#fff', fontWeight: 'bold' },
-  saveButton: {
-    backgroundColor: '#6200ea',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    marginVertical: 20,
-    alignSelf: 'center',
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  image: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
     marginVertical: 10,
-    alignSelf: 'center',
+  },
+  uploadButton: {
+    backgroundColor: '#007BFF',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  uploadText: {
+    color: '#fff',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  submitButton: {
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 5,
+    flex: 0.48,
+    alignItems: 'center',
+  },
+  submitText: {
+    color: '#fff',
   },
 });
 

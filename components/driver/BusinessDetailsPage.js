@@ -1,52 +1,104 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import DriverPage from './DriverPage';
-import * as ImagePicker from 'expo-image-picker';
+// BusinessDetailsPage.js
+import React from 'react';
+import { View, Text, StyleSheet, Button, Modal, FlatList, TouchableOpacity, Image } from 'react-native';
 
-const BusinessDetailsPage = () => {
-  const [details, setDetails] = useState({
-    name: '',
-    registerNumber: '',
-    vehicleNumber: '',
-    organization: '',
-    id: '',
-    pincode: '',
-  });
-  const [imageUri, setImageUri] = useState('');
-  const [detailsType, setDetailsType] = useState('Business');
+const BusinessDetailsPage = ({ route }) => {
+  const { name, vehicleNumber, vehicleType, vehicleImage } = route.params;
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedVehicle, setSelectedVehicle] = React.useState(null);
 
-  const handleImagePick = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
+  const vehicles = [
+    { id: '1', name: 'Car', number: 'ABC123', organization: 'XYZ Corp', image: require('./path/to/image1.jpg') },
+    { id: '2', name: 'Truck', number: 'LMN789', organization: 'ABC Inc', image: require('./path/to/image2.jpg') },
+    // Add more vehicles as needed
+  ];
 
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
-  };
-
-  const handleSave = () => {
-    // Handle Save Logic Here
-    console.log('Details saved:', details);
+  const handleVehicleSelect = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setModalVisible(true);
   };
 
   return (
-    <DriverPage
-      detailsType={details}
-      setDetailsType={setDetails}
-      handleSave={handleSave}
-      imageUri={imageUri}
-      setImageUri={setImageUri}
-      handleImagePick={handleImagePick}
-    />
+    <View style={styles.container}>
+      <Text style={styles.title}>Business Details</Text>
+      <Text>Name: {name}</Text>
+      <Text>Vehicle Number: {vehicleNumber}</Text>
+      <Text>Vehicle Type: {vehicleType}</Text>
+      <Image style={styles.image} source={vehicleImage} />
+
+      <FlatList
+        data={vehicles}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.vehicleItem} onPress={() => handleVehicleSelect(item)}>
+            <Text style={styles.vehicleText}>{item.name}</Text>
+          </TouchableOpacity>
+        )}
+      />
+
+      {selectedVehicle && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Image style={styles.modalImage} source={selectedVehicle.image} />
+              <Text>Name: {selectedVehicle.name}</Text>
+              <Text>Vehicle Number: {selectedVehicle.number}</Text>
+              <Text>Organization: {selectedVehicle.organization}</Text>
+              <Button title="Close" onPress={() => setModalVisible(false)} />
+            </View>
+          </View>
+        </Modal>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  // Add styles for BusinessDetailsPage if necessary
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    marginVertical: 20,
+  },
+  vehicleItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  vehicleText: {
+    fontSize: 18,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+  },
 });
 
 export default BusinessDetailsPage;
-
