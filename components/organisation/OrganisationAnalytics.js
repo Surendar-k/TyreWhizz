@@ -86,6 +86,7 @@ const OrganisationAnalytics = () => {
       </View>
 
       {/* Title */}
+      <view style={styles.whole}>
       <Text style={styles.subtitle}>Organisation Analytics</Text>
 
       {/* Metrics */}
@@ -118,19 +119,20 @@ const OrganisationAnalytics = () => {
         chartConfig={chartConfig}
         verticalLabelRotation={30}
       />
+      </view>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', padding: 20 },
+  container: { flex: 1, backgroundColor: '#f9f9f9',  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: '#4CAF50',
+    paddingVertical: 30,
+    backgroundColor: '#228B22',
   },
   backButton: {
     width: 40,
@@ -139,25 +141,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
+    padding: 0,
   },
   backButtonText: {
-    color: '#4CAF50',
-    fontSize: 20,
+    color: '#4CBB17',
+    fontSize: 30,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   title: {
-    flex: 1,
+    flex: 2,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
+    marginLeft: -40,
   },
+  whole:{padding:10},
   roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
-  role: { fontSize: 16, color: '#333' },
+  role: { fontSize: 18, color: '#4CBB17' },
   subtitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
-  metricsContainer: { marginBottom: 20 },
-  metric: { fontSize: 16, marginBottom: 10 },
-  chartTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 20, marginBottom: 10 },
+  metricsContainer: { marginBottom: 20,padding:20 },
+  metric: { fontSize: 16, marginBottom: 10 ,},
+  chartTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 20, marginBottom: 10 ,},
 });
 
 export default OrganisationAnalytics;
