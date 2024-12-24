@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import WelcomePage from './components/WelcomePage'; // Adjust the path as needed
 import UserTypeSelectionPage from './components/UserTypeSelectionPage';
 import RoleBasedAuthPage from './components/RoleBasedAuthPage'; // Adjust path as needed
-
+import DriverPage from './components/driver/DriverPage';
 import OrganisationPage from './components/organisation/OrganisationPage';
 import TechnicianPage from './components/technician/TechnicianPage';
 import TireMonitoring from './components/organisation/TireMonitoring';
@@ -13,7 +13,7 @@ import OrganisationDriverList from './components/organisation/OrganisationDriver
 import MonitoringPage from './components/driver/MonitoringPage';
 import OrganisationAnalytics from './components/organisation/OrganisationAnalytics';
 import OrganisationVehicleList from './components/organisation/OrganisationVehicleList';
-
+import DetailsPage from './components/driver/DetailsPage';
 
 const Stack = createStackNavigator();
 const App = () => {
@@ -23,7 +23,7 @@ const App = () => {
         <Stack.Screen name="WelcomePage" component={WelcomePage} />
         <Stack.Screen name="UserTypeSelectionPage" component={UserTypeSelectionPage} />
         <Stack.Screen name="RoleBasedAuthPage" component={RoleBasedAuthPage} />
-       
+        <Stack.Screen name="DriverPage" component={DriverPage}/>
         <Stack.Screen name="OrganisationPage" component={OrganisationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
         <Stack.Screen name="OrganisationDriverList" component={OrganisationDriverList} />
@@ -32,7 +32,7 @@ const App = () => {
         <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics}/>
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
         <Stack.Screen name="MonitoringPage" component={MonitoringPage} />
-        
+        <Stack.Screen name="DetailsPage" component={DetailsPage} />        
         
       </Stack.Navigator>
     </NavigationContainer>
