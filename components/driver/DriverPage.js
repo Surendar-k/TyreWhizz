@@ -17,9 +17,9 @@ const DriverPage = () => {
   const [formType, setFormType] = useState(null);
   const [name, setName] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
+  const [vehicleType, setVehicleType] = useState('Car');
   const [organisation, setOrganisation] = useState('');
-  const [vehicleImage, setVehicleImage] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
+  const [savedDetails, setSavedDetails] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const handleImageUpload = () => {
@@ -47,60 +47,61 @@ const DriverPage = () => {
   };
 
   const handleSubmit = () => {
-    if (formType === 'personal') {
-      console.log('Personal Details Submitted:', { name, vehicleNumber, vehicleImage });
-      navigation.navigate('DetailsPage', { personalDetails: { name, vehicleNumber }, isDarkMode });
-    } else if (formType === 'business') {
-      console.log('Business Details Submitted:', { name, organisation, vehicleNumber, vehicleImage });
-      navigation.navigate('DetailsPage', { businessDetails: { name, organisation, vehicleNumber }, isDarkMode });
+    if (formType) {
+      const vehicleDetails = { number: vehicleNumber, type: vehicleType };
+      setSavedDetails([...savedDetails, { name, vehicleDetails, organisation }]);
+      resetForm();
     }
-    resetForm();
   };
 
   const resetForm = () => {
     setName('');
     setVehicleNumber('');
+    setVehicleType('Car');
     setOrganisation('');
-    setVehicleImage(null);
-    setProfileImage(null);
     setPopupVisible(false);
     setFormType(null);
   };
 
-  const renderForm = () => {
-    return (
-      <View style={styles.formContainer(isDarkMode)}>
+  const renderForm = () => (
+    <View style={styles.formContainer(isDarkMode)}>
+      <TextInput
+        style={styles.input(isDarkMode)}
+        placeholder={formType === 'personal' ? "Name" : "Business Name"}
+        value={name}
+        onChangeText={setName}
+      />
+      {formType === 'business' && (
         <TextInput
           style={styles.input(isDarkMode)}
-          placeholder={formType === 'personal' ? "Name" : "Business Name"}
-          value={name}
-          onChangeText={setName}
+          placeholder="Organisation ID"
+          value={organisation}
+          onChangeText={setOrganisation}
         />
-        {formType === 'business' && (
-          <TextInput
-            style={styles.input(isDarkMode)}
-            placeholder="Organisation ID"
-            value={organisation}
-            onChangeText={setOrganisation}
-          />
-        )}
-        <TextInput
-          style={styles.input(isDarkMode)}
-          placeholder="Vehicle Number"
-          value={vehicleNumber}
-          onChangeText={setVehicleNumber}
-        />
-        <TouchableOpacity onPress={handleImageUpload} style={styles.uploadButton(isDarkMode)}>
-          <Text style={styles.buttonText(isDarkMode)}>Upload Vehicle Image</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleSubmit} style={styles.submitButton(isDarkMode)}>
-          <Text style={styles.buttonText(isDarkMode)}>
-            Submit {formType === 'personal' ? 'Personal' : 'Business'} Details
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+      )}
+      <TextInput
+        style={styles.input(isDarkMode)}
+        placeholder="Vehicle Number"
+        value={vehicleNumber}
+        onChangeText={setVehicleNumber}
+      />
+      <TextInput
+        style={styles.input(isDarkMode)}
+        placeholder="Vehicle Type (Car/Bike/Truck)"
+        value={vehicleType}
+        onChangeText={setVehicleType}
+      />
+      <TouchableOpacity onPress={handleImageUpload} style={styles.uploadButton(isDarkMode)}>
+        <Text style={styles.buttonText(isDarkMode)}>Upload Vehicle Image</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleSubmit} style={styles.submitButton(isDarkMode)}>
+        <Text style={styles.buttonText(isDarkMode)}>Save Details</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => setPopupVisible(true)} style={styles.addButton}>
+        <Text style={styles.addButtonText}>➕ Add New Details</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container(isDarkMode)}>
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   headerText: (isDarkMode) => ({
     fontSize: 32,
     fontWeight: 'bold',
-    color: isDarkMode ? '#fff' : '#fff',
+    color: isDarkMode ? '#fff' : '#000',
   }),
   themeToggleButton: {
     padding: 10,
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
     color: isDarkMode ? '#fff' : '#000',
   }),
   uploadButton: (isDarkMode) => ({
-    backgroundColor: isDarkMode ? '#007BFF' : '#007BFF',
+    backgroundColor: '#007BFF',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -322,17 +323,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
   }),
-  deleteButton: {
-    backgroundColor: '#dc3545',
+  addButton: {
+    backgroundColor: '#007BFF',
+    borderRadius: 50,
     padding: 10,
-    borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: (isDarkMode) => ({
-    color: isDarkMode ? '#fff' : '#fff',
-    fontSize: 16,
-  }),
+  addButtonText: {
+    color: '#fff',
+    fontSize: 24,
+  },
 });
 
 export default DriverPage;

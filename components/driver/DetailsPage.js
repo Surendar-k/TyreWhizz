@@ -17,12 +17,9 @@ const DetailsPage = ({ route }) => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [isPopupVisible, setPopupVisible] = useState(false);
 
-  // Vehicles array without image option
-  const vehicles = [
-    { id: '1', number: 'ABC 123', type: 'Car' },
-    { id: '2', number: 'XYZ 456', type: 'Truck' },
-    { id: '3', number: 'SSS 456', type: 'Bike' },
-  ];
+  // Combine vehicle details from both types
+  const vehicles = personalDetails ? [personalDetails.vehicleDetails] : 
+                 businessDetails ? [businessDetails.vehicleDetails] : [];
 
   const handleVehicleSelect = (vehicle) => {
     setSelectedVehicle(vehicle);
@@ -39,9 +36,6 @@ const DetailsPage = ({ route }) => {
   return (
     <View style={styles.container(isDarkMode)}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
         <Text style={styles.headerText(isDarkMode)}>Tyre Whizz</Text>
         <TouchableOpacity onPress={() => setIsDarkMode(!isDarkMode)} style={styles.themeToggleButton}>
           <Text style={styles.themeToggleText}>{isDarkMode ? '🌞' : '🌙'}</Text>
@@ -56,7 +50,7 @@ const DetailsPage = ({ route }) => {
         <FlatList
           data={vehicles}
           renderItem={renderVehicleItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.number}
           style={styles.dropdownList}
         />
       )}
@@ -68,9 +62,6 @@ const DetailsPage = ({ route }) => {
               <Text style={styles.popupTitle}>Vehicle Details</Text>
               <Text style={styles.popupText}>
                 {selectedVehicle.type} Number: {selectedVehicle.number}
-              </Text>
-              <Text style={styles.popupText}>
-                {personalDetails ? `Owner: ${personalDetails.name}` : `Owner: ${businessDetails.name}, Org ID: ${businessDetails.organisation}`}
               </Text>
               <TouchableOpacity onPress={() => setPopupVisible(false)} style={styles.closeButton}>
                 <Text style={styles.buttonText(isDarkMode)}>Close</Text>
@@ -98,17 +89,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
   },
-  backButton: {
-    padding: 10,
-  },
-  backButtonText: {
-    fontSize: 18,
-    color: '#fff',
-  },
   headerText: (isDarkMode) => ({
     fontSize: 32,
     fontWeight: 'bold',
-    color: isDarkMode ? '#fff' : '#fff',
+    color: isDarkMode ? '#fff' : '#000',
   }),
   themeToggleButton: {
     padding: 10,
@@ -169,7 +153,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: (isDarkMode) => ({
-    color: isDarkMode ? '#fff' : '#fff',
+    color: isDarkMode ? '#fff' : '#000',
     fontSize: 16,
   }),
 });
