@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet ,Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import logoimg from '../assets/selectroleimg.png';
 
 
 const UserTypeSelectionPage = () => {
@@ -12,6 +13,10 @@ const UserTypeSelectionPage = () => {
 
   return (
     <View style={styles.container}>
+   <View style={styles.logoContainer}>
+        <Image source={logoimg} style={styles.logo} />
+        <Text style={styles.title}>Welcome to TyreWhizz...</Text>
+      </View>
       <Text style={styles.title}>Select Your Role</Text>
 
       <TouchableOpacity
@@ -65,6 +70,30 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  text: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  image: {
+    width: 400,
+    height: 400,
+    resizeMode: 'contain', // Or you can use 'cover', 'stretch', etc.
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
   },
 });
 
