@@ -100,9 +100,9 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       <Text style={styles.title}>
         {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
       </Text>
-
+      
       <Modal
-        visible={isModalVisible}
+        visible={isModalVisible} 
         transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
