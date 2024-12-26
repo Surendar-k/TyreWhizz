@@ -21,7 +21,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
 const fetchVehicles=async()=>{
   try{
-    const response =await axios.get('http://localhost:5000/api/vehicles');
+    const response =await axios.get('http://192.168.18.34:5000/api/vehicles');
     setVehicles(response.data);
     setFilteredVehicles(response.data);
   }
@@ -36,6 +36,10 @@ useEffect(()=>{
 
 
 const deleteVehicle = (id) => {
+  if (!id) {
+    console.error("Vehicle ID is missing!");
+    return;
+  }
   Alert.alert('Delete Vehicle', 'Are you sure you want to delete this vehicle?', [
     { text: 'Cancel', style: 'cancel' },
     {
@@ -43,8 +47,7 @@ const deleteVehicle = (id) => {
       style: 'destructive',
       onPress: async () => {
         try {
-          // Make DELETE request to backend
-          await axios.delete(`/api/vehicles/${id}`);
+          await axios.delete(`http://192.168.18.34:5000/api/vehicles/${id}`);
           console.log("Vehicle deleted successfully.");
           // Update frontend state
           const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== id);
@@ -64,7 +67,7 @@ const deleteVehicle = (id) => {
     if (newVehicle.name && newVehicle.type && newVehicle.capacity && newVehicle.Vehicle_No) {
       try {
         // Make the POST request to add the vehicle
-        const response = await axios.post('http://localhost:5000/api/vehicles', newVehicle);
+        const response = await axios.post('http://192.168.18.34:5000/api/vehicles', newVehicle);
         
         // Check if the response contains the expected data
         if (response.data && response.data.vehicleId) {
@@ -116,7 +119,7 @@ const deleteVehicle = (id) => {
         <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
         
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => deleteVehicle(vehicles.id)} style={styles.deleteButton}>
+      <TouchableOpacity onPress={() => deleteVehicle(item.id)} style={styles.deleteButton}>
         <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>
     </View>
