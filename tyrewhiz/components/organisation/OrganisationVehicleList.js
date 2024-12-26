@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,45 +9,89 @@ import {
   TextInput,
   ScrollView,
 } from 'react-native';
+import axios from 'axios';
+
 
 const OrganisationVehicleList = ({ navigation }) => {
-  const [vehicles, setVehicles] = useState([
-    { id: '1',  Vehicle_No: 'TN-01-AB-1234', type: 'Truck', capacity: '10 Tons' },
-    { id: '2',  Vehicle_No: 'TN-02-BC-2345', type: 'Van', capacity: '2 Tons' },
-    { id: '3',  Vehicle_No: 'TN-03-CD-3456', type: 'Car', capacity: '1 Ton' },
-  ]);
-
-  const [filteredVehicles, setFilteredVehicles] = useState(vehicles);
+  const [vehicles, setVehicles] = useState([]);
+  const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ name: '', type: '', capacity: '', Vehicle_No: '' });
 
-  const deleteVehicle = (id) => {
-    Alert.alert('Delete Vehicle', 'Are you sure you want to delete this vehicle?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
+const fetchVehicles=async()=>{
+  try{
+    const response =await axios.get('http://localhost:5000/api/vehicles');
+    setVehicles(response.data);
+    setFilteredVehicles(response.data);
+  }
+  catch(error){
+    console.error('Error fetching vehicles:', error);
+    Alert.alert('Error', 'Failed to fetch vehicles');
+  }
+};
+useEffect(()=>{
+  fetchVehicles();
+},[]);
+
+
+const deleteVehicle = (id) => {
+  Alert.alert('Delete Vehicle', 'Are you sure you want to delete this vehicle?', [
+    { text: 'Cancel', style: 'cancel' },
+    {
+      text: 'Delete',
+      style: 'destructive',
+      onPress: async () => {
+        try {
+          // Make DELETE request to backend
+          await axios.delete(`/api/vehicles/${id}`);
+          console.log("Vehicle deleted successfully.");
+          // Update frontend state
           const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== id);
           setVehicles(updatedVehicles);
           setFilteredVehicles(updatedVehicles);
-        },
+          Alert.alert('Success', 'Vehicle deleted successfully.');
+        } catch (error) {
+          console.error('Error deleting vehicle:', error);
+          Alert.alert('Error', 'Failed to delete the vehicle.');
+        }
       },
-    ]);
-  };
+    },
+  ]);
+};
 
-  const addVehicle = () => {
+  const addVehicle = async () => {
     if (newVehicle.name && newVehicle.type && newVehicle.capacity && newVehicle.Vehicle_No) {
-      const newVehicleData = { id: Date.now().toString(), ...newVehicle };
-      setVehicles((prev) => [...prev, newVehicleData]);
-      setFilteredVehicles((prev) => [...prev, newVehicleData]);
-      setNewVehicle({ name: '', type: '', capacity: '', Vehicle_No: '' });
-      setShowAddVehicle(false);
+      try {
+        // Make the POST request to add the vehicle
+        const response = await axios.post('http://localhost:5000/api/vehicles', newVehicle);
+        
+        // Check if the response contains the expected data
+        if (response.data && response.data.vehicleId) {
+          // Assuming vehicleId is returned from backend, and appending it to the vehicle
+          const newVehicleWithId = { ...newVehicle, id: response.data.vehicleId };
+          
+          // Add the new vehicle to the state
+          setVehicles((prev) => [...prev, newVehicleWithId]);
+          setFilteredVehicles((prev) => [...prev, newVehicleWithId]);
+          
+          // Clear the form
+          setNewVehicle({ name: '', type: '', capacity: '', Vehicle_No: '' });
+          setShowAddVehicle(false);
+          
+          Alert.alert('Success', 'Vehicle added successfully');
+        } else {
+          Alert.alert('Error', 'Vehicle ID not received from the server');
+        }
+      } catch (error) {
+        console.error('Error adding vehicle:', error);
+        Alert.alert('Error', 'Failed to add vehicle');
+      }
     } else {
       Alert.alert('Error', 'Please fill all fields to add a vehicle.');
     }
   };
+  
 
   const searchVehicle = (text) => {
     setSearchText(text);
@@ -72,7 +116,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
         
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => deleteVehicle(item.id)} style={styles.deleteButton}>
+      <TouchableOpacity onPress={() => deleteVehicle(vehicles.id)} style={styles.deleteButton}>
         <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>
     </View>

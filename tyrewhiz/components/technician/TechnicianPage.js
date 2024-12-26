@@ -206,7 +206,7 @@ const requestCameraOrWebcamPermission = async () => {
 
   const handleEdit = () => setIsEditing(!isEditing);
   const handleSave = () => setIsEditing(false);
-  const [image, setImage] = useState(null);
+
 
   const pickCertificate = async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -290,14 +290,7 @@ const requestCameraOrWebcamPermission = async () => {
         onChangeText={setVehicleId}
       />
 
-      <TouchableOpacity 
-        style={styles.scanButton}
-        onPress={requestCameraPermission}
-        
-      >
-        <Ionicons name="camera" size={24} color="#fff" />
-        <Text style={styles.scanButtonText}>Capture Vehicle Image</Text>
-      </TouchableOpacity>
+      
 
       <Button
       style={styles.pair}
@@ -563,21 +556,7 @@ const requestCameraOrWebcamPermission = async () => {
 };
 
 const styles = StyleSheet.create({
-  scanButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FF5733',
-    padding: 15,
-    borderRadius: 8,
-    marginVertical: 15,
-    justifyContent: 'center'
-  },
-  scanButtonText: {
-    color: '#fff',
-    marginLeft: 10,
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
+
   // Layout & Containers
   container: {
     flex: 1,
