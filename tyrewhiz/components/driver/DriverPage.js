@@ -135,6 +135,15 @@ const DriverPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#3B4948', // Top color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  animatedBox: {
+    width: '90%',
+    height: '70%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     position: 'absolute',
@@ -177,6 +186,7 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     backgroundColor: '#007BFF',
+    padding: 10,
     borderRadius: 20,
     alignItems: 'center',
     width: '100%',
@@ -184,6 +194,18 @@ const styles = StyleSheet.create({
   },
   uploadButtonText: {
     color: '#fff',
+  },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '60%',
+    marginTop: 20,
+  },
+  icon: {
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    padding: 10,
+    elevation: 5,
   },
   modalOverlay: {
     flex: 1,
@@ -240,6 +262,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
     alignItems: 'center',
+    width: '100%',
     marginBottom: 10,
   },
 });
