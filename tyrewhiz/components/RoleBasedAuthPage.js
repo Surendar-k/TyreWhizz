@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
 import {
   View,
   Text,
@@ -9,8 +8,11 @@ import {
   Modal,
   StyleSheet,
   TouchableWithoutFeedback,
+  Image,
 } from 'react-native';
 import axios from 'axios';
+import logoimg from '../assets/rolebasedauthimage.png';
+
 
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
@@ -47,7 +49,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post('http://localhost:5000/api/signup', data);
+        const response = await axios.post('http://192.168.18.34:5000/api/signup', data);
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail('');
@@ -63,7 +65,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     
   try {
-    const response = await axios.post('http://localhost:5000/api/login', data);
+    const response = await axios.post('http://192.168.18.34:5000/api/login', data);
     showModal(response.data.message, false);
     const { userType } = response.data;  // Ensure this is the correct property from your backend response.
 
@@ -89,16 +91,18 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   };
 
   return (
+    
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
+      <Image source={logoimg} style={styles.logo}></Image>
       <Text style={styles.title}>
         {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
       </Text>
-
+      
       <Modal
-        visible={isModalVisible}
+        visible={isModalVisible} 
         transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
@@ -153,6 +157,16 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  logoContainer: {
+    justifyContent:'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    resizeMode: 'contain',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',

@@ -243,7 +243,7 @@ const OrganisationPage = () => {
       justifyContent: 'space-evenly',
       paddingHorizontal: 10,
       paddingVertical: 30,
-      backgroundColor: '#228B22',
+      backgroundColor: 'rgb(59 32 77)',
       
     },
     backButton: {
@@ -256,7 +256,7 @@ const OrganisationPage = () => {
       padding: 0,
     },
     backButtonText: {
-      color: '#4CBB17',
+      color: 'rgb(59 32 77)',
       fontSize: 30,
       fontWeight: 'bold',
       textAlign: 'center',
@@ -269,8 +269,8 @@ const OrganisationPage = () => {
       textAlign: 'center',
       marginLeft: -40,
     },
-    roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
-  role: { fontSize: 18, color: '#4CBB17' },
+    roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(59 32 77)' },
   profileButton: {
     width: 40,
     height: 40,
@@ -280,7 +280,7 @@ const OrganisationPage = () => {
     borderRadius: 5,
   },
   profileButtonText: {
-    color: '#4CBB17',
+    color: 'rgb(59 32 77)',
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -300,12 +300,12 @@ const OrganisationPage = () => {
       marginTop: 10,
     },
     card: {
-      backgroundColor: 'rgb(189 200 189)',
+      backgroundColor: 'rgb(255 255 255)',
       borderRadius: 15,
       padding: 20,
       width: '30%',
       alignItems: 'center', // Align children to the right
-      shadowColor: '#000',
+      shadowColor: 'rgb(20 2 2 / 20%) 0px 0px 6px',
       shadowOpacity: 0.2,
       shadowRadius: 6,
       elevation: 8,
@@ -327,7 +327,7 @@ const OrganisationPage = () => {
       padding: 15,
     },   
     navButton: {
-      backgroundColor: 'rgb(91 192 91)', 
+      backgroundColor: 'rgb(136 126 143)', 
       flexDirection: 'row',
       alignItems: 'center',
       padding: 15,
