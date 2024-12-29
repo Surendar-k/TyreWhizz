@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 // Import controllers
 const { signup, login } = require('./src/controllers/authController');
 const vehicles = require('./src/controllers/vehicleController');
-const apiRoutes = require('./src/routes/apiroutes');
+const apiRoutes = require('./src/routes/apiRoutes');
 
 // Create Express app
 const app = express();

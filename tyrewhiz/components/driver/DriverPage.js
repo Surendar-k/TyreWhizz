@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import driverlogo from '../../assets/driverimg.png';
-
+import { useNavigation } from '@react-navigation/native'; 
 const DriverPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +32,13 @@ const DriverPage = () => {
   const handleSubmit = () => {
     console.log('Username:', username);
     console.log('Password:', password);
+
+    // Navigate to MonitoringPage
+    navigation.navigate('MonitoringPage', {
+      userDetails: { username },
+    });
   };
+
 
   const handleIconPress = (type) => {
     setFormType(type);
@@ -40,12 +46,24 @@ const DriverPage = () => {
     setDetailsModalVisible(true);
   };
 
+
+  const navigation = useNavigation();  // Call useNavigation here
+
   const handleDetailsSubmit = () => {
     // Handle details form submission logic here
     console.log(formType);
     setDetailsModalVisible(false);
-  };
 
+    // Use the navigation object obtained from useNavigation
+    navigation.navigate('MonitoringPage', {
+      // Pass any params you want to send to MonitoringPage
+      userDetails: {
+        formType,
+        // Add any other details here
+      },
+      isDarkMode
+    });
+  };
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.animatedBox, { transform: [{ translateY: logoAnimation }] }]}>
@@ -93,6 +111,7 @@ const DriverPage = () => {
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>✖️</Text>
             </TouchableOpacity>
+            
           </View>
         </View>
       </Modal>

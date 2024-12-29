@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
 import {
   View,
   Text,
@@ -8,20 +9,29 @@ import {
   Modal,
   StyleSheet,
   TouchableWithoutFeedback,
-  Image,
 } from 'react-native';
 import axios from 'axios';
-import logoimg from '../assets/rolebasedauthimage.png';
 
-
-const RoleBasedAuthPage = ({ route, navigation }) => {
-  const { userType } = route.params;
+const RoleBasedAuthPage = ({ navigation }) => {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [userType, setUserType] = useState('driver'); // Default role
+
+  const handleDirectNavigation = () => {
+    if (userType === 'driver') {
+      navigation.replace('DriverPage');
+    } else if (userType === 'organisation') {
+      navigation.replace('OrganisationPage');
+    } else if (userType === 'technician') {
+      navigation.replace('TechnicianPage');
+    } else {
+      showModal('Please select a valid role.', true);
+    }
+  };
 
   const handleAuthAction = async () => {
     if (!email || !password) {
@@ -83,7 +93,6 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     showModal(error.response.data.error, true);
   }
   };
-
   const showModal = (message, isError) => {
     setPopupMessage(message);
     setModalVisible(true);
@@ -91,18 +100,16 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   };
 
   return (
-    
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
-      <Image source={logoimg} style={styles.logo}></Image>
       <Text style={styles.title}>
         {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
       </Text>
-      
+
       <Modal
-        visible={isModalVisible} 
+        visible={isModalVisible}
         transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
@@ -118,6 +125,22 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         </TouchableWithoutFeedback>
       </Modal>
 
+      <Text style={styles.subtitle}>Select Role:</Text>
+      <Picker
+        selectedValue={userType}
+        onValueChange={(itemValue) => setUserType(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Driver" value="driver" />
+        <Picker.Item label="Organisation" value="organisation" />
+        <Picker.Item label="Technician" value="technician" />
+      </Picker>
+
+      <TouchableOpacity style={styles.directNavButton} onPress={handleDirectNavigation}>
+        <Text style={styles.buttonText}>Go to {userType} Page</Text>
+      </TouchableOpacity>
+
+      {/* Existing Login/Signup form */}
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -155,18 +178,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
-  logoContainer: {
-    justifyContent:'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  logo: {
-    width: 250,
-    height: 250,
-    resizeMode: 'contain',
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -247,6 +259,63 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 10,
     textAlign: 'center',
+  },
+
+
+
+
+  picker: {
+    width: '80%',
+    height: 50,
+    marginBottom: 15,
+    backgroundColor: '#fdfdfd', // Slightly off-white background
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#4CAF50', // Match the directNavButton color for consistency
+    paddingHorizontal: 10,
+    fontSize: 16,
+    color: '#333', // Dark text color for better readability
+  },
+  pickerContainer: {
+    width: '80%',
+    marginBottom: 20,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#4CAF50',
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  },
+  pickerLabel: {
+    width: '100%',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  directNavButton: {
+    width: '80%',
+    height: 50,
+    backgroundColor: '#008CBA', // A modern blue shade for the button
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10, // Rounded corners for a smooth look
+    marginBottom: 20, // Space between this and other components
+    elevation: 5, // Shadow for a 3D effect on Android
+    shadowColor: '#000', // Shadow color for iOS
+    shadowOffset: { width: 0, height: 2 }, // Offset for iOS shadow
+    shadowOpacity: 0.2, // Opacity for iOS shadow
+    shadowRadius: 4, // Radius for iOS shadow
+  },
+  buttonText: {
+    color: '#fff', // White text for contrast
+    fontSize: 16, // Readable text size
+    fontWeight: 'bold', // Bold for emphasis
+    textTransform: 'uppercase', // Uppercase text for a button-like feel
+    letterSpacing: 1.2, // Slight spacing for readability
   },
 });
 
