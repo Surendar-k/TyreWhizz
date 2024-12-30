@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import tyremo from '../../assets/tyremo.png';
+import carmo from '../../assets/carmo.png';
+import drivermo from '../../assets/drivermo.png';
+import reportmo from '../../assets/reportmo.png';
 
 
 const OrganisationPage = () => {
@@ -24,6 +27,7 @@ const OrganisationPage = () => {
     try {
       const mockData = {
         totalVehicles: 50,
+        totalDrivers:30,
         activeIssues: 5,
         resolvedIssues: [
           { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
@@ -73,7 +77,7 @@ const OrganisationPage = () => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
         <Text>Loading...</Text>
       </View>
     );
@@ -93,6 +97,7 @@ const OrganisationPage = () => {
       <View style={styles.roleContainer}>
           <Text style={styles.role}>Logged in as: Organization</Text>
         </View>
+
 
 
       {/* Profile Modal */}
@@ -159,6 +164,7 @@ const OrganisationPage = () => {
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => setIsEditMode(!isEditMode)}>
+                <Icon name="pencil" size={15} color="#fff"/>
               <Text style={styles.editButtonText}>
                 {isEditMode ? 'Save' : 'Edit'}
               </Text>
@@ -177,41 +183,53 @@ const OrganisationPage = () => {
           </View>
         </View>
       </Modal>
-
+      
       {/* Fleet Data Summary */}
       <View style={styles.summary}>
-        <Text style={styles.sectionTitle}>Fleet Summary</Text>
-        <View style={styles.summaryCards}>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total Vehicles</Text>
-            <Text style={styles.cardValue}>{fleetData.totalVehicles}</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Active Issues</Text>
-            <Text style={styles.cardValue}>{fleetData.activeIssues}</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resolved Issues (Last 24 Hrs)</Text>
-            <Text style={styles.cardValue}>{getResolvedIssuesLast24Hrs()}</Text>
-          </View>
+      <Text style={styles.sectionTitle}>Fleet Summary</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        contentContainerStyle={styles.summaryCards}
+      >
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Total Vehicles</Text>
+          <Text style={styles.cardValue}>{fleetData.totalVehicles}</Text>
         </View>
-      </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Total Drivers</Text>
+          <Text style={styles.cardValue}>{fleetData.totalDrivers}</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Active Issues</Text>
+          <Text style={styles.cardValue}>{fleetData.activeIssues}</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Resolved Issues (Last 24 Hrs)</Text>
+          <Text style={styles.cardValue}>{getResolvedIssuesLast24Hrs()}</Text>
+        </View>
+      </ScrollView>
+    </View>
 
-      <View style={styles.navigation}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TireMonitoring')}>
-          
-          <Text style={styles.navText}>Tire Monitoring</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationVehicleList')}>
-          <Text style={styles.navText}>Vehicles</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationDriverList')}>
-          <Text style={styles.navText}>Drivers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationAnalytics')}>
-          <Text style={styles.navText}>Analytics Report</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={styles.navigation}>
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TireMonitoring')}>
+    <Image source={tyremo} style={styles.icon} />
+    <Text style={styles.navText}>Tire Monitoring</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationVehicleList')}>
+  <Image source={carmo} style={styles.icon} />
+    <Text style={styles.navText}>Vehicles</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationDriverList')}>
+    <Image source={drivermo} style={styles.icon}/>
+    <Text style={styles.navText}>Drivers</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('OrganisationAnalytics')}>
+    <Image source={reportmo} style={styles.icon}/>
+    <Text style={styles.navText}>Analytics Report</Text>
+  </TouchableOpacity>
+</View>
+
     </ScrollView>
   );
 };
@@ -221,7 +239,7 @@ const OrganisationPage = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#eef2f3', // Light gradient-like background color
+      backgroundColor: 'rgb(255,255,255)', // Light gradient-like background color
     },
     profileDrawer: {
       position: 'absolute',
@@ -240,110 +258,124 @@ const OrganisationPage = () => {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-evenly',
+      justifyContent: 'space-between', // Keeps spacing consistent
       paddingHorizontal: 10,
       paddingVertical: 30,
-      backgroundColor: 'rgb(59 32 77)',
-      
+      backgroundColor: 'rgb(28 10 62)',
     },
     backButton: {
-      width: 40,
-      height: 40,
+      width: 50,
+      height: 50,
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: '#fff',
       borderRadius: 5,
-      padding: 0,
     },
     backButtonText: {
-      color: 'rgb(59 32 77)',
-      fontSize: 30,
+      color: 'rgb(42 10 62)',
+      fontSize: 24,
       fontWeight: 'bold',
       textAlign: 'center',
     },
     title: {
-      flex: 2,
+      flex: 1,
       fontSize: 20,
       fontWeight: 'bold',
       color: '#fff',
-      textAlign: 'center',
-      marginLeft: -40,
-    },
-    roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
-  role: { fontSize: 18, color: 'rgb(59 32 77)' },
-  profileButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 5,
-  },
-  profileButtonText: {
-    color: 'rgb(59 32 77)',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-    summary: {
-      padding: 15,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: '#374151', // Gray for the title
-      marginBottom: 10,
-    },
-    summaryCards: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      marginTop: 10,
-    },
-    card: {
-      backgroundColor: 'rgb(255 255 255)',
-      borderRadius: 15,
-      padding: 20,
-      width: '30%',
-      alignItems: 'center', // Align children to the right
-      shadowColor: 'rgb(20 2 2 / 20%) 0px 0px 6px',
-      shadowOpacity: 0.2,
-      shadowRadius: 6,
-      elevation: 8,
-    },
-    cardTitle: {
-      fontSize: 20,
-      color: 'rgb(30 37 51)',
-      marginBottom: 10,
-      textAlign: 'center', // Align text to the right
-    },
-    cardValue: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: '#1e293b',
-      textAlign: 'center', // Align text to the right
+      textAlign: 'center', // Center-align the title
     },
     
-    navigation: {
-      padding: 15,
-    },   
-    navButton: {
-      backgroundColor: 'rgb(136 126 143)', 
-      flexDirection: 'row',
+    
+    profileButton: {
+      width: 50,
+      height: 50,
+      justifyContent: 'center',
       alignItems: 'center',
-      padding: 15,
-      borderRadius: 15,
-      marginVertical: 10,
-      elevation: 5,
-      justifyContent:'center'
+      backgroundColor: '#fff',
+      borderRadius: 5,
     },
-    navText: {
-      color: '#fff',
-      fontSize: 16,
+    profileButtonText: {
+      color: 'rgb(42 10 62)',
+      fontSize: 24,
       fontWeight: 'bold',
-      marginLeft: 10,
-      
-      
     },
+    
+    
+    roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(42 10 62)' },
+  
+  
+  icon:{
+  width:5,
+  height:2,
+
+  },
+  summary: {
+    margin: 10,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    marginBottom: 10,
+  },
+  summaryCards: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: '10%', // Center-align the Active Issues card initially
+  },
+  card: {
+    backgroundColor: '#eef2f3',
+    borderRadius: 15,
+    padding: 15,
+    width: 150, // Fixed width for all cards
+    height: 140, // Fixed height for uniformity
+    marginHorizontal: 10, // Add spacing between cards
+    alignItems: 'center', // Center align content in the card
+    justifyContent: 'center', // Vertically center content
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  cardTitle: {
+    fontSize: 16,
+    color: 'rgb(30 37 51)',
+    marginBottom: 10,
+    textAlign: 'center',
+    justifyContent:'center',
+  },
+  cardValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    textAlign: 'center',
+    justifyContent:'center',
+  },
+  navigation: {
+    padding: 15,
+  },
+  navButton: {
+    backgroundColor: 'rgb(110 89 149)',
+    alignItems: 'center', // Align items to the center (for vertical stacking)
+    padding: 15,
+    borderRadius: 15,
+    marginVertical: 10,
+    elevation: 5,
+  },
+  navText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 5, // Add spacing between the icon and text
+    textAlign: 'center', // Center-align text under the icon
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
     modalContainer: {
       flex: 1,
       justifyContent: 'center',
@@ -382,7 +414,7 @@ const OrganisationPage = () => {
     },
     
     editButton: {
-      backgroundColor: 'rgb(91 192 91)', // Green
+      backgroundColor: 'rgb(110, 89, 149)', // Green
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center', // Centers content horizontally

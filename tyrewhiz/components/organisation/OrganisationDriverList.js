@@ -110,7 +110,9 @@ const OrganisationDriverList = ({ navigation }) => {
               <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                 <Text style={styles.backButtonText}>←</Text>
               </TouchableOpacity>
-              <Text style={styles.title}>TyreWhizz</Text>
+              
+    <Text style={styles.title}>TyreWhizz</Text>
+  
               
             </View>
             <View style={styles.roleContainer}>
@@ -257,39 +259,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveText: { color: '#fff', fontWeight: 'bold' },
+  
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center', // Ensures overall content alignment
     paddingHorizontal: 10,
-    paddingVertical: 30,
-    backgroundColor: '#228B22',
+    paddingVertical: 40,
+    backgroundColor: 'rgb(28 10 62)',
+    position: 'relative', // Allows absolute positioning of the back button
+    
   },
   backButton: {
-    width: 40,
-    height: 40,
+    position: 'absolute', // Positions the back button independently
+    left: 10, // Keeps it at the left edge
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
-    padding: 0,
+    borderWidth: 1,
   },
   backButtonText: {
-    color: '#4CBB17',
-    fontSize: 30,
+    color: 'rgb(42 10 62)',
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   title: {
-    flex: 2,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginLeft: -40,
   },
-  roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
-  role: { fontSize: 18, color: '#4CBB17' },
+  
+  
+  
+  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(42 10 62)' },
+  
   card: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -343,12 +352,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   saveButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'rgb(110 89 149)',
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  saveText: { color: '#fff', fontWeight: 'bold' },
+  saveText: { color: '#fff', fontWeight: 'bold',textAlign:'center', },
   cancelButton: {
     backgroundColor: '#f44336',
     padding: 10,

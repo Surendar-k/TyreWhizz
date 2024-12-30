@@ -50,8 +50,8 @@ const TireMonitoring = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text>Loading tire data...</Text>
+        <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
+                <Text>Loading...</Text>
       </View>
     );
   }
@@ -80,8 +80,7 @@ const TireMonitoring = ({ navigation }) => {
           <View style={styles.card}>
             <Text style={styles.Vehicle_no}>Vehicle No: {item.Vehicle_no}</Text>
             <Text style={styles.tireStatus}>Status: {item.tireStatus}</Text>
-            <Text style={styles.details}>Pressure: {item.pressure}</Text>
-            <Text style={styles.details}>Temperature: {item.temperature}</Text>
+            
             <Text style={styles.details}>Issues: {item.issues}</Text>
             <TouchableOpacity
               style={styles.button}
@@ -97,42 +96,44 @@ const TireMonitoring = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9' },
+  container: { flex: 1, backgroundColor: 'rgb(255,255,255)' },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center', // Ensures overall content alignment
     paddingHorizontal: 10,
-    paddingVertical: 30,
-    backgroundColor: '#228B22',
+    paddingVertical: 40,
+    backgroundColor: 'rgb(28 10 62)',
+    position: 'relative', // Allows absolute positioning of the back button
     
   },
   backButton: {
-    width: 40,
-    height: 40,
+    position: 'absolute', // Positions the back button independently
+    left: 10, // Keeps it at the left edge
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
-    padding: 0,
+    borderWidth: 1,
   },
   backButtonText: {
-    color: '#4CBB17',
-    fontSize: 30,
+    color: 'rgb(42 10 62)',
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   title: {
-    flex: 2,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginLeft: -40,
   },
-  roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
-role: { fontSize: 18, color: '#4CBB17' },
+  
+  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(42 10 62)' },
   flatListContent: { paddingHorizontal: 20, paddingBottom: 20 },
   card: { backgroundColor: '#fff', padding: 15, marginBottom: 15, borderRadius: 10,shadowColor: '#000',
     shadowOpacity: 0.2,
@@ -144,7 +145,7 @@ role: { fontSize: 18, color: '#4CBB17' },
   button: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: '#4CAF50',
+    backgroundColor: 'rgb(110 89 149)',
     borderRadius: 5,
     alignItems: 'center',
   },

@@ -1,19 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import hook for navigation
+import { useNavigation } from '@react-navigation/native';
 import { BarChart, PieChart } from 'react-native-chart-kit';
 
 const OrganisationAnalytics = () => {
-  const navigation = useNavigation(); // Access navigation object
-
+  const navigation = useNavigation();
   const screenWidth = Dimensions.get('window').width;
 
   const vehicleData = {
-    totalVehicles: 50,
-    activeVehicles: 42,
-    inactiveVehicles: 8,
-    issuesResolved: 150,
-    newIssues: 20,
+    TotalVehicles: 50,
+    ActiveVehicles: 42,
+    InactiveVehicles: 8,
+    IssuesResolved: 150,
+    NewIssues: 20,
     vehicleCategories: {
       trucks: 20,
       cars: 25,
@@ -27,9 +26,9 @@ const OrganisationAnalytics = () => {
   };
 
   const chartConfig = {
-    backgroundGradientFrom: '#fff',
-    backgroundGradientTo: '#fff',
-    color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
     barPercentage: 0.7,
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   };
@@ -38,21 +37,21 @@ const OrganisationAnalytics = () => {
     {
       name: 'Trucks',
       count: vehicleData.vehicleCategories.trucks,
-      color: '#4CAF50',
+      color: '#8464a0',
       legendFontColor: '#333',
       legendFontSize: 15,
     },
     {
       name: 'Cars',
       count: vehicleData.vehicleCategories.cars,
-      color: '#FF9800',
+      color: '#0a417a',
       legendFontColor: '#333',
       legendFontSize: 15,
     },
     {
       name: 'Vans',
       count: vehicleData.vehicleCategories.vans,
-      color: '#03A9F4',
+      color: '#cea9bc',
       legendFontColor: '#333',
       legendFontSize: 15,
     },
@@ -85,85 +84,143 @@ const OrganisationAnalytics = () => {
         <Text style={styles.role}>Logged in as: Organization</Text>
       </View>
 
-      {/* Title */}
-      <view style={styles.whole}>
-      <Text style={styles.subtitle}>Organisation Analytics</Text>
+      {/* Analytics Section */}
+      <View style={styles.contentContainer}>
+        <Text style={styles.subtitle}>Organisation Analytics</Text>
 
-      {/* Metrics */}
-      <View style={styles.metricsContainer}>
-        <Text style={styles.metric}>Total Vehicles: {vehicleData.totalVehicles}</Text>
-        <Text style={styles.metric}>Active Vehicles: {vehicleData.activeVehicles}</Text>
-        <Text style={styles.metric}>Inactive Vehicles: {vehicleData.inactiveVehicles}</Text>
-        <Text style={styles.metric}>Issues Resolved: {vehicleData.issuesResolved}</Text>
-        <Text style={styles.metric}>New Issues: {vehicleData.newIssues}</Text>
+        {/* Metrics */}
+        <View style={styles.metricsContainer}>
+          {Object.entries(vehicleData).slice(0, 5).map(([key, value], index) => (
+            <View key={index} style={styles.metricCard}>
+              <Text style={styles.metricText}>{key.replace(/([A-Z])/g, ' $1')}</Text>
+              <Text style={styles.metricValue}>{value}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Charts */}
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Vehicle Categories</Text>
+          <PieChart
+            data={pieData}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={chartConfig}
+            accessor="count"
+            backgroundColor="transparent"
+            paddingLeft="15"
+          />
+        </View>
+
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Monthly Issue Comparison</Text>
+          <BarChart
+            data={barData}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={chartConfig}
+            verticalLabelRotation={30}
+          />
+        </View>
       </View>
-
-      {/* Pie Chart */}
-      <Text style={styles.chartTitle}>Vehicle Categories</Text>
-      <PieChart
-        data={pieData}
-        width={screenWidth - 40}
-        height={220}
-        chartConfig={chartConfig}
-        accessor="count"
-        backgroundColor="transparent"
-        paddingLeft="15"
-      />
-
-      {/* Bar Chart */}
-      <Text style={styles.chartTitle}>Monthly Issue Comparison</Text>
-      <BarChart
-        data={barData}
-        width={screenWidth - 40}
-        height={220}
-        chartConfig={chartConfig}
-        verticalLabelRotation={30}
-      />
-      </view>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9',  },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center', // Ensures overall content alignment
     paddingHorizontal: 10,
-    paddingVertical: 30,
-    backgroundColor: '#228B22',
+    paddingVertical: 40,
+    backgroundColor: 'rgb(28 10 62)',
+    position: 'relative', // Allows absolute positioning of the back button
+    
   },
   backButton: {
-    width: 40,
-    height: 40,
+    position: 'absolute', // Positions the back button independently
+    left: 10, // Keeps it at the left edge
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 5,
-    padding: 0,
+    borderWidth: 1,
   },
   backButtonText: {
-    color: '#4CBB17',
-    fontSize: 30,
+    color: 'rgb(42 10 62)',
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   title: {
-    flex: 2,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginLeft: -40,
   },
-  whole:{padding:10},
-  roleContainer: { padding: 10, backgroundColor: '#e8f5e9', alignItems: 'center' },
-  role: { fontSize: 18, color: '#4CBB17' },
-  subtitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
-  metricsContainer: { marginBottom: 20,padding:20 },
-  metric: { fontSize: 16, marginBottom: 10 ,},
-  chartTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 20, marginBottom: 10 ,},
+  
+  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(42 10 62)' },
+  
+  contentContainer: {
+    padding: 15,
+  },
+  subtitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  metricsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  metricCard: {
+    width: '45%',
+    backgroundColor: '#eef2f3',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 15,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    alignItems: 'center',
+  },
+  metricText: {
+    fontSize: 18,
+    color: '#555',
+    fontWeight:'bold',
+    marginBottom: 8,
+    justifyContent:'center',
+    textAlign:'center',
+  },
+  metricValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'rgb(110 89 149)',
+  },
+  chartContainer: {
+    marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+  chartTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#444',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
 });
 
 export default OrganisationAnalytics;

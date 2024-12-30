@@ -29,7 +29,7 @@ const App = () => {
         <Stack.Screen name="OrganisationDriverList" component={OrganisationDriverList} />
         
         <Stack.Screen name="OrganisationVehicleList" component={OrganisationVehicleList}/>
-        <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics}/>
+        <Stack.Screen name="OrganisationAnalytics" component={OrganisationAnalytics} />
         <Stack.Screen name="TireMonitoring" component={TireMonitoring} />
         <Stack.Screen name="MonitoringPage" component={MonitoringPage} />
         <Stack.Screen name="DetailsPage" component={DetailsPage} />        

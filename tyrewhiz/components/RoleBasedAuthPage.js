@@ -13,7 +13,6 @@ import {
 import axios from 'axios';
 import logoimg from '../assets/rolebasedauthimage.png';
 
-
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
   const [isSignup, setIsSignup] = useState(false);
@@ -49,7 +48,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post('http://localhost:8081/api/signup', data);
+        const response = await axios.post('http://192.168.43.16:5000/api/signup', data);
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail('');
@@ -65,7 +64,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     
   try {
-    const response = await axios.post('http://localhost:8081/api/login', data);
+    const response = await axios.post('http://192.168.43.16:5000/api/login', data);
     showModal(response.data.message, false);
     const { userType } = response.data;  // Ensure this is the correct property from your backend response.
 
@@ -91,18 +90,19 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   };
 
   return (
-    
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
-      <Image source={logoimg} style={styles.logo}></Image>
+      <View style={styles.logocontainer}>
+      <Image source={logoimg} style={styles.logo}/>
+      </View>
       <Text style={styles.title}>
         {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
       </Text>
-      
+
       <Modal
-        visible={isModalVisible} 
+        visible={isModalVisible}
         transparent
         animationType="fade"
         onRequestClose={() => setModalVisible(false)}
@@ -157,16 +157,6 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  logoContainer: {
-    justifyContent:'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  logo: {
-    width: 250,
-    height: 250,
-    resizeMode: 'contain',
-  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -247,6 +237,15 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 10,
     textAlign: 'center',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
   },
 });
 
