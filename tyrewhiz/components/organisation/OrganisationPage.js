@@ -9,12 +9,7 @@ import reportmo from '../../assets/reportmo.png';
 
 
 const OrganisationPage = () => {
-  const [fleetData, setFleetData] = useState({
-    activeIssues: 0,
-    totalVehicles: 0,
-    resolvedIssues: [],
-  });
-  
+  const [fleetData, setFleetData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
@@ -26,47 +21,34 @@ const OrganisationPage = () => {
   });
   
   const navigation = useNavigation();
-  const [totalVehicles, setTotalVehicles] = useState(0);
+
   // Function to fetch fleet data
-   // Function to fetch the total count of vehicles
-   const fetchData = async () => {
+  const fetchFleetData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/vehicle-count');
-      console.log('API Response:', response.data);
-      if (response.data?.totalVehicles !== undefined) {
-        setTotalVehicles(response.data.totalVehicles);
-      } else {
-        console.error('Invalid response format:', response.data);
-      }
+      const mockData = {
+        totalVehicles: 50,
+        totalDrivers:30,
+        activeIssues: 5,
+        resolvedIssues: [
+          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
+          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
+          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
+        ],
+      };
+      
+      setTimeout(() => {
+        setFleetData(mockData);
+        setLoading(false);
+      }, 1000);
     } catch (error) {
-      console.error('Error fetching vehicle count:', error);
-    } finally {
+      console.error('Error fetching fleet data:', error);
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
-    let isMounted = true;
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/vehicle-count');
-        if (isMounted && response.data?.totalVehicles !== undefined) {
-          setTotalVehicles(response.data.totalVehicles);
-        }
-      } catch (error) {
-        console.error('Error fetching vehicle count:', error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-  
-    fetchData();
-  
-    return () => {
-      isMounted = false; // Cleanup flag
-    };
+    fetchFleetData();
   }, []);
-  
 
   const getResolvedIssuesLast24Hrs = () => {
     const now = Date.now();
@@ -188,6 +170,7 @@ const OrganisationPage = () => {
               </Text>
             </TouchableOpacity>
 
+            
 
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
   <Icon name="log-out" size={20} color="#fff" />

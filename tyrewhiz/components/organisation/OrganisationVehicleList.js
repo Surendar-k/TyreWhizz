@@ -49,7 +49,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         onPress: async () => {
           setLoading(true); // Start loading
           try {
-            await axios.delete('http://localhost:5000/api/vehicles/${id}');
+            await axios.delete(`http://localhost:5000/api/vehicles/${id}`);
             const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== id);
             setVehicles(updatedVehicles);
             setFilteredVehicles(updatedVehicles);

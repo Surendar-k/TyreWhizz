@@ -1,112 +1,41 @@
-import React, { useState, useRef,useEffect  } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { CircularProgress } from 'react-native-circular-progress';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FontAwesome } from '@expo/vector-icons';
 const cartopimg = require('../../assets/car-top-view.png');
 
-
 const MonitoringPage = ({ navigation }) => {
-  const [selectedFeature, setSelectedFeature] = useState('pressure');
+  const [selectedFeature, setSelectedFeature] = useState('pressure'); // State for selected feature
   const [tirePressure, setTirePressure] = useState({
-    frontLeft: 0,
-    frontRight: 0,
-    backLeft: 0,
-    backRight: 0,
+    frontLeft: 75,
+    frontRight: 50,
+    backLeft: 30,
+    backRight: 90,
   });
   const [tireTemperature, setTireTemperature] = useState({
-    frontLeft: 0,
-    frontRight: 0,
-    backLeft: 0,
-    backRight: 0,
+    frontLeft: 60,
+    frontRight: 75,
+    backLeft: 55,
+    backRight: 80,
   });
-  const [isLoading, setIsLoading] = useState(true);
+  
   const scrollViewRef = useRef(null);
-  const [isConnected, setIsConnected] = useState(false);
 
- // Color function based on pressure/temperature values
- const getProgressColor = (value) => {
-  if (value >= 70) {
-    return '#28a745';
-  } else if (value >= 40) {
-    return '#ffc107';
-  } else {
-    return value === 0 ? '#808080' : '#dc3545'; // Gray color for 0 values
-  }
-};
-  // Function to check sensor connection
-  const checkSensorConnection = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/sensor/status');
-      const data = await response.json();
-      setIsConnected(data.isConnected);
-      return data.isConnected;
-    } catch (error) {
-      console.error('Error checking sensor connection:', error);
-      setIsConnected(false);
-      return false;
+  
+  const getProgressColor = (pressure) => {
+    if (pressure >= 70) {
+      return '#28a745';
+    } else if (pressure >= 40) {
+      return '#ffc107';
+    } else {
+      return '#dc3545';
     }
   };
-  const ConnectionStatus = () => (
-    <View style={styles.connectionStatus}>
-      <View style={[styles.statusDot, { backgroundColor: isConnected ? '#28a745' : '#dc3545' }]} />
-      <Text style={styles.statusText}>
-        {isConnected ? 'Sensors Connected' : 'Sensors Disconnected'}
-      </Text>
-    </View>
-  );
 
-    // Effect to handle initial connection and polling
-    useEffect(() => {
-      // Initial fetch
-      fetchSensorData();
-  
-      // Set up polling interval (every 5 seconds)
-      const interval = setInterval(fetchSensorData, 5000);
-  
-      // Cleanup on component unmount
-      return () => clearInterval(interval);
-    }, []);
-// Function to fetch sensor data
-const fetchSensorData = async () => {
-  try {
-    // First check if sensors are connected
-    const sensorConnected = await checkSensorConnection();
-    
-    if (!sensorConnected) {
-      // Reset values to 0 if sensors are not connected
-      setTirePressure({
-        frontLeft: 0,
-        frontRight: 0,
-        backLeft: 0,
-        backRight: 0,
-      });
-      setTireTemperature({
-        frontLeft: 0,
-        frontRight: 0,
-        backLeft: 0,
-        backRight: 0,
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    // If sensors are connected, fetch the data
-    const response = await fetch('http://localhost:5000/api/sensor/data');
-      const data = await response.json();
-      setTirePressure(data.pressure);
-      setTireTemperature(data.temperature);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching sensor data:', error);
-      setTirePressure({ frontLeft: 0, frontRight: 0, backLeft: 0, backRight: 0 });
-      setTireTemperature({ frontLeft: 0, frontRight: 0, backLeft: 0, backRight: 0 });
-      setIsLoading(false);
-    }
-  };
   const renderContent = () => {
     switch (selectedFeature) {
-      case 'pressure':
+      case 'temperature':
         return (
           <View style={styles.carImageContainer}>
             <Image source={cartopimg} style={styles.carImage} />
@@ -258,10 +187,10 @@ const fetchSensorData = async () => {
     contentContainerStyle={styles.footerContent}
     ref={scrollViewRef}
   >
-    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('temperature')}>
+    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('pressure')}>
       <Ionicons name="thermometer" size={24} color="#fff" />
     </TouchableOpacity>
-    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('pressure')}>
+    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('temperature')}>
       <Ionicons name="cloudy" size={24} color="#fff" />
     </TouchableOpacity>
     <TouchableOpacity style={styles.footerButton} onPress={() => setCurrentContent('home')}>
@@ -404,29 +333,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
   },
-
-
-  connectionStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 20,
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    zIndex: 1000,
-  },
-  statusDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 8,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
-  }
   
 });
 
