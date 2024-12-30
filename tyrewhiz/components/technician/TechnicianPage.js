@@ -210,7 +210,7 @@ const requestCameraOrWebcamPermission = async () => {
 
   const pickCertificate = async () => {
     const result = await DocumentPicker.getDocumentAsync({
-      type: "*/*",
+      type: "/",
     });
 
     if (result.type === 'success') {
@@ -282,23 +282,23 @@ const requestCameraOrWebcamPermission = async () => {
   const renderConnectContent = () => (
     <View style={styles.contentContainer}>
       <Text style={styles.title}>Connect with Your Customer's</Text>
-
+  
       <TextInput
         style={styles.input}
         placeholder="Enter Vehicle ID"
         value={vehicleId}
         onChangeText={setVehicleId}
       />
-
+  
+      <TouchableOpacity
+        style={[styles.button, styles.pair]}
+        onPress={() => 
+            navigation.navigate('MonitoringPage', { vehicleId: vehicleId })}
+          
       
-
-      <Button
-      style={styles.pair}
-        title="Pair"
-        onPress={() => {
-          alert(`Vehicle ID: ${vehicleId}`);
-        }}
-      />
+      >
+        <Text style={styles.buttonText}>Pair</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -849,6 +849,13 @@ pair:{
   buttonText: {
     color: '#fff',
     fontWeight: 'bold'
+  },
+  pairButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 15,
+    alignItems: 'center',
   },
 
   // Shared States

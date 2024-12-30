@@ -69,6 +69,26 @@ const OrganisationVehicleList = ({ navigation }) => {
     if (newVehicle.Vehicle_No && newVehicle.type && newVehicle.capacity) {
       setLoading(true); // Start loading
       try {
+        // Make the POST request to add the vehicle
+        const response = await axios.post('http://192.168.18.34:5000/api/vehicles', newVehicle);
+        
+        // Check if the response contains the expected data
+        if (response.data && response.data.vehicleId) {
+          // Assuming vehicleId is returned from backend, and appending it to the vehicle
+          const newVehicleWithId = { ...newVehicle, id: response.data.vehicleId };
+          
+          // Add the new vehicle to the state
+          setVehicles((prev) => [...prev, newVehicleWithId]);
+          setFilteredVehicles((prev) => [...prev, newVehicleWithId]);
+          
+          // Clear the form
+          setNewVehicle({ name: '', type: '', capacity: '', Vehicle_No: '' });
+          setShowAddVehicle(false);
+          
+          Alert.alert('Success', 'Vehicle added successfully');
+        } else {
+          Alert.alert('Error', 'Vehicle ID not received from the server');
+        }
         const response = await axios.post('http://localhost:5000/api/vehicles', newVehicle);
         const newVehicleWithId = { ...newVehicle, id: response.data.vehicleId };
         setVehicles((prev) => [...prev, newVehicleWithId]);
@@ -109,6 +129,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         <Text style={styles.type}>Type: {item.type}</Text>
         <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => deleteVehicle(item.id)} style={styles.deleteButton}>
       <TouchableOpacity onPress={() => deleteVehicle(item.id)} style={styles.deleteButton}>
         <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>

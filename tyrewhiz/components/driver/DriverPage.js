@@ -1,293 +1,211 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  Modal,
-  StyleSheet,
-  FlatList,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
   Image,
+  Animated,
+  Modal,
 } from 'react-native';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
-import { useNavigation } from '@react-navigation/native';
+import driverlogo from '../../assets/driverimg.png';
 
 const DriverPage = () => {
-  const navigation = useNavigation();
-  const [isPopupVisible, setPopupVisible] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [logoAnimation] = useState(new Animated.Value(-200));
+  const [isModalVisible, setModalVisible] = useState(false);
   const [formType, setFormType] = useState(null);
-  const [name, setName] = useState('');
-  const [vehicleNumber, setVehicleNumber] = useState('');
-  const [vehicleType, setVehicleType] = useState('Car');
-  const [organisation, setOrganisation] = useState('');
-  const [vehicleImage, setVehicleImage] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [vehicleDetailsList, setVehicleDetailsList] = useState([]);
-  const [savedVehicles, setSavedVehicles] = useState([]);
+  const [isDetailsModalVisible, setDetailsModalVisible] = useState(false);
 
-  const handleImageUpload = () => {
-    launchImageLibrary(
-      { mediaType: 'photo', includeBase64: true },
-      (response) => {
-        if (response.assets && response.assets.length > 0) {
-          const imageUri = response.assets[0].uri;
-          setVehicleImage(imageUri);
-        }
-      }
-    );
-  };
-
-  const handleProfileImageUpload = () => {
-    launchImageLibrary(
-      { mediaType: 'photo', includeBase64: true },
-      (response) => {
-        if (response.assets && response.assets.length > 0) {
-          const imageUri = response.assets[0].uri;
-          setProfileImage(imageUri);
-        }
-      }
-    );
-  };
-
-  const handleCameraAccess = () => {
-    launchCamera(
-      { mediaType: 'photo', includeBase64: true },
-      (response) => {
-        if (response.assets && response.assets.length > 0) {
-          const imageUri = response.assets[0].uri;
-          setProfileImage(imageUri);
-        }
-      }
-    );
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Animated.spring(logoAnimation, {
+        toValue: 0,
+        useNativeDriver: true,
+      }).start();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [logoAnimation]);
 
   const handleSubmit = () => {
-    const vehicleDetails = { number: vehicleNumber, type: vehicleType };
-    setVehicleDetailsList([...vehicleDetailsList, vehicleDetails]);
-    setSavedVehicles([...savedVehicles, vehicleNumber]);
-
-    if (formType === 'personal') {
-      navigation.navigate('DetailsPage', { 
-        personalDetails: { name, vehicleDetailsList: [...vehicleDetailsList, vehicleDetails] }, 
-        isDarkMode 
-      });
-    } else if (formType === 'business') {
-      navigation.navigate('DetailsPage', { 
-        businessDetails: { name, organisation, vehicleDetailsList: [...vehicleDetailsList, vehicleDetails] }, 
-        isDarkMode 
-      });
-    }
-    resetForm();
+    console.log('Username:', username);
+    console.log('Password:', password);
   };
 
-  const handleSelectVehicle = (vehicle) => {
-    const selectedVehicle = vehicleDetailsList.find(v => v.number === vehicle);
-    if (selectedVehicle) {
-      Alert.alert("Vehicle Details", 
-        `Vehicle Number: ${selectedVehicle.number}\nType: ${selectedVehicle.type}\nName: ${name}`, 
-        [{ text: "View Pair Sensor", onPress: () => Alert.alert("Pair Sensor", "Pairing with sensor...") }]
-      );
-    }
+  const handleIconPress = (type) => {
+    setFormType(type);
+    setModalVisible(false);
+    setDetailsModalVisible(true);
   };
 
-  const resetForm = () => {
-    setName('');
-    setVehicleNumber('');
-    setVehicleType('Car');
-    setOrganisation('');
-    setVehicleImage(null);
-    setProfileImage(null);
-    setPopupVisible(false);
-    setFormType(null);
+  const handleDetailsSubmit = () => {
+    // Handle details form submission logic here
+    console.log(formType);
+    setDetailsModalVisible(false);
   };
-
-  const renderForm = () => (
-    <View style={styles.formContainer(isDarkMode)}>
-      {formType === 'personal' ? (
-        <>
-          <TextInput
-            style={styles.input(isDarkMode)}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-          />
-        </>
-      ) : (
-        <>
-          <TextInput
-            style={styles.input(isDarkMode)}
-            placeholder="Organisation ID"
-            value={organisation}
-            onChangeText={setOrganisation}
-          />
-        </>
-      )}
-      <TextInput
-        style={styles.input(isDarkMode)}
-        placeholder="Vehicle Number"
-        value={vehicleNumber}
-        onChangeText={setVehicleNumber}
-      />
-      <TextInput
-        style={styles.input(isDarkMode)}
-        placeholder="Vehicle Type (Car/Bike/Truck)"
-        value={vehicleType}
-        onChangeText={setVehicleType}
-      />
-      <TouchableOpacity onPress={handleImageUpload} style={styles.uploadButton(isDarkMode)}>
-        <Text style={styles.buttonText(isDarkMode)}>Upload Vehicle Image</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={handleSubmit} style={styles.submitButton(isDarkMode)}>
-        <Text style={styles.buttonText(isDarkMode)}>Submit</Text>
-      </TouchableOpacity>
-
-      {savedVehicles.length > 0 && (
-        <FlatList
-          data={savedVehicles}
-          keyExtractor={(item) => item}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleSelectVehicle(item)}>
-              <Text style={styles.vehicleItem}>{item}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      )}
-    </View>
-  );
 
   return (
-    <KeyboardAvoidingView style={styles.container(isDarkMode)} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={styles.header}>
-        <Text style={styles.headerText(isDarkMode)}>Tyre Whizz</Text>
-      </View>
+    <View style={styles.container}>
+      <Animated.View style={[styles.animatedBox, { transform: [{ translateY: logoAnimation }] }]}>
+        <Image source={driverlogo} style={styles.logo} />
+        <Text style={styles.heading}>Tyrewhizz...</Text>
 
-      <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={() => setPopupVisible(true)} style={styles.iconCircle}>
-          <Text style={styles.icon}>👤</Text>
+        
+        
+        <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+          <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconCircle}>
-          <Text style={styles.icon}>🔔</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconCircle}>
-          <Text style={styles.icon}>⚠️</Text>
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.profileSection}>
-        <TouchableOpacity onPress={handleProfileImageUpload} style={styles.profileButton}>
-          {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-          ) : (
-            <Text style={styles.uploadProfileText(isDarkMode)}>Upload Profile Image</Text>
-          )}
+        <TouchableOpacity style={styles.uploadButton}>
+          <Text style={styles.uploadButtonText}>Upload Profile Photo</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleCameraAccess} style={styles.cameraButton}>
-          <Text style={styles.cameraButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
 
-      {isPopupVisible && (
-        <Modal
-          transparent
-          visible={isPopupVisible}
-          animationType="slide"
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.popup}>
-              <Text style={styles.popupTitle}>Choose Details</Text>
-              <TouchableOpacity onPress={() => { setFormType('personal'); setPopupVisible(false); }}>
-                <Text style={styles.popupButton(isDarkMode)}>Personal Details</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setFormType('business'); setPopupVisible(false); }}>
-                <Text style={styles.popupButton(isDarkMode)}>Business Details</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.iconContainer}>
+          <TouchableOpacity onPress={() => handleIconPress('personal')} style={styles.icon}>
+            <Text>👤</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleIconPress('notification')} style={styles.icon}>
+            <Text>🔔</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleIconPress('alert')} style={styles.icon}>
+            <Text>⚠️</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+
+      {/* Modal for selecting personal or organisation */}
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="slide"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Choose Details</Text>
+            <TouchableOpacity onPress={() => handleIconPress('personal')}>
+              <Text style={styles.modalButton}>Personal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleIconPress('organisation')}>
+              <Text style={styles.modalButton}>Organisation</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>✖️</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      )}
+        </View>
+      </Modal>
 
-      {formType && renderForm()}
-    </KeyboardAvoidingView>
+      {/* Modal for details entry */}
+      <Modal
+        transparent
+        visible={isDetailsModalVisible}
+        animationType="slide"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.detailsModalContent}>
+            <Text style={styles.detailsModalTitle}>{formType === 'personal' ? 'Personal Details' : 'Organisation Details'}</Text>
+            {formType === 'personal' ? (
+              <>
+                <TextInput style={styles.detailsInput} placeholder="Name" />
+                <TextInput style={styles.detailsInput} placeholder="Vehicle Number" />
+                <TextInput style={styles.detailsInput} placeholder="Vehicle Type" />
+              </>
+            ) : (
+              <>
+                <TextInput style={styles.detailsInput} placeholder="Organisation ID" />
+                <TextInput style={styles.detailsInput} placeholder="Vehicle Number" />
+                <TextInput style={styles.detailsInput} placeholder="Vehicle Type" />
+              </>
+            )}
+            <TouchableOpacity onPress={handleDetailsSubmit} style={styles.detailsSubmitButton}>
+              <Text style={styles.buttonText}>Submit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setDetailsModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>✖️</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: (isDarkMode) => ({
+  container: {
     flex: 1,
+    backgroundColor: '#3B4948', // Top color
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  animatedBox: {
+    width: '90%',
+    height: '70%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
     padding: 20,
-    backgroundColor: isDarkMode ? '#000' : '#f0f4f8',
-  }),
-  header: {
-    backgroundColor: '#007BFF',
-    padding: 20,
-    borderRadius: 5,
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  logo: {
+    width: 100,
+    height: 100,
     marginBottom: 20,
   },
-  headerText: (isDarkMode) => ({
-    fontSize: 32,
+  heading: {
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    width: '100%',
+  },
+  submitButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 10,
+  },
+  buttonText: {
     color: '#fff',
-  }),
+    fontWeight: 'bold',
+  },
+  uploadButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 20,
+  },
+  uploadButtonText: {
+    color: '#fff',
+  },
   iconContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  iconCircle: {
-    backgroundColor: '#007BFF',
-    borderRadius: 30,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '60%',
+    marginTop: 20,
   },
   icon: {
-    fontSize: 24,
-    color: '#fff',
-  },
-  profileSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  profileButton: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#f0f4f8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#007BFF',
-    overflow: 'hidden',
-    marginBottom: 10,
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 50,
-  },
-  uploadProfileText: (isDarkMode) => ({
-    textAlign: 'center',
-    color: isDarkMode ? '#fff' : '#007BFF',
-  }),
-  cameraButton: {
-    backgroundColor: '#007BFF',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-  },
-  cameraButtonText: {
-    fontSize: 24,
-    color: '#fff',
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    padding: 10,
+    elevation: 5,
   },
   modalOverlay: {
     flex: 1,
@@ -295,65 +213,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  popup: {
+  modalContent: {
     width: '80%',
     padding: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
     alignItems: 'center',
   },
-  popupTitle: {
+  modalTitle: {
     fontSize: 20,
     marginBottom: 20,
   },
-  popupButton: (isDarkMode) => ({
+  modalButton: {
     fontSize: 18,
     color: '#007BFF',
     marginVertical: 10,
-  }),
-  formContainer: (isDarkMode) => ({
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  closeButtonText: {
+    fontSize: 24,
+  },
+  detailsModalContent: {
+    width: '80%',
     padding: 20,
-    backgroundColor: isDarkMode ? '#333' : '#fff',
+    backgroundColor: '#fff',
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  }),
-  input: (isDarkMode) => ({
-    borderWidth: 1,
+    alignItems: 'center',
+  },
+  detailsModalTitle: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  detailsInput: {
+    height: 40,
     borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    backgroundColor: isDarkMode ? '#555' : '#fff',
-    color: isDarkMode ? '#fff' : '#000',
-  }),
-  uploadButton: (isDarkMode) => ({
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    width: '100%',
+  },
+  detailsSubmitButton: {
     backgroundColor: '#007BFF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    padding: 10,
     borderRadius: 20,
     alignItems: 'center',
+    width: '100%',
     marginBottom: 10,
-  }),
-  submitButton: (isDarkMode) => ({
-    backgroundColor: '#28a745',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginBottom: 10,
-  }),
-  buttonText: (isDarkMode) => ({
-    color: '#fff',
-    fontSize: 16,
-  }),
-  vehicleItem: {
-    fontSize: 18,
-    marginVertical: 5,
-    color: '#007BFF',
   },
 });
 
