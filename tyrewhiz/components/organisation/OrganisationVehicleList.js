@@ -70,7 +70,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       setLoading(true); // Start loading
       try {
         // Make the POST request to add the vehicle
-        const response = await axios.post('http://192.168.18.34:5000/api/vehicles', newVehicle);
+        const response = await axios.post('http://localhost:5000/api/vehicles', newVehicle);
         
         // Check if the response contains the expected data
         if (response.data && response.data.vehicleId) {
