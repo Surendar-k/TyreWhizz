@@ -304,13 +304,13 @@ const DriverPage = () => {
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Select Pairing Option</Text>
             <TouchableOpacity onPress={() => handlePairingOptionSelect('Manual Pair')}>
-              <Text style={styles.optionText}>Manual Pair</Text>
+              <Text style={styles.optionText}>Custom Pair</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handlePairingOptionSelect('Auto Pair')}>
-              <Text style={styles.optionText}>Auto Pair</Text>
+              <Text style={styles.optionText}>Automatic Pair</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handlePairingOptionSelect('Scan QR Code')}>
-              <Text style={styles.optionText}>Scan QR Code</Text>
+              <Text style={styles.optionText}>QR Capture</Text>
             </TouchableOpacity>
           </View>
         </View>
