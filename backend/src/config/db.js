@@ -3,7 +3,7 @@
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root', // replace with your MySQL username
-  password: 'Surendar@19', // replace with your MySQL password
+  password: '', // replace with your MySQL password
   database: 'authdb',
 });
 
