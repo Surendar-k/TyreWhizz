@@ -61,7 +61,7 @@ const DriverPage = () => {
               style={styles.closeButton}
               onPress={() => {
                 setModalVisible(false); // Close the modal
-                navigation.navigate("RoleBasedAuthPage"); // Navigate to RoleBasedAuthPage
+                navigation.goBack(); // Go back to the previous page
               }}
             >
               <Text style={styles.closeButtonText}>Cancel</Text>
