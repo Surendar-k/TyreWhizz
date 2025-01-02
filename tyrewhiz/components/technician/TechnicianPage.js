@@ -302,92 +302,92 @@ const requestCameraOrWebcamPermission = async () => {
     </View>
   );
 
-  const renderTabContent = () => {
-    switch (selectedTab) {
-      case 'Notifications':
-        return (
-          <View style={styles.contentContainer}>
-        {notifications.map((notification) => (
-          <View
-            key={notification.id}
-            style={[styles.notificationItem, notification.unread && styles.unread]}
-          >
-            <View style={styles.notificationHeader}>
-              <Text style={styles.notificationTitle}>{notification.title}</Text>
-              <TouchableOpacity
-                onPress={() => handleDeleteNotification(notification.id)}
-                style={styles.deleteButton}
-              >
-                <Ionicons name="close-circle-outline" size={24} color="#FF5733" />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.notificationTime}>{notification.time}</Text>
-            <Text style={styles.notificationMessage}>{notification.message}</Text>
-
-            {notification.type === 'request' && !notification.status && (
-              <View style={styles.actionButtons}>
+    const renderTabContent = () => {
+      switch (selectedTab) {
+        case 'Notifications':
+          return (
+            <View style={styles.contentContainer}>
+          {notifications.map((notification) => (
+            <View
+              key={notification.id}
+              style={[styles.notificationItem, notification.unread && styles.unread]}
+            >
+              <View style={styles.notificationHeader}>
+                <Text style={styles.notificationTitle}>{notification.title}</Text>
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.acceptButton]}
-                  onPress={() => handleAcceptRequest(notification.id)}
+                  onPress={() => handleDeleteNotification(notification.id)}
+                  style={styles.deleteButton}
                 >
-                  <Text style={styles.actionButtonText}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.rejectButton]}
-                  onPress={() => handleRejectRequest(notification.id)}
-                >
-                  <Text style={styles.actionButtonText}>Reject</Text>
+                  <Ionicons name="close-circle-outline" size={24} color="#FF5733" />
                 </TouchableOpacity>
               </View>
-            )}
+              <Text style={styles.notificationTime}>{notification.time}</Text>
+              <Text style={styles.notificationMessage}>{notification.message}</Text>
 
-            {notification.status && (
-              <Text
-                style={[
-                  styles.statusText,
-                  notification.status === 'accepted' ? styles.acceptedText : styles.rejectedText,
-                ]}
-              >
-                {notification.status === 'accepted' ? 'Accepted' : 'Rejected'}
-              </Text>
-            )}
-          </View>
-            ))}
-            
-          </View>
-          
-        );
-        
-      case 'Connect':
-        return renderConnectContent();
-        
-      case 'Messages':
-        return (
-          <View style={styles.contentContainer}>
-            {messages.map(message => (
-              <View 
-                key={message.id} 
-                style={[styles.messageItem, message.unread && styles.unread]}
-              >
-                <View style={styles.messageHeader}>
-                  <Text style={styles.messageSender}>{message.sender}</Text>
-                  <Text style={styles.messageTime}>{message.time}</Text>
+              {notification.type === 'request' && !notification.status && (
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.acceptButton]}
+                    onPress={() => handleAcceptRequest(notification.id)}
+                  >
+                    <Text style={styles.actionButtonText}>Accept</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.rejectButton]}
+                    onPress={() => handleRejectRequest(notification.id)}
+                  >
+                    <Text style={styles.actionButtonText}>Reject</Text>
+                  </TouchableOpacity>
                 </View>
-                <Text style={styles.messageText}>{message.message}</Text>
-              </View>
-            ))}
-          </View>
-        );
-        
-      default:
-        return (
-          <View style={styles.contentContainer}>
-            <Text style={styles.tabContent}>No content available</Text>
-          </View>
-        );
-    }
-  };
-  
+              )}
+
+              {notification.status && (
+                <Text
+                  style={[
+                    styles.statusText,
+                    notification.status === 'accepted' ? styles.acceptedText : styles.rejectedText,
+                  ]}
+                >
+                  {notification.status === 'accepted' ? 'Accepted' : 'Rejected'}
+                </Text>
+              )}
+            </View>
+              ))}
+              
+            </View>
+            
+          );
+          
+        case 'Connect':
+          return renderConnectContent();
+          
+        case 'Messages':
+          return (
+            <View style={styles.contentContainer}>
+              {messages.map(message => (
+                <View 
+                  key={message.id} 
+                  style={[styles.messageItem, message.unread && styles.unread]}
+                >
+                  <View style={styles.messageHeader}>
+                    <Text style={styles.messageSender}>{message.sender}</Text>
+                    <Text style={styles.messageTime}>{message.time}</Text>
+                  </View>
+                  <Text style={styles.messageText}>{message.message}</Text>
+                </View>
+              ))}
+            </View>
+          );
+          
+        default:
+          return (
+            <View style={styles.contentContainer}>
+              <Text style={styles.tabContent}>No content available</Text>
+            </View>
+          );
+      }
+    };
+    
   // Rest of the component remains the same...
   return (
     <View style={styles.container}>

@@ -35,7 +35,7 @@ const MonitoringPage = ({ navigation }) => {
 
   const renderContent = () => {
     switch (selectedFeature) {
-      case 'temperature':
+      case 'pressure':
         return (
           <View style={styles.carImageContainer}>
             <Image source={cartopimg} style={styles.carImage} />
@@ -82,66 +82,45 @@ const MonitoringPage = ({ navigation }) => {
             </View>
           </View>
         );
-        //temperature
-      case 'temperature':
-        return (
-          <View style={styles.carImageContainer}>
-  <Image source={cartopimg} style={styles.carImage} />
-  
-  {/* Front Left Tire */}
-  <View style={[styles.progressCircleContainer, styles.topLeft]}>
-    {/* Conditionally render icon based on temperature */}
-    {tireTemperature.frontLeft > 30 ? (
-      <FontAwesome name="thermometer-three-quarters" size={70} color={getProgressColor(tireTemperature.frontLeft)} />
-    ) : tireTemperature.frontLeft > 20 ? (
-      <FontAwesome name="thermometer-half" size={70} color={getProgressColor(tireTemperature.frontLeft)} />
-    ) : (
-      <FontAwesome name="thermometer-quarter" size={70} color={getProgressColor(tireTemperature.frontLeft)} />
-    )}
-    <Text style={styles.percentageTextTemperature}>{tireTemperature.frontLeft} °C</Text>
-  </View>
+        case 'temperature':
+  return (
+    <View style={styles.carImageContainer}>
+      <Image source={cartopimg} style={styles.carImage} />
+      <View style={[styles.progressCircleContainer, styles.topLeft]}>
+        <FontAwesome
+          name={tireTemperature.frontLeft > 40 ? "thermometer-full" : tireTemperature.frontLeft > 30 ? "thermometer-half" : "thermometer-quarter"}
+          size={70}
+          color={getProgressColor(tireTemperature.frontLeft)}
+        />
+        <Text style={styles.percentageText}>{tireTemperature.frontLeft} °C</Text>
+      </View>
+      <View style={[styles.progressCircleContainer, styles.topRight]}>
+        <FontAwesome
+          name={tireTemperature.frontRight > 40 ? "thermometer-full" : tireTemperature.frontRight > 30 ? "thermometer-half" : "thermometer-quarter"}
+          size={70}
+          color={getProgressColor(tireTemperature.frontRight)}
+        />
+        <Text style={styles.percentageText}>{tireTemperature.frontRight} °C</Text>
+      </View>
+      <View style={[styles.progressCircleContainer, styles.bottomLeft]}>
+        <FontAwesome
+          name={tireTemperature.backLeft > 40 ? "thermometer-full" : tireTemperature.backLeft > 30 ? "thermometer-half" : "thermometer-quarter"}
+          size={70}
+          color={getProgressColor(tireTemperature.backLeft)}
+        />
+        <Text style={styles.percentageText}>{tireTemperature.backLeft} °C</Text>
+      </View>
+      <View style={[styles.progressCircleContainer, styles.bottomRight]}>
+        <FontAwesome
+          name={tireTemperature.backRight > 40 ? "thermometer-full" : tireTemperature.backRight > 30 ? "thermometer-half" : "thermometer-quarter"}
+          size={70}
+          color={getProgressColor(tireTemperature.backRight)}
+        />
+        <Text style={styles.percentageText}>{tireTemperature.backRight} °C</Text>
+      </View>
+    </View>
+  );
 
-  {/* Front Right Tire */}
-  <View style={[styles.progressCircleContainer, styles.topRight]}>
-    {/* Conditionally render icon based on temperature */}
-    {tireTemperature.frontRight > 30 ? (
-      <FontAwesome name="thermometer-three-quarters" size={70} color={getProgressColor(tireTemperature.frontRight)} />
-    ) : tireTemperature.frontRight > 20 ? (
-      <FontAwesome name="thermometer-half" size={70} color={getProgressColor(tireTemperature.frontRight)} />
-    ) : (
-      <FontAwesome name="thermometer-quarter" size={70} color={getProgressColor(tireTemperature.frontRight)} />
-    )}
-    <Text style={styles.percentageTextTemperature}>{tireTemperature.frontRight} °C</Text>
-  </View>
-
-  {/* Back Left Tire */}
-  <View style={[styles.progressCircleContainer, styles.bottomLeft]}>
-    {/* Conditionally render icon based on temperature */}
-    {tireTemperature.backLeft > 30 ? (
-      <Ionicons name="thermometer-sharp" size={70} color={getProgressColor(tireTemperature.backLeft)} />
-    ) : tireTemperature.backLeft > 20 ? (
-      <Ionicons name="thermometer-outline" size={70} color={getProgressColor(tireTemperature.backLeft)} />
-    ) : (
-      <Ionicons name="thermometer" size={70} color={getProgressColor(tireTemperature.backLeft)} />
-    )}
-    <Text style={styles.percentageTextTemperature}>{tireTemperature.backLeft} °C</Text>
-  </View>
-
-  {/* Back Right Tire */}
-  <View style={[styles.progressCircleContainer, styles.bottomRight]}>
-    {/* Conditionally render icon based on temperature */}
-    {tireTemperature.backRight > 30 ? (
-      <Ionicons name="thermometer-sharp" size={70} color={getProgressColor(tireTemperature.backRight)} />
-    ) : tireTemperature.backRight > 20 ? (
-      <Ionicons name="thermometer-outline" size={70} color={getProgressColor(tireTemperature.backRight)} />
-    ) : (
-      <Ionicons name="thermometer" size={70} color={getProgressColor(tireTemperature.backRight)} />
-    )}
-    <Text style={styles.percentageTextTemperature}>{tireTemperature.backRight} °C</Text>
-  </View>
-</View>
-
-        );
       case 'tireLife':
         return (
           <View style={styles.carImageContainer}>
@@ -187,10 +166,10 @@ const MonitoringPage = ({ navigation }) => {
     contentContainerStyle={styles.footerContent}
     ref={scrollViewRef}
   >
-    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('pressure')}>
+    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('temperature')}>
       <Ionicons name="thermometer" size={24} color="#fff" />
     </TouchableOpacity>
-    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('temperature')}>
+    <TouchableOpacity style={styles.footerButton} onPress={() => setSelectedFeature('pressure')}>
       <Ionicons name="cloudy" size={24} color="#fff" />
     </TouchableOpacity>
     <TouchableOpacity style={styles.footerButton} onPress={() => setCurrentContent('home')}>
@@ -275,6 +254,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: '#ffff',
+    top:100,
   },
   percentageTextTemperature: {
     marginTop: 10, // Adds space between the icon and the temperature text
