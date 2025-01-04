@@ -202,7 +202,10 @@ const IndividualDriverPage = () => {
     alert("Driver details saved successfully!");
     toggleModal();
   };
+  const handleLogout = () => {
 
+    navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
+  };
   const handleSensorIdSubmit = () => {
     if (!sensorId) return; // Prevent adding empty sensor IDs
     setRecentConnections([...recentConnections, { sensorId, vehicleType }]);
@@ -625,6 +628,10 @@ const IndividualDriverPage = () => {
             onPress={saveDriverDetails}
           >
             <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+          {/* Logout Button */}
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -1161,6 +1168,27 @@ const styles = StyleSheet.create({
 
   autoPairingIndicator: {
     marginVertical: 20,
+  },
+  logoutButton: {
+    backgroundColor: "#FF4C4C", // Red color for logout
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20, // Space from other elements
+    width: "100%", // Adjust width to fit nicely
+    alignSelf: "center", // Center horizontally
+    shadowColor: "#000", // Shadow for depth
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  logoutButtonText: {
+    color: "#FFFFFF", // White text color
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center", // Center the text
   },
 });
 
