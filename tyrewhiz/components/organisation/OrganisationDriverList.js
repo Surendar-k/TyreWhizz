@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import {
   View,
   Text,
@@ -8,91 +9,194 @@ import {
   Alert,
   TextInput,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 
 const OrganisationDriverList = ({ navigation }) => {
-  const [drivers, setDrivers] = useState([
-    { id: '1', name: 'John Doe', Driver_No: '3457', Vehicle_No: 'TN-01-AB-1204', contact: '123-456-7890' },
-    { id: '2', name: 'Jane Smith', Driver_No: '3057', Vehicle_No: 'TN-01-AB-4234', contact: '987-654-3210' },
-    { id: '3', name: 'Mike Johnson', Driver_No: '3497', Vehicle_No: 'TN-01-AB-6234', contact: '456-789-1230' },
-    { id: '4', name: 'Mike Jo', Driver_No: '3450', Vehicle_No: 'TN-01-AB-1834', contact: '456-739-1230' },
-    { id: '5', name: 'Mike Joh', Driver_No: '3456', Vehicle_No: 'TN-01-AB-1237', contact: '456-789-1200' },
-    { id: '6', name: 'Mie Lhnson', Driver_No: '3456', Vehicle_No: 'TN-01-AB-5234', contact: '496-789-1230' },
-    { id: '7', name: 'Mike Johnon', Driver_No: '3457', Vehicle_No: 'TN-01-AB-1264', contact: '456-787-1230' },
-  ]);
+  const [drivers, setDrivers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [filteredDrivers, setFilteredDrivers] = useState(drivers);
-  const [searchText, setSearchText] = useState('');
+  const [filteredDrivers, setFilteredDrivers] = useState([]);
+  const [searchText,setSearchText] = useState("");
+
   const [showAddDriver, setShowAddDriver] = useState(false);
   const [newDriver, setNewDriver] = useState({ name: '', Vehicle_No: '', contact: '' });
   
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
+
+  useEffect(() => {
+    setFilteredDrivers(drivers);
+  }, [drivers]);
   
-  const deleteDriver = (id) => {
-    Alert.alert('Delete Driver', 'Are you sure you want to delete this driver?', [
-      { text: 'Cancel', style: 'cancel' },
+  const deleteDriver = async (id) => {
+    Alert.alert("Delete Driver", "Are you sure you want to delete this driver?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          const updatedDrivers = drivers.filter((driver) => driver.id !== id);
-          setDrivers(updatedDrivers);
-          setFilteredDrivers(updatedDrivers);
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const response = await fetch(`http://192.168.161.102:5000/api/drivers/${id}`, {
+              method: "DELETE",
+            });
+  
+            if (response.ok) {
+              const updatedDrivers = drivers.filter((driver) => driver.id !== id);
+              setDrivers(updatedDrivers);
+              setFilteredDrivers(updatedDrivers);
+            } else {
+              Alert.alert("Error", "Failed to delete driver");
+            }
+          } catch (error) {
+            console.error("Error deleting driver:", error);
+            Alert.alert("Error", "Failed to connect to the server");
+          }
         },
       },
     ]);
   };
+  
 
-  const addDriver = () => {
-    if (newDriver.name && newDriver.vehicle && newDriver.contact) {
-      const newDriverData = { id: Date.now().toString(), ...newDriver };
-      setDrivers((prev) => [...prev, newDriverData]);
-      setFilteredDrivers((prev) => [...prev, newDriverData]);
-      setNewDriver({ name: '', Driver_No: '', Vehicle_No: '', contact: '' });
-      setShowAddDriver(false);
+  const addDriver = async () => {
+    if (newDriver.name && newDriver.Vehicle_No && newDriver.contact) {
+      console.log("Adding driver:", newDriver); // Log data being sent
+      try {
+        const response = await fetch("http://192.168.161.102:5000/api/drivers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newDriver),
+        });
+        const data = await response.json();
+        console.log("Response from server:", data); // Log the response
+        if (response.ok) {
+          setDrivers((prev) => [...prev, data]);  // Update state immediately
+          setFilteredDrivers((prev) => [...prev, data]); // Update filtered drivers as well
+          setNewDriver({ name: "", Driver_No: "", Vehicle_No: "", contact: "" });
+          setShowAddDriver(false);
+        } else {
+          Alert.alert("Error", data.error || "Failed to add driver");
+        }
+      } catch (error) {
+        console.error("Error during API call:", error);
+        Alert.alert("Error", "Failed to connect to the server");
+      }
     } else {
-      Alert.alert('Error', 'Please fill all fields to add a driver.');
+      Alert.alert("Error", "Please fill all fields to add a driver.");
     }
   };
+  
+  
 
   const searchDriver = (text) => {
-    setSearchText(text);
-    if (text) {
-      const filtered = drivers.filter((driver) =>
-        driver.Driver_No.toLowerCase().includes(text.toLowerCase())
-      );
-      setFilteredDrivers(filtered);
-    } else {
+    // Trim input to handle leading/trailing spaces and ensure case-insensitivity
+    const query = text.trim().toLowerCase();
+  
+    // If the query is empty, set filteredDrivers to all drivers
+    if (!query) {
       setFilteredDrivers(drivers);
+      return;
+    }
+  
+    const filteredList = drivers.filter((driver) => {
+      // Ensure the driver's Driver_No exists and is a string before performing the search
+      const driverNo = driver.Driver_No ? driver.Driver_No.toString() : '';  // Convert to string if it's not already
+  
+      return driverNo.toLowerCase().includes(query);
+    });
+  
+    // Debugging: Log the filtered list to ensure the logic is working
+    console.log(filteredList);
+  
+    // Update state with the filtered list
+    setFilteredDrivers(filteredList);
+  };
+  
+  
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
+  
+  
+  const fetchDrivers = async () => {
+    try {
+      const response = await fetch("http://192.168.161.102:5000/api/drivers");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched drivers data:", data); // Check if data is fetched
+        setDrivers(data);
+        setFilteredDrivers(data);
+      } else {
+        console.error("Failed to fetch drivers");
+      }
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const openUpdateModal = (driver) => {
-    setSelectedDriver(driver);
-    setModalVisible(true);
+  useEffect(() => {
+    setFilteredDrivers(drivers);
+  }, [drivers]); // Ensures filtered drivers are updated whenever drivers change
+  
+  const updateDriver = async () => {
+    if (!selectedDriver) {
+      Alert.alert("Error", "No driver selected for update");
+      return;
+    }
+  
+    console.log("Updating driver:", selectedDriver); // Log selected driver data
+    try {
+      const response = await fetch(`http://192.168.161.102:5000/api/drivers/${selectedDriver.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectedDriver),
+      });
+      const updatedDriver = await response.json();
+      console.log("Response from server:", updatedDriver); // Log the response
+      if (response.ok) {
+        const updatedDrivers = drivers.map((driver) =>
+          driver.id === updatedDriver.id ? updatedDriver : driver
+        );
+        setDrivers(updatedDrivers); // Update state with the updated driver
+        setFilteredDrivers(updatedDrivers); // Update filtered drivers
+        setModalVisible(false);
+      } else {
+        Alert.alert("Error", "Failed to update driver");
+      }
+    } catch (error) {
+      console.error("Error updating driver:", error);
+      Alert.alert("Error", "Failed to connect to the server");
+    }
   };
+  
 
-  const updateDriver = () => {
-    if (selectedDriver.name && selectedDriver.Vehicle_No && selectedDriver.contact) {
-      const updatedDrivers = drivers.map((driver) =>
-        driver.id === selectedDriver.id ? selectedDriver : driver
+ 
+
+  if (loading) {
+      // Show the loading spinner when loading state is true
+      return (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
+          <Text>Loading...</Text>
+        </View>
       );
-      setDrivers(updatedDrivers);
-      setFilteredDrivers(updatedDrivers);
-      setModalVisible(false);
-      Alert.alert('Success', 'Driver details updated successfully!');
-    } else {
-      Alert.alert('Error', 'Please fill all fields to update the driver.');
     }
-  };
+
+    if (!drivers || drivers.length === 0) {
+      return <Text>No drivers found</Text>;
+    }
 
   const renderDriverItem = ({ item }) => (
     <View style={styles.card}>
-      <TouchableOpacity
-        onPress={() => openUpdateModal(item)} // Open the update modal
-        style={{ flex: 1 }}
-      >
+     <TouchableOpacity
+  onPress={() => {
+    setSelectedDriver(item); // Set the selected driver
+    setModalVisible(true);  // Open the modal
+  }}
+  style={{ flex: 1 }}
+>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.driverNo}>Driver No: {item.Driver_No}</Text>
         <Text style={styles.Vehicle_No}>Vehicle No: {item.Vehicle_No}</Text>
@@ -120,12 +224,16 @@ const OrganisationDriverList = ({ navigation }) => {
               </View>
               {/* Search and Add Driver Section */}
               <View style={styles.actionRow}>
-  <TextInput
-    style={styles.searchInput}
-    placeholder="Search by Driver No"
-    value={searchText}
-    onChangeText={searchDriver}
-  />
+              <TextInput
+  style={styles.searchInput}
+  placeholder="Search by Driver No"
+  value={searchText}
+  onChangeText={(text) => {
+    setSearchText(text);
+    searchDriver(text);
+  }}
+/>
+
   <TouchableOpacity
     style={styles.addButton}
     onPress={() => setShowAddDriver(!showAddDriver)}
@@ -166,55 +274,58 @@ const OrganisationDriverList = ({ navigation }) => {
     </TouchableOpacity>
   </View>
 )}
-      <FlatList
-        data={filteredDrivers}
-        renderItem={renderDriverItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+     <FlatList
+  data={filteredDrivers}
+  renderItem={renderDriverItem}
+  keyExtractor={(item) => (item.id ? item.id.toString() : String(item.Driver_No))} // Fallback to Driver_No if id is missing
+  contentContainerStyle={{ paddingBottom: 100 }}
+/>
 
       {/* Update Driver Modal */}
       <Modal
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-        transparent={true}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Update Driver Details</Text>
-            <TextInput
-              style={styles.input}
-              value={selectedDriver?.name}
-              onChangeText={(text) => setSelectedDriver({ ...selectedDriver, name: text })}
-              placeholder="Name"
-            />
-            <TextInput
-              style={styles.input}
-              value={selectedDriver?.Vehicle_No}
-              onChangeText={(text) => setSelectedDriver({ ...selectedDriver, Vehicle_No: text })}
-              placeholder="Vehicle No"
-            />
-            <TextInput
-              style={styles.input}
-              value={selectedDriver?.contact}
-              onChangeText={(text) => setSelectedDriver({ ...selectedDriver, contact: text })}
-              placeholder="Contact"
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={updateDriver}>
-              <Text style={styles.saveText}>Save Changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+  visible={modalVisible}
+  animationType="slide"
+  onRequestClose={() => setModalVisible(false)}
+  transparent={true}
+>
+  <View style={styles.modalBackground}>
+    <View style={styles.modalContainer}>
+      <Text style={styles.modalTitle}>Update Driver Details</Text>
+      <TextInput
+        style={styles.input}
+        value={selectedDriver?.name}
+        onChangeText={(text) => setSelectedDriver((prev) => ({ ...prev, name: text }))}
+        placeholder="Name"
+      />
+      
+      <TextInput
+        style={styles.input}
+        value={selectedDriver?.Vehicle_No}
+        onChangeText={(text) => setSelectedDriver((prev) => ({ ...prev, Vehicle_No: text }))}
+        placeholder="Vehicle No"
+      />
+      <TextInput
+        style={styles.input}
+        value={selectedDriver?.contact}
+        onChangeText={(text) => setSelectedDriver((prev) => ({ ...prev, contact: text }))}
+        placeholder="Contact"
+      />
+      <TouchableOpacity style={styles.saveButton} onPress={updateDriver}>
+        <Text style={styles.saveText}>Save Changes</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+        <Text style={styles.cancelText}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   container: { flex: 1, backgroundColor: '#f9f9f9' },
   actionRow: {
     flexDirection: 'row',

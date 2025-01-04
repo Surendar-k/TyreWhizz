@@ -48,7 +48,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post('http://localhost:5000/api/signup', data);
+        const response = await axios.post('http://192.168.161.102:5000/api/signup', data);
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail('');
@@ -64,7 +64,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     
   try {
-    const response = await axios.post('http://localhost:5000/api/login', data);
+    const response = await axios.post('http://192.168.161.102:5000/api/login', data);
     showModal(response.data.message, false);
     const { userType } = response.data;  // Ensure this is the correct property from your backend response.
 
