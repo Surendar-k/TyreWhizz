@@ -167,17 +167,36 @@ const IndividualDriverPage = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-
+  const requestPermissions = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: "Permissions Required",
+          message: "This app needs access to your gallery to pick images",
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
   const pickImage = () => {
     launchImageLibrary(
       {
-        mediaType: "photo",
-        quality: 1,
-        selectionLimit: 1,
+        mediaType: "photo", // Pick photos
+        quality: 1, // High quality
+        selectionLimit: 1, // Limit to 1 image
       },
       (response) => {
-        if (response.assets && response.assets.length > 0) {
-          setProfileImage(response.assets[0].uri);
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+        } else if (response.errorCode) {
+          console.error("Image Picker Error: ", response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          console.log("Image selected: ", response.assets[0]);
+          setProfileImage(response.assets[0].uri); // Set the selected image URI
         }
       }
     );
@@ -188,22 +207,25 @@ const IndividualDriverPage = () => {
       {
         mediaType: "photo",
         quality: 1,
-        selectionLimit: 5,
+        selectionLimit: 5, // Allow multiple selections
       },
       (response) => {
-        if (response.assets && response.assets.length > 0) {
-          setUploadedImages(response.assets);
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+        } else if (response.errorCode) {
+          console.error("Image Picker Error: ", response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          console.log("Images selected: ", response.assets);
+          setUploadedImages(response.assets); // Set multiple selected images
         }
       }
     );
   };
-
   const saveDriverDetails = () => {
     alert("Driver details saved successfully!");
     toggleModal();
   };
   const handleLogout = () => {
-
     navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
   };
   const handleSensorIdSubmit = () => {
@@ -271,7 +293,7 @@ const IndividualDriverPage = () => {
               selectedTab === "pairConnection" && styles.selectedTabText,
             ]}
           >
-            Pair Connection
+            Pair
           </Text>
         </TouchableOpacity>
 
@@ -384,7 +406,7 @@ const IndividualDriverPage = () => {
           </View>
 
           <TextInput
-            placeholder="Sensor ID"
+            placeholder="Sensor ID/Vehicle ID"
             value={sensorId}
             onChangeText={setSensorId}
             style={styles.inputField}
@@ -403,34 +425,41 @@ const IndividualDriverPage = () => {
             <View style={styles.recentConnectionsList}>
               {recentConnections.map((connection, index) => (
                 <View key={index} style={styles.recentConnectionItem}>
-                  <View>
-                    <Text>{`Sensor ID: ${connection.sensorId} - Vehicle: ${connection.vehicleType}`}</Text>
-                    <Text style={styles.pairStatus}>
-                      {connection.paired ? "Paired" : "Not Paired"}
-                    </Text>
-                  </View>
-                  <View style={styles.buttonContainer}>
-                    {!connection.paired && (
-                      <TouchableOpacity
-                        onPress={() => handlePairClick(index)}
-                        style={styles.pairButton}
-                      >
-                        <Text style={styles.pairButtonText}>Pair</Text>
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      onPress={() => handleDeleteConnection(index)}
-                      style={styles.deleteButton}
-                    >
-                      <Text style={styles.deleteButtonText}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
+                    <View>
+                      <Text>
+                        {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
+                      </Text>
+                      <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
+                      <Text>
+                        Status:{" "}
+                        <Text style={styles.pairStatus}>
+                          {connection.paired ? "Paired" : "Not Paired"}
+                        </Text>
+                      </Text>
+                      <View style={styles.buttonContainer}>
+                        {!connection.paired && (
+                          <TouchableOpacity
+                            onPress={() => handlePairClick(index)}
+                            style={styles.pairButton}
+                          >
+                            <Text style={styles.pairButtonText}>Pair</Text>
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                          onPress={() => handleDeleteConnection(index)}
+                          style={styles.deleteButton}
+                        >
+                          <Text style={styles.deleteButtonText}>Delete</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                 </View>
               ))}
             </View>
           ) : (
             <Text>No recent connections.</Text>
-          )}
+          )
+          }
         </View>
       )}
 
@@ -642,7 +671,6 @@ const IndividualDriverPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: "#F9F9F9",
   },
   messageItem: {
@@ -868,27 +896,33 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap", // Allows wrapping
+    justifyContent: "space-between", // Distributes buttons evenly
+    padding: 10, // Adds padding around buttons
   },
   pairButton: {
     backgroundColor: "#4CAF50",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 8,
-    marginRight: 10,
+    margin: 5, // Adds space between buttons
   },
   pairButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+    textAlign: "center", // Ensures text is centered
   },
   deleteButton: {
     backgroundColor: "#FF5733",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 8,
+    margin: 5, // Adds space between buttons
   },
   deleteButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+    textAlign: "center", // Ensures text is centered
   },
 
   modalContainer: {
@@ -1189,6 +1223,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center", // Center the text
+    
   },
 });
 

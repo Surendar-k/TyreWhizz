@@ -28,6 +28,9 @@ const MonitoringPage = ({ navigation }) => {
   });
 
   const scrollViewRef = useRef(null);
+  const handleNearbyShops = () => {
+    navigation.navigate("TechLocation");
+  };
 
   const getProgressColor = (pressure) => {
     if (pressure >= 70) {
@@ -114,6 +117,16 @@ const MonitoringPage = ({ navigation }) => {
                     - {tire} ({pressure} PSI)
                   </Text>
                 ))}
+                <Text style={styles.alertText}>
+                  It looks like you may need to get your tires checked. Would
+                  you like to see nearby auto repair shops for help?
+                </Text>
+                <TouchableOpacity
+                  onPress={handleNearbyShops}
+                  style={styles.button}
+                >
+                  <Text style={styles.buttonText}>Show Nearby Auto Shops</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -354,8 +367,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   carImage: {
-    width: 400,
-    height: 450,
+    width: 350,
+    height: 350,
     bottom: 50,
     left: 5,
     resizeMode: "contain",

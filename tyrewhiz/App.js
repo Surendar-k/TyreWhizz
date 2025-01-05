@@ -64,15 +64,23 @@ const App = () => {
 export default App;
 
 // import React from "react";
-// import { View, Text } from "react-native";
-// import TechLocation from "../tyrewhiz/components/driver/TechLocation"; // Import the map component
+// import { NavigationContainer } from "@react-navigation/native";
+// import { createStackNavigator } from "@react-navigation/stack";
+// import TechLocation from "./components/driver/TechLocation";
+
+// const Stack = createStackNavigator();
 
 // const App = () => {
 //   return (
-//     <View style={{ flex: 1 }}>
-//       <Text>Welcome to the Tech Location App!</Text>
-//       <TechLocation />
-//     </View>
+//     <NavigationContainer>
+//       <Stack.Navigator initialRouteName="TechLocation">
+//         <Stack.Screen
+//           name="TechLocation"
+//           component={TechLocation}
+//           options={{ title: "Current Location" }}
+//         />
+//       </Stack.Navigator>
+//     </NavigationContainer>
 //   );
 // };
 

@@ -6,17 +6,18 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Linking,
+  Alert,
 } from "react-native";
+import Geolocation from "react-native-geolocation-service";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-// Sample real-time mock data for the shops
 const realTimeShops = [
   {
     id: 1,
     name: "Speed Auto Repairs",
-    latitude: 12.9608, // Updated latitude for the real shop
-    longitude: 77.6101, // Updated longitude for the real shop
-    address: "456 Market Street, Bangalore",
+    latitude: 12.9608,
+    longitude: 77.6101,
+    address: "456 Market Street, Chennai",
     phone: "+91 9123456789",
     rating: 4.7,
     hours: "9:00 AM - 7:00 PM",
@@ -27,13 +28,12 @@ const realTimeShops = [
     name: "AutoFix Garage",
     latitude: 12.9487,
     longitude: 77.5982,
-    address: "789 Tech Park Road, Bangalore",
+    address: "789 Tech Park Road, Chennai",
     phone: "+91 9876543210",
     rating: 4.6,
     hours: "8:30 AM - 6:30 PM",
     services: ["Brakes Service", "Suspension Work", "Battery Check"],
   },
-  // Add more real-time shops here...
 ];
 
 const TechLocation = () => {
@@ -43,46 +43,35 @@ const TechLocation = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getUserLocation = () => {
-      if (!navigator.geolocation) {
-        setError("Geolocation is not supported by your browser");
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setLocation(position.coords);
+        setShops(realTimeShops); // Replace with dynamic fetching if needed
         setLoading(false);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-          setShops(realTimeShops); // Using the real-time shops data
-          setLoading(false);
-        },
-        (error) => {
-          setError("Unable to retrieve your location");
-          setLoading(false);
-        }
-      );
-    };
-
-    getUserLocation();
+      },
+      (err) => {
+        setError("Unable to fetch location. Please check your settings.");
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
   }, []);
 
   const handleCall = (phoneNumber) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  // Function to open the location in Google Maps
   const handleOpenMap = (latitude, longitude) => {
-    const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    Linking.openURL(url);
+    const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    Linking.openURL(url).catch(() =>
+      Alert.alert("Error", "Unable to open Google Maps.")
+    );
   };
 
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
   }
@@ -98,57 +87,24 @@ const TechLocation = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Nearby Auto Repair Shops</Text>
-      {location && (
-        <Text style={styles.location}>
-          <Icon name="map-pin" size={20} color="#2563eb" /> Your location:{" "}
-          {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-        </Text>
-      )}
-
       <View style={styles.shopList}>
         {shops.map((shop) => (
           <View key={shop.id} style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>
-                <Icon name="car" size={20} color="white" /> {shop.name}
+            <Text style={styles.cardTitle}>{shop.name}</Text>
+            <Text style={styles.cardRating}>Rating: {shop.rating} ⭐</Text>
+            <TouchableOpacity
+              onPress={() => handleOpenMap(shop.latitude, shop.longitude)}
+            >
+              <Text style={styles.map}>
+                <Icon name="map" size={16} color="#3b82f6" /> Get Directions
               </Text>
-            </View>
-            <View style={styles.cardContent}>
-              <TouchableOpacity
-                onPress={() => handleOpenMap(shop.latitude, shop.longitude)}
-              >
-                <Text style={styles.address}>
-                  <Icon name="map-marker" size={16} color="#2563eb" />{" "}
-                  {shop.address}
-                </Text>
-              </TouchableOpacity>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleCall(shop.phone)}>
               <Text style={styles.phone}>
-                <Icon name="phone" size={16} color="#2563eb" /> {shop.phone}
+                <Icon name="phone" size={16} color="#3b82f6" /> Call
               </Text>
-              <Text style={styles.hours}>
-                <Icon name="clock" size={16} color="#2563eb" /> {shop.hours}
-              </Text>
-              <View style={styles.services}>
-                <Text style={styles.serviceTitle}>Services:</Text>
-                <View style={styles.serviceList}>
-                  {shop.services.map((service, index) => (
-                    <Text key={index} style={styles.serviceBadge}>
-                      {service}
-                    </Text>
-                  ))}
-                </View>
-              </View>
-              <Text style={styles.distance}>
-                <Text style={styles.boldText}>{shop.distance} miles away</Text>{" "}
-                • Rating: <Text style={styles.rating}>⭐ {shop.rating}/5</Text>
-              </Text>
-              <TouchableOpacity
-                style={styles.callButton}
-                onPress={() => handleCall(shop.phone)}
-              >
-                <Text style={styles.callButtonText}>Call Now</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         ))}
       </View>
@@ -160,130 +116,63 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f3f4f6",
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
+    color: "#1f2937",
     marginBottom: 20,
-  },
-  location: {
-    color: "#555",
-    marginBottom: 20,
-    flexDirection: "row",
-    alignItems: "center",
+    textAlign: "center",
   },
   shopList: {
-    flex: 1,
-    flexDirection: "column",
-    marginTop: 20,
+    marginTop: 10,
   },
   card: {
-    backgroundColor: "white",
-    borderRadius: 8,
-    marginBottom: 20,
-    padding: 15,
+    backgroundColor: "#ffffff",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-    transform: [{ scale: 1 }],
-    transition: "transform 0.2s ease-in-out",
-  },
-  cardHeader: {
-    backgroundColor: "#2563eb",
-    padding: 15,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginBottom: 10,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "white",
-    flexDirection: "row",
-    alignItems: "center",
+    color: "#1f2937",
+    marginBottom: 8,
   },
-  cardContent: {
-    padding: 10,
-  },
-  address: {
-    fontSize: 14,
-    color: "#2563eb",
-    marginTop: 5,
+  cardRating: {
+    fontSize: 16,
+    color: "#f59e0b",
+    marginBottom: 10,
   },
   phone: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 5,
-  },
-  hours: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 5,
-  },
-  services: {
-    marginTop: 10,
-  },
-  serviceTitle: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 5,
-  },
-  serviceList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  serviceBadge: {
-    backgroundColor: "#e0f2fe",
-    color: "#2563eb",
-    padding: 6,
-    borderRadius: 16,
-    margin: 4,
-    fontSize: 12,
-  },
-  distance: {
-    fontSize: 14,
-    color: "#444",
-    marginTop: 10,
-  },
-  boldText: {
-    fontWeight: "bold",
-  },
-  rating: {
-    fontWeight: "bold",
-    color: "#f59e0b",
-  },
-  alert: {
-    backgroundColor: "#ef4444",
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  alertText: {
-    color: "white",
     fontSize: 16,
+    color: "#3b82f6",
+  },
+  map: {
+    fontSize: 16,
+    color: "#3b82f6",
   },
   loader: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
-  callButton: {
-    backgroundColor: "#2563eb",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginTop: 15,
-    alignItems: "center",
+  alert: {
+    padding: 15,
+    backgroundColor: "#ef4444",
+    borderRadius: 12,
+    marginBottom: 20,
   },
-  callButtonText: {
+  alertText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 
