@@ -22,12 +22,19 @@ const OrganisationPage = () => {
   
   const navigation = useNavigation();
 
-  // Function to fetch fleet data
   const fetchFleetData = async () => {
     try {
+      // Fetch drivers data from the driver list API
+      const response = await fetch('http://192.168.161.102:5000/api/drivers');
+      const driverData = await response.json();
+  
+      // Calculate the total number of drivers from the fetched data
+      const totalDrivers = driverData.length;  // Assuming each driver in the response is an object
+  
+      // Example of other fleet data (replace with your actual data)
       const mockData = {
         totalVehicles: 50,
-        totalDrivers:30,
+        totalDrivers: totalDrivers, // Use the calculated number of drivers
         activeIssues: 5,
         resolvedIssues: [
           { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
@@ -35,20 +42,20 @@ const OrganisationPage = () => {
           { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
         ],
       };
-      
-      setTimeout(() => {
-        setFleetData(mockData);
-        setLoading(false);
-      }, 1000);
+  
+      // Set the fleet data with the actual fetched data
+      setFleetData(mockData); // Replace mockData with actual data from API
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching fleet data:', error);
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
     fetchFleetData();
   }, []);
+  
 
   const getResolvedIssuesLast24Hrs = () => {
     const now = Date.now();

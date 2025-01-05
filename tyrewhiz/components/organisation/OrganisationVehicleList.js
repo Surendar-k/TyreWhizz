@@ -28,9 +28,7 @@ const OrganisationVehicleList = ({ navigation }) => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
-      const response = await axios.get(
-        "http://localhost:5000/api/vehicles"
-      );
+      const response = await axios.get('http://192.168.161.102:5000/api/vehicles');
       setVehicles(response.data);
       setFilteredVehicles(response.data);
     } catch (error) {
@@ -46,36 +44,28 @@ const OrganisationVehicleList = ({ navigation }) => {
   }, []);
 
   const deleteVehicle = (id) => {
-    Alert.alert(
-      "Delete Vehicle",
-      "Are you sure you want to delete this vehicle?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            setLoading(true); // Start loading
-            try {
-              await axios.delete(
-                `http://localhost:5000/api/vehicles/${id}`
-              );
-              const updatedVehicles = vehicles.filter(
-                (vehicle) => vehicle.id !== id
-              );
-              setVehicles(updatedVehicles);
-              setFilteredVehicles(updatedVehicles);
-              Alert.alert("Success", "Vehicle deleted successfully.");
-            } catch (error) {
-              console.error("Error deleting vehicle:", error);
-              Alert.alert("Error", "Failed to delete the vehicle.");
-            } finally {
-              setLoading(false); // Stop loading
-            }
-          },
+    Alert.alert('Delete Vehicle', 'Are you sure you want to delete this vehicle?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          setLoading(true); // Start loading
+          try {
+            await axios.delete(`http://192.168.161.102:5000/api/vehicles/${id}`);
+            const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== id);
+            setVehicles(updatedVehicles);
+            setFilteredVehicles(updatedVehicles);
+            Alert.alert('Success', 'Vehicle deleted successfully.');
+          } catch (error) {
+            console.error('Error deleting vehicle:', error);
+            Alert.alert('Error', 'Failed to delete the vehicle.');
+          } finally {
+            setLoading(false); // Stop loading
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const addVehicle = async () => {
@@ -83,11 +73,8 @@ const OrganisationVehicleList = ({ navigation }) => {
       setLoading(true); // Start loading
       try {
         // Make the POST request to add the vehicle
-        const response = await axios.post(
-          "http://localhost:5000/api/vehicles",
-          newVehicle
-        );
-
+        const response = await axios.post('http://192.168.161.102:5000/api/vehicles', newVehicle);
+        
         // Check if the response contains the expected data
         if (response.data && response.data.vehicleId) {
           // Assuming vehicleId is returned from backend, and appending it to the vehicle
