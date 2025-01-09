@@ -16,7 +16,6 @@ const OrganisationVehicleList = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [searchText, setSearchText] = useState("");
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ vehicle_no: '', driver_id: '', type: '', capacity: '' });
   const [modalVisible, setModalVisible] = useState(false);
