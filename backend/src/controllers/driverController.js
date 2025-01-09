@@ -16,33 +16,37 @@ const getDrivers = (req, res) => {
 
 // Add a new driver
 const addDriver = (req, res) => {
-  const { name, Driver_No, Vehicle_No, contact } = req.body;
+  const { name, Driver_No, Vehicle_No, exp, contact } = req.body;
   
-  if (!name || !Driver_No || !Vehicle_No || !contact) {
+  console.log('Request Body:', req.body);
+  console.log({ name, Driver_No, Vehicle_No, exp, contact });
+
+  if (!name || !Driver_No || !Vehicle_No || !exp || !contact) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const query = 'INSERT INTO drivers (name, Driver_No, Vehicle_No, contact) VALUES (?, ?, ?, ?)';
-  db.query(query, [name, Driver_No, Vehicle_No, contact], (err, results) => {
+  const query = 'INSERT INTO drivers (name, Driver_No, Vehicle_No, exp, contact) VALUES (?, ?, ?, ?,?)';
+  db.query(query, [name, Driver_No, Vehicle_No, exp, contact], (err, results) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
-    res.json({ driverId: results.insertId, name, Driver_No, Vehicle_No, contact });
+    res.json({ driverId: results.insertId, name, Driver_No, Vehicle_No, exp, contact });
   });
 };
+
 
 // Update a driver's details
 const updateDriver = (req, res) => {
   const { id } = req.params;
-  const { name, Driver_No, Vehicle_No, contact } = req.body;
+  const { name, Driver_No, Vehicle_No, exp,contact } = req.body;
 
-  if (!name || !Driver_No || !Vehicle_No || !contact) {
+  if (!name || !Driver_No || !Vehicle_No || !exp ||!contact) {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const query = 'UPDATE drivers SET name = ?, Driver_No = ?, Vehicle_No = ?, contact = ? WHERE id = ?';
-  db.query(query, [name, Driver_No, Vehicle_No, contact, id], (err) => {
+  const query = 'UPDATE drivers SET name = ?, Driver_No = ?, Vehicle_No = ?, exp=? ,contact = ? WHERE id = ?';
+  db.query(query, [name, Driver_No, Vehicle_No, exp,contact, id], (err) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });

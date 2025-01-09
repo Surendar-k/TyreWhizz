@@ -479,11 +479,14 @@ const TechnicianPage = () => {
         <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
           <Ionicons name="menu" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.welcometitle}>Welcome, Technician!</Text>
+        <Text style={styles.welcometitle}>TyreWhizz</Text>
         <TouchableOpacity style={styles.profileButton} onPress={toggleProfile}>
           <Ionicons name="person-circle" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
+      <View style={styles.roleContainer}>
+                <Text style={styles.role}>Logged in as: Technician</Text>
+              </View>
 
       <ScrollView>
         <View style={styles.tabContainer}>
@@ -686,6 +689,10 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "flex-start",
   },
+  
+  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(42 10 62)' },
+  
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -821,6 +828,7 @@ const styles = StyleSheet.create({
   welcometitle: {
     color: "#ffff",
     fontSize: 20,
+      fontWeight: 'bold',
   },
   menuButton: {
     padding: 5,

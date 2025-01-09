@@ -228,7 +228,7 @@ const IndividualDriverPage = () => {
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Driver Page</Text>
+        <Text style={styles.headerText}>TyreWhizz</Text>
         <TouchableOpacity onPress={toggleModal} style={styles.profileSection}>
           <Image
             source={profileImage ? { uri: profileImage } : defaultImage}
@@ -237,6 +237,9 @@ const IndividualDriverPage = () => {
           <Text style={styles.profileText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.roleContainer}>
+                      <Text style={styles.role}>Logged in as: Driver</Text>
+                    </View>
       <View style={styles.tabsContainer}>
         {/*list of tabs*/}
         {/* Notifications Tab */}
@@ -271,7 +274,7 @@ const IndividualDriverPage = () => {
               selectedTab === "pairConnection" && styles.selectedTabText,
             ]}
           >
-            Pair Connection
+            Pair 
           </Text>
         </TouchableOpacity>
 
@@ -403,28 +406,36 @@ const IndividualDriverPage = () => {
             <View style={styles.recentConnectionsList}>
               {recentConnections.map((connection, index) => (
                 <View key={index} style={styles.recentConnectionItem}>
-                  <View>
-                    <Text>{`Sensor ID: ${connection.sensorId} - Vehicle: ${connection.vehicleType}`}</Text>
-                    <Text style={styles.pairStatus}>
-                      {connection.paired ? "Paired" : "Not Paired"}
-                    </Text>
-                  </View>
-                  <View style={styles.buttonContainer}>
-                    {!connection.paired && (
-                      <TouchableOpacity
-                        onPress={() => handlePairClick(index)}
-                        style={styles.pairButton}
-                      >
-                        <Text style={styles.pairButtonText}>Pair</Text>
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      onPress={() => handleDeleteConnection(index)}
-                      style={styles.deleteButton}
-                    >
-                      <Text style={styles.deleteButtonText}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <View style={styles.recentConnectionDetails}>
+                    <View>
+                      <Text>
+                        {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
+                      </Text>
+                      <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
+                      <Text>
+                        Status:{" "}
+                        <Text style={styles.pairStatus}>
+                          {connection.paired ? "Paired" : "Not Paired"}
+                        </Text>
+                      </Text>
+                      <View style={styles.buttonContainer}>
+                        {!connection.paired && (
+                          <TouchableOpacity
+                            onPress={() => handlePairClick(index)}
+                            style={styles.pairButton}
+                          >
+                            <Text style={styles.pairButtonText}>Pair</Text>
+                          </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                          onPress={() => handleDeleteConnection(index)}
+                          style={styles.deleteButton}
+                        >
+                          <Text style={styles.deleteButtonText}>Delete</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    </View>
                 </View>
               ))}
             </View>
@@ -642,7 +653,6 @@ const IndividualDriverPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: "#F9F9F9",
   },
   messageItem: {
@@ -728,6 +738,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
+  role: { fontSize: 18, color: 'rgb(42 10 62)' },
   profileSection: {
     alignItems: "center",
     paddingRight: 20,
@@ -848,10 +860,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 10,
-    paddingVertical: 10,
+    padding: 15, // Add some padding for spacing
     borderBottomWidth: 1,
     borderColor: "#E0E0E0",
+    backgroundColor: "#F9F9F9", // Optional: Better visibility
+    borderRadius: 8,
+    marginVertical: 8, // Add spacing between rows
+    elevation: 2, // For subtle shadow
+  },
+  recentConnectionDetails: {
+    flex: 1, // Allow details to take up remaining space
+    marginRight: 10, // Add space between details and buttons
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   connectionDetails: {
     flex: 1,
@@ -865,30 +889,30 @@ const styles = StyleSheet.create({
     color: "#888",
     marginTop: 5,
   },
-  buttonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+ 
   pairButton: {
     backgroundColor: "#4CAF50",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 8,
-    marginRight: 10,
+    margin: 5, // Adds space between buttons
   },
   pairButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+    textAlign: "center", // Ensures text is centered
   },
   deleteButton: {
     backgroundColor: "#FF5733",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 8,
+    margin: 5, // Adds space between buttons
   },
   deleteButtonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+    textAlign: "center", // Ensures text is centered
   },
 
   modalContainer: {
@@ -1191,5 +1215,6 @@ const styles = StyleSheet.create({
     textAlign: "center", // Center the text
   },
 });
+
 
 export default IndividualDriverPage;

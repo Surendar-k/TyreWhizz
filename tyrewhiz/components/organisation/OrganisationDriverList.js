@@ -20,7 +20,7 @@ const OrganisationDriverList = ({ navigation }) => {
   const [searchText,setSearchText] = useState("");
 
   const [showAddDriver, setShowAddDriver] = useState(false);
-  const [newDriver, setNewDriver] = useState({ name: '', Vehicle_No: '', contact: '' });
+  const [newDriver, setNewDriver] = useState({ name: '', Driver_No:'',Vehicle_No: '',exp: '', contact: '' });
   
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -37,7 +37,7 @@ const OrganisationDriverList = ({ navigation }) => {
         style: "destructive",
         onPress: async () => {
           try {
-            const response = await fetch(`http://192.168.161.102:5000/api/drivers/${id}`, {
+            const response = await fetch(`http://192.168.34.92:5000/api/drivers/${id}`, {
               method: "DELETE",
             });
   
@@ -59,31 +59,31 @@ const OrganisationDriverList = ({ navigation }) => {
   
 
   const addDriver = async () => {
-    if (newDriver.name && newDriver.Vehicle_No && newDriver.contact) {
-      console.log("Adding driver:", newDriver); // Log data being sent
-      try {
-        const response = await fetch("http://192.168.161.102:5000/api/drivers", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newDriver),
-        });
-        const data = await response.json();
-        console.log("Response from server:", data); // Log the response
-        if (response.ok) {
-          setDrivers((prev) => [...prev, data]);  // Update state immediately
-          setFilteredDrivers((prev) => [...prev, data]); // Update filtered drivers as well
-          setNewDriver({ name: "", Driver_No: "", Vehicle_No: "", contact: "" });
-          setShowAddDriver(false);
-        } else {
-          Alert.alert("Error", data.error || "Failed to add driver");
-        }
-      } catch (error) {
-        console.error("Error during API call:", error);
-        Alert.alert("Error", "Failed to connect to the server");
-      }
+    console.log('Sending data to backend:', newDriver);
+
+if (newDriver.name && newDriver.Driver_No && newDriver.Vehicle_No && newDriver.exp && newDriver.contact) {
+  try {
+    const response = await fetch('http://192.168.34.92:5000/api/drivers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newDriver),
+    });
+    const data = await response.json();
+    console.log('Response from server:', data);
+    if (response.ok) {
+      setDrivers((prev) => [...prev, data]);
+      setNewDriver({ name: '', Driver_No: '', Vehicle_No: '', exp: '', contact: '' });
     } else {
-      Alert.alert("Error", "Please fill all fields to add a driver.");
+      Alert.alert('Error', data.error || 'Failed to add driver');
     }
+  } catch (error) {
+    console.error('Error during API call:', error);
+    Alert.alert('Error', 'Failed to connect to the server');
+  }
+} else {
+  Alert.alert('Error', 'Please fill all fields to add a driver.');
+}
+
   };
   
   
@@ -120,7 +120,7 @@ const OrganisationDriverList = ({ navigation }) => {
   
   const fetchDrivers = async () => {
     try {
-      const response = await fetch("http://192.168.161.102:5000/api/drivers");
+      const response = await fetch("http://192.168.34.92:5000/api/drivers");
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched drivers data:", data); // Check if data is fetched
@@ -148,7 +148,7 @@ const OrganisationDriverList = ({ navigation }) => {
   
     console.log("Updating driver:", selectedDriver); // Log selected driver data
     try {
-      const response = await fetch(`http://192.168.161.102:5000/api/drivers/${selectedDriver.id}`, {
+      const response = await fetch(`http://192.168.34.92:5000/api/drivers/${selectedDriver.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedDriver),
@@ -200,6 +200,7 @@ const OrganisationDriverList = ({ navigation }) => {
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.driverNo}>Driver No: {item.Driver_No}</Text>
         <Text style={styles.Vehicle_No}>Vehicle No: {item.Vehicle_No}</Text>
+        <Text style={styles.exp}>Experience: {item.exp}</Text>
         <Text style={styles.contact}>Contact: {item.contact}</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => deleteDriver(item.id)} style={styles.deleteButton}>
@@ -265,6 +266,12 @@ const OrganisationDriverList = ({ navigation }) => {
     />
     <TextInput
       style={styles.input}
+      placeholder="Experience"
+      value={newDriver.exp}
+      onChangeText={(text) => setNewDriver((prev) => ({ ...prev, exp: parseInt(text, 10) || '' }))}
+    />
+    <TextInput
+      style={styles.input}
       placeholder="Contact"
       value={newDriver.contact}
       onChangeText={(text) => setNewDriver((prev) => ({ ...prev, contact: text }))}
@@ -303,6 +310,12 @@ const OrganisationDriverList = ({ navigation }) => {
         value={selectedDriver?.Vehicle_No}
         onChangeText={(text) => setSelectedDriver((prev) => ({ ...prev, Vehicle_No: text }))}
         placeholder="Vehicle No"
+      />
+      <TextInput
+        style={styles.input}
+        value={selectedDriver?.exp? String(selectedDriver.exp) : ''}
+        onChangeText={(text) => setSelectedDriver((prev) => ({ ...prev, exp: text }))}
+        placeholder="Experience"
       />
       <TextInput
         style={styles.input}
@@ -424,7 +437,9 @@ const styles = StyleSheet.create({
   name: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   driverNo: { fontSize: 14, color: '#666' },
   Vehicle_No: { fontSize: 14, color: '#666' },
+  exp: { fontSize: 14, color: '#666' },
   contact: { fontSize: 14, color: '#888' },
+
   deleteButton: {
     backgroundColor: '#ff4d4d',
     padding: 10,

@@ -62,18 +62,3 @@ const App = () => {
 };
 
 export default App;
-
-// import React from "react";
-// import { View, Text } from "react-native";
-// import TechLocation from "../tyrewhiz/components/driver/TechLocation"; // Import the map component
-
-// const App = () => {
-//   return (
-//     <View style={{ flex: 1 }}>
-//       <Text>Welcome to the Tech Location App!</Text>
-//       <TechLocation />
-//     </View>
-//   );
-// };
-
-// export default App;
