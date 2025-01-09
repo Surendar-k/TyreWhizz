@@ -167,17 +167,36 @@ const IndividualDriverPage = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-
+  const requestPermissions = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: "Permissions Required",
+          message: "This app needs access to your gallery to pick images",
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
   const pickImage = () => {
     launchImageLibrary(
       {
-        mediaType: "photo",
-        quality: 1,
-        selectionLimit: 1,
+        mediaType: "photo", // Pick photos
+        quality: 1, // High quality
+        selectionLimit: 1, // Limit to 1 image
       },
       (response) => {
-        if (response.assets && response.assets.length > 0) {
-          setProfileImage(response.assets[0].uri);
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+        } else if (response.errorCode) {
+          console.error("Image Picker Error: ", response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          console.log("Image selected: ", response.assets[0]);
+          setProfileImage(response.assets[0].uri); // Set the selected image URI
         }
       }
     );
@@ -188,22 +207,25 @@ const IndividualDriverPage = () => {
       {
         mediaType: "photo",
         quality: 1,
-        selectionLimit: 5,
+        selectionLimit: 5, // Allow multiple selections
       },
       (response) => {
-        if (response.assets && response.assets.length > 0) {
-          setUploadedImages(response.assets);
+        if (response.didCancel) {
+          console.log("User cancelled image picker");
+        } else if (response.errorCode) {
+          console.error("Image Picker Error: ", response.errorMessage);
+        } else if (response.assets && response.assets.length > 0) {
+          console.log("Images selected: ", response.assets);
+          setUploadedImages(response.assets); // Set multiple selected images
         }
       }
     );
   };
-
   const saveDriverDetails = () => {
     alert("Driver details saved successfully!");
     toggleModal();
   };
   const handleLogout = () => {
-
     navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
   };
   const handleSensorIdSubmit = () => {
@@ -274,7 +296,7 @@ const IndividualDriverPage = () => {
               selectedTab === "pairConnection" && styles.selectedTabText,
             ]}
           >
-            Pair 
+            Pair
           </Text>
         </TouchableOpacity>
 
@@ -387,7 +409,7 @@ const IndividualDriverPage = () => {
           </View>
 
           <TextInput
-            placeholder="Sensor ID"
+            placeholder="Sensor ID/Vehicle ID"
             value={sensorId}
             onChangeText={setSensorId}
             style={styles.inputField}
@@ -406,7 +428,6 @@ const IndividualDriverPage = () => {
             <View style={styles.recentConnectionsList}>
               {recentConnections.map((connection, index) => (
                 <View key={index} style={styles.recentConnectionItem}>
-                  <View style={styles.recentConnectionDetails}>
                     <View>
                       <Text>
                         {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
@@ -435,13 +456,13 @@ const IndividualDriverPage = () => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                    </View>
                 </View>
               ))}
             </View>
           ) : (
             <Text>No recent connections.</Text>
-          )}
+          )
+          }
         </View>
       )}
 
@@ -889,7 +910,13 @@ const styles = StyleSheet.create({
     color: "#888",
     marginTop: 5,
   },
- 
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap", // Allows wrapping
+    justifyContent: "space-between", // Distributes buttons evenly
+    padding: 10, // Adds padding around buttons
+  },
   pairButton: {
     backgroundColor: "#4CAF50",
     paddingVertical: 8,
@@ -1213,6 +1240,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center", // Center the text
+    
   },
 });
 

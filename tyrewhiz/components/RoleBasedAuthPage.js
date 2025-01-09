@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,33 +9,33 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Image,
-} from 'react-native';
-import axios from 'axios';
-import logoimg from '../assets/rolebasedauthimage.png';
+} from "react-native";
+import axios from "axios";
+import logoimg from "../assets/rolebasedauthimage.png";
 
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
   const [isSignup, setIsSignup] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [popupMessage, setPopupMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [popupMessage, setPopupMessage] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
 
   const handleAuthAction = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Email and password are required.');
+      Alert.alert("Error", "Email and password are required.");
       return;
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      showModal('Invalid email format. Please enter a valid email.', true);
+      showModal("Invalid email format. Please enter a valid email.", true);
       return;
     }
 
     if (password.length < 6) {
-      showModal('Password must be at least 6 characters long.', true);
+      showModal("Password must be at least 6 characters long.", true);
       return;
     }
 
@@ -43,7 +43,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     if (isSignup) {
       if (password !== confirmPassword) {
-        showModal('Passwords do not match.', true);
+        showModal("Passwords do not match.", true);
         return;
       }
 
@@ -51,14 +51,17 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         const response = await axios.post('http://192.168.34.92:5000/api/signup', data);
         showModal(response.data.message, false);
         setIsSignup(false);
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setTimeout(() => navigation.replace('LoginPage', { userType }), 3000);
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setTimeout(() => navigation.replace("LoginPage", { userType }), 3000);
       } catch (error) {
-        showModal(error.response?.data?.error || 'Signup failed. Please try again.', true);
+        showModal(
+          error.response?.data?.error || "Signup failed. Please try again.",
+          true
+        );
       }
-      
+
       return;
     }
 
@@ -68,19 +71,19 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     showModal(response.data.message, false);
     const { userType } = response.data;  // Ensure this is the correct property from your backend response.
 
-    // Navigate based on userType
-    if (userType === 'driver') {
-      navigation.replace('DriverPage');
-    } else if (userType === 'organisation') {
-      navigation.replace('OrganisationPage');
-    } else if (userType === 'technician') {
-      navigation.replace('TechnicianPage');
-    } else {
-      showModal('Unknown user type. Please contact support.', true);
+      // Navigate based on userType
+      if (userType === "driver") {
+        navigation.replace("DriverPage");
+      } else if (userType === "organisation") {
+        navigation.replace("OrganisationPage");
+      } else if (userType === "technician") {
+        navigation.replace("TechnicianPage");
+      } else {
+        showModal("Unknown user type. Please contact support.", true);
+      }
+    } catch (error) {
+      showModal(error.response.data.error, true);
     }
-  } catch (error) {
-    showModal(error.response.data.error, true);
-  }
   };
 
   const showModal = (message, isError) => {
@@ -91,7 +94,10 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
       <View style={styles.logoContainer}>
@@ -144,12 +150,14 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       )}
 
       <TouchableOpacity style={styles.button} onPress={handleAuthAction}>
-        <Text style={styles.buttonText}>{isSignup ? 'Signup' : 'Login'}</Text>
+        <Text style={styles.buttonText}>{isSignup ? "Signup" : "Login"}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
         <Text style={styles.toggleText}>
-          {isSignup ? 'Already have an account? Login' : "Don't have an account? Signup"}
+          {isSignup
+            ? "Already have an account? Login"
+            : "Don't have an account? Signup"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -159,73 +167,73 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    color: '#333',
+    color: "#333",
   },
   input: {
-    width: '80%',
+    width: "80%",
     height: 50,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     marginBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     left: 20,
-    backgroundColor: '#6200ee',
+    backgroundColor: "#6200ee",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
   },
   backButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   button: {
-    width: '80%',
+    width: "80%",
     height: 50,
-    backgroundColor: '#6200ee',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#6200ee",
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 8,
     marginBottom: 15,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   toggleText: {
-    color: '#6200ee',
+    color: "#6200ee",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    width: '80%',
+    width: "80%",
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 3,
@@ -233,19 +241,19 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   logo: {
     width: 200,
     height: 200,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
 });
 

@@ -16,6 +16,7 @@ const OrganisationVehicleList = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ vehicle_no: '', driver_id: '', type: '', capacity: '' });
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,10 +39,12 @@ const OrganisationVehicleList = ({ navigation }) => {
       }
     } catch (error) {
       console.error("Error fetching vehicles:", error);
+      console.error("Error fetching vehicles:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchVehicles();
@@ -292,93 +295,99 @@ const OrganisationVehicleList = ({ navigation }) => {
 
   
 const styles = StyleSheet.create({
-  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loaderContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center', // Ensures overall content alignment
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Ensures overall content alignment
     paddingHorizontal: 10,
     paddingVertical: 40,
-    backgroundColor: 'rgb(28 10 62)',
-    position: 'relative', // Allows absolute positioning of the back button
-    
+    backgroundColor: "rgb(28 10 62)",
+    position: "relative", // Allows absolute positioning of the back button
   },
   backButton: {
-    position: 'absolute', // Positions the back button independently
+    position: "absolute", // Positions the back button independently
     left: 10, // Keeps it at the left edge
     width: 50,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 5,
     borderWidth: 1,
   },
   backButtonText: {
-    color: 'rgb(42 10 62)',
+    color: "rgb(42 10 62)",
     fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
-  
-  
-  
-  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
-  role: { fontSize: 18, color: 'rgb(42 10 62)' },
-  container: { flex: 1, backgroundColor: 'rgb(255,255,255)'},
-  
-  vehicleTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 35,padding:10 },
+
+  roleContainer: {
+    padding: 10,
+    backgroundColor: "rgb(245, 245, 245)",
+    alignItems: "center",
+  },
+  role: { fontSize: 18, color: "rgb(42 10 62)" },
+  container: { flex: 1, backgroundColor: "rgb(255,255,255)" },
+
+  vehicleTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 35,
+    padding: 10,
+  },
   actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 15,
-    padding:15
+    padding: 15,
   },
   searchInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   addButton: {
-    backgroundColor: '#6a0dad',
+    backgroundColor: "#6a0dad",
     padding: 10,
     borderRadius: 5,
   },
-  addText: { color: '#fff', fontWeight: 'bold' },
-  addVehicleForm: { marginBottom: 20,padding:10 },
+  addText: { color: "#fff", fontWeight: "bold" },
+  addVehicleForm: { marginBottom: 20, padding: 10 },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     padding: 10,
     marginVertical: 5,
     borderRadius: 5,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   saveButton: {
-    backgroundColor: 'rgb(110 89 149)',
+    backgroundColor: "rgb(110 89 149)",
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  saveText: { color: '#fff', fontWeight: 'bold',textAlign:'center', },
+  saveText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
   card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    backgroundColor: "#fff",
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 8,
@@ -389,11 +398,11 @@ const styles = StyleSheet.create({
   capacity: { fontSize: 16, color: '#555' },
   
   deleteButton: {
-    backgroundColor: '#ff4d4d',
+    backgroundColor: "#ff4d4d",
     padding: 10,
     borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   deleteText: { color: '#fff', fontWeight: 'bold' },
   modalBackground: {
