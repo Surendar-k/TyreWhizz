@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,28 +6,20 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
+import axios from "axios"; // Ensure you have axios installed
 const cartopimg = require("../../assets/car-top-view.png");
 
 const MonitoringPage = ({ navigation }) => {
   const [selectedFeature, setSelectedFeature] = useState("pressure"); // State for selected feature
-  const [tirePressure, setTirePressure] = useState({
-    frontLeft: 75,
-    frontRight: 50,
-    backLeft: 30,
-    backRight: 90,
-  });
-  const [tireTemperature, setTireTemperature] = useState({
-    frontLeft: 60,
-    frontRight: 75,
-    backLeft: 55,
-    backRight: 80,
-  });
-
+  const [sensorData, setSensorData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const scrollViewRef = useRef(null);
+
   const handleNearbyShops = () => {
     navigation.navigate("TechLocation");
   };
@@ -41,17 +33,39 @@ const MonitoringPage = ({ navigation }) => {
       return "#dc3545";
     }
   };
-  const lowPressureTires = Object.entries(tirePressure).filter(
-    ([_, pressure]) => pressure < 40
-  );
 
-  const moderateTemperatureTires = Object.entries(tireTemperature).filter(
-    ([_, temperature]) => temperature > 30 && temperature <= 40
-  );
-  const highTemperatureTires = Object.entries(tireTemperature).filter(
-    ([_, temperature]) => temperature > 40
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://192.168.34.89:5000/api/sensor-data"); // Use the correct backend IP
+        setSensorData(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching sensor data:", error);
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const renderContent = () => {
+    if (loading) {
+      return (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Loading data...</Text>
+        </View>
+      );
+    }
+
+    if (!sensorData) {
+      return (
+        <View style={styles.centered}>
+          <Text>Unable to fetch sensor data. Please try again later.</Text>
+        </View>
+      );
+    }
+
     switch (selectedFeature) {
       case "pressure":
         return (
@@ -61,76 +75,30 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={tirePressure.frontLeft}
-                tintColor={getProgressColor(tirePressure.frontLeft)}
+                fill={sensorData.pressure1} // Assuming backend sends pressure1
+                tintColor={getProgressColor(sensorData.pressure1)}
                 backgroundColor="#e0e0e0"
                 rotation={0}
               />
               <Text style={styles.percentageText}>
-                {tirePressure.frontLeft} PSI
+                {sensorData.pressure1} PSI
               </Text>
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <CircularProgress
                 size={70}
                 width={10}
-                fill={tirePressure.frontRight}
-                tintColor={getProgressColor(tirePressure.frontRight)}
+                fill={sensorData.pressure2} // Assuming backend sends pressure2
+                tintColor={getProgressColor(sensorData.pressure2)}
                 backgroundColor="#e0e0e0"
               />
               <Text style={styles.percentageText}>
-                {tirePressure.frontRight} PSI
+                {sensorData.pressure2} PSI
               </Text>
             </View>
-            <View style={[styles.progressCircleContainer, styles.bottomLeft]}>
-              <CircularProgress
-                size={70}
-                width={10}
-                fill={tirePressure.backLeft}
-                tintColor={getProgressColor(tirePressure.backLeft)}
-                backgroundColor="#e0e0e0"
-              />
-              <Text style={styles.percentageText}>
-                {tirePressure.backLeft} PSI
-              </Text>
-            </View>
-            <View style={[styles.progressCircleContainer, styles.bottomRight]}>
-              <CircularProgress
-                size={70}
-                width={10}
-                fill={tirePressure.backRight}
-                tintColor={getProgressColor(tirePressure.backRight)}
-                backgroundColor="#e0e0e0"
-              />
-              <Text style={styles.percentageText}>
-                {tirePressure.backRight} PSI
-              </Text>
-            </View>
-            {/* Low Pressure Alert */}
-            {lowPressureTires.length > 0 && (
-              <View style={[styles.alertContainer, styles.redAlert]}>
-                <Text style={styles.alertText}>
-                  Warning: Low pressure detected in the following tires:
-                </Text>
-                {lowPressureTires.map(([tire, pressure]) => (
-                  <Text key={tire} style={styles.alertText}>
-                    - {tire} ({pressure} PSI)
-                  </Text>
-                ))}
-                <Text style={styles.alertText}>
-                  It looks like you may need to get your tires checked. Would
-                  you like to see nearby auto repair shops for help?
-                </Text>
-                <TouchableOpacity
-                  onPress={handleNearbyShops}
-                  style={styles.button}
-                >
-                  <Text style={styles.buttonText}>Show Nearby Auto Shops</Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
         );
+
       case "temperature":
         return (
           <View style={styles.carImageContainer}>
@@ -138,99 +106,38 @@ const MonitoringPage = ({ navigation }) => {
             <View style={[styles.progressCircleContainer, styles.topLeft]}>
               <FontAwesome
                 name={
-                  tireTemperature.frontLeft > 40
+                  sensorData.ambientTemp > 40
                     ? "thermometer-full"
-                    : tireTemperature.frontLeft > 30
+                    : sensorData.ambientTemp > 30
                     ? "thermometer-half"
                     : "thermometer-quarter"
                 }
                 size={70}
-                color={getProgressColor(tireTemperature.frontLeft)}
+                color={getProgressColor(sensorData.ambientTemp)}
               />
               <Text style={styles.percentageText}>
-                {tireTemperature.frontLeft} °C
+                {sensorData.ambientTemp} °C
               </Text>
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <FontAwesome
                 name={
-                  tireTemperature.frontRight > 40
+                  sensorData.objectTemp > 40
                     ? "thermometer-full"
-                    : tireTemperature.frontRight > 30
+                    : sensorData.objectTemp > 30
                     ? "thermometer-half"
                     : "thermometer-quarter"
                 }
                 size={70}
-                color={getProgressColor(tireTemperature.frontRight)}
+                color={getProgressColor(sensorData.objectTemp)}
               />
               <Text style={styles.percentageText}>
-                {tireTemperature.frontRight} °C
+                {sensorData.objectTemp} °C
               </Text>
             </View>
-            <View style={[styles.progressCircleContainer, styles.bottomLeft]}>
-              <FontAwesome
-                name={
-                  tireTemperature.backLeft > 40
-                    ? "thermometer-full"
-                    : tireTemperature.backLeft > 30
-                    ? "thermometer-half"
-                    : "thermometer-quarter"
-                }
-                size={70}
-                color={getProgressColor(tireTemperature.backLeft)}
-              />
-              <Text style={styles.percentageText}>
-                {tireTemperature.backLeft} °C
-              </Text>
-            </View>
-            <View style={[styles.progressCircleContainer, styles.bottomRight]}>
-              <FontAwesome
-                name={
-                  tireTemperature.backRight > 40
-                    ? "thermometer-full"
-                    : tireTemperature.backRight > 30
-                    ? "thermometer-half"
-                    : "thermometer-quarter"
-                }
-                size={70}
-                color={getProgressColor(tireTemperature.backRight)}
-              />
-              <Text style={styles.percentageText}>
-                {tireTemperature.backRight} °C
-              </Text>
-            </View>
-            {/* Moderate Temperature Alert */}
-            {moderateTemperatureTires.length > 0 && (
-              <View style={[styles.alertContainer, styles.yellowAlert]}>
-                <Text style={styles.alertText}>
-                  Caution: Moderate temperature detected in the following tires:
-                </Text>
-                {moderateTemperatureTires.map(([tire, temperature]) => (
-                  <Text key={tire} style={styles.alertText}>
-                    - {tire} ({temperature} °C)
-                  </Text>
-                ))}
-              </View>
-            )}
           </View>
         );
 
-      case "tireLife":
-        return (
-          <View style={styles.carImageContainer}>
-            <Text style={styles.headerText}>
-              Tire Life Details Will Appear Here
-            </Text>
-          </View>
-        );
-      case "status":
-        return (
-          <View style={styles.carImageContainer}>
-            <Text style={styles.headerText}>
-              Status Information Will Appear Here
-            </Text>
-          </View>
-        );
       default:
         return (
           <View style={styles.carImageContainer}>
@@ -285,12 +192,6 @@ const MonitoringPage = ({ navigation }) => {
             onPress={() => setSelectedFeature("pressure")}
           >
             <Ionicons name="cloudy" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => setCurrentContent("home")}
-          >
-            <Ionicons name="home" size={24} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.footerButton}

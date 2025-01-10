@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
 // Import controllers
-const { signup, login } = require('./src/controllers/authController');
-const apiroutes = require('./src/routes/apiroutes');
+const { signup, login } = require("./src/controllers/authController");
+const apiroutes = require("./src/routes/apiroutes");
 
 // Create Express app
 const app = express();
@@ -15,13 +15,9 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // Routes
-app.post('/api/signup', signup); // Signup route
-app.post('/api/login', login);   // Login route
-app.use('/api', apiroutes);      // General API routes
-
-
-
-
+app.post("/api/signup", signup); // Signup route
+app.post("/api/login", login); // Login route
+app.use("/api", apiroutes); // General API routes
 
 // Start the server
 const PORT = process.env.PORT || 5000;

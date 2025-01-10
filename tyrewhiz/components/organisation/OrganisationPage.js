@@ -14,32 +14,27 @@ const OrganisationPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [profileData, setProfileData] = useState({
-    organizationName: 'Abc pvt lmt',
-    managerName: 'Santhiya',
-    email: 'sant@gmail.com',
-    phone: '+91 7672891290',
+    organizationName: 'TyreWhizz Inc.',
+    managerName: 'Shreya',
+    email: 'shhre@example.com',
+    phone: '+91 8973901821',
   });
   
   const navigation = useNavigation();
 
-  
-  
   const fetchFleetData = async () => {
     try {
-      // Fetch drivers data from the API
-      const driverResponse = await fetch('http://192.168.34.92:5000/api/drivers');
-      const driverData = await driverResponse.json();
-      const totalDrivers = driverData.length;
+      // Fetch drivers data from the driver list API
+      const response = await fetch('http://localhost:5000/api/drivers');
+      const driverData = await response.json();
   
-      // Fetch vehicles data from the API
-      const vehicleResponse = await fetch('http://192.168.34.92:5000/api/vehicles');
-      const vehicleData = await vehicleResponse.json();
-      const totalVehicles = vehicleData.length;
+      // Calculate the total number of drivers from the fetched data
+      const totalDrivers = driverData.length;  // Assuming each driver in the response is an object
   
       // Example of other fleet data (replace with your actual data)
       const mockData = {
-        totalVehicles: totalVehicles, // Use the calculated number of vehicles
-        totalDrivers: totalDrivers,   // Use the calculated number of drivers
+        totalVehicles: 50,
+        totalDrivers: totalDrivers, // Use the calculated number of drivers
         activeIssues: 5,
         resolvedIssues: [
           { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
@@ -60,7 +55,6 @@ const OrganisationPage = () => {
   useEffect(() => {
     fetchFleetData();
   }, []);
-  
   
 
   const getResolvedIssuesLast24Hrs = () => {
@@ -84,14 +78,6 @@ const OrganisationPage = () => {
     navigation.navigate('UserTypeSelectionPage'); // Navigate to the User Type Selection Page
     Alert.alert('Logged Out', 'You have been logged out'); // Show logout alert
   };
-
-  
-
-  
-
-  
-
-  
   
 
   // Render loader until data is fetched
