@@ -15,15 +15,15 @@ const DriverPage = () => {
 
   const navigateToIndividualDriver = () => {
     setModalVisible(false);
-    navigation.navigate("IndividualDriverPage"); // Ensure this page is registered in your navigation stack
+    navigation.navigate("IndividualDriverPage"); 
   };
 
   const navigateToProfessionalDriver = () => {
     setModalVisible(false);
-    navigation.navigate("ProfessionalDriverPage"); // Ensure this page is registered in your navigation stack
+    navigation.navigate("ProfessionalDriverPage"); 
   };
 
-  // Open the modal automatically when the component loads
+
   useEffect(() => {
     setModalVisible(true);
   }, []);

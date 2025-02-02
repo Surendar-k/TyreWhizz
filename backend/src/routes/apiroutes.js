@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const vehicleController = require("../controllers/vehicleController");
-const monitoringController = require("../controllers/monitoringController");
+
 const driverController = require("../controllers/driverController");
 // const { handleSensorData } = require("../controllers/monitoringController");
 // Auth routes
@@ -24,5 +24,13 @@ router.post("/drivers", driverController.addDriver);
 router.put("/drivers/:id", driverController.updateDriver);
 router.delete("/drivers/:id", driverController.deleteDriver);
 router.get("/drivers/count", driverController.getDriverCount);
+
+const monitoringController = require("../controllers/monitoringController");
+
+// Route to handle POST request for receiving sensor data
+router.post("/data", monitoringController.fetchSensorData);
+
+// Route to handle GET request to fetch the last 10 sensor readings
+router.get("/data", monitoringController.getSensorData);
 
 module.exports = router;
