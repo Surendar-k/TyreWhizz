@@ -7,31 +7,24 @@ exports.signup = async (req, res) => {
   const { email, password, userType } = req.body;
 
   if (!email || !password || !userType) {
-    return res.status(400).json({ error: 'Please provide all required fields' });
+    return res.status(400).json({ error: "All fields are required" });
   }
 
   try {
-    // Check if user already exists
-    const [existingUser] = await db.promise().query(
-      'SELECT * FROM users WHERE email = ? AND userType = ?',
-      [email, userType]
-    );
-    if (existingUser.length > 0) {
-      return res.status(400).json({ error: 'User already signed up for this role.' });
+    // Insert user into users table
+    const userQuery = "INSERT INTO users (email, password, userType) VALUES (?, ?, ?)";
+    await db.query(userQuery, [email, password, userType]);
+
+    // If user is an organization, create a profile entry in organization_profile
+    if (userType === "organisation") {
+      const profileQuery = "INSERT INTO organization_profile (email, organization_name, manager_name, phone) VALUES (?, ?, ?, ?)";
+      await db.query(profileQuery, [email, '', '', '']); // Empty placeholders
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Save to DB
-    await db.promise().query(
-      'INSERT INTO users (email, password, userType) VALUES (?, ?, ?)',
-      [email, hashedPassword, userType]
-    );
-    res.status(201).json({ message: 'Signup successful!' });
+    res.json({ message: "Signup successful" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error occurred during signup.' });
+    console.error("Signup error:", error);
+    res.status(500).json({ error: "Database error during signup" });
   }
 };
 

@@ -37,8 +37,8 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://192.168.34.89:5000/api/sensor-data"); // Use the correct backend IP
-        setSensorData(response.data);
+        const response = await axios.get("http://192.168.137.1:5000/data"); // Correct endpoint for sensor data
+        setSensorData(response.data); // Assuming backend sends sensorData in response
         setLoading(false);
       } catch (error) {
         console.error("Error fetching sensor data:", error);
@@ -47,7 +47,7 @@ const MonitoringPage = ({ navigation }) => {
     };
     fetchData();
   }, []);
-
+  
   const renderContent = () => {
     if (loading) {
       return (
@@ -75,10 +75,9 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={sensorData.pressure1} // Assuming backend sends pressure1
+                fill={sensorData.pressure1}
                 tintColor={getProgressColor(sensorData.pressure1)}
                 backgroundColor="#e0e0e0"
-                rotation={0}
               />
               <Text style={styles.percentageText}>
                 {sensorData.pressure1} PSI
@@ -88,7 +87,7 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={sensorData.pressure2} // Assuming backend sends pressure2
+                fill={sensorData.pressure2}
                 tintColor={getProgressColor(sensorData.pressure2)}
                 backgroundColor="#e0e0e0"
               />
@@ -105,14 +104,8 @@ const MonitoringPage = ({ navigation }) => {
             <Image source={cartopimg} style={styles.carImage} />
             <View style={[styles.progressCircleContainer, styles.topLeft]}>
               <FontAwesome
-                name={
-                  sensorData.ambientTemp > 40
-                    ? "thermometer-full"
-                    : sensorData.ambientTemp > 30
-                    ? "thermometer-half"
-                    : "thermometer-quarter"
-                }
-                size={70}
+                name="thermometer-half"
+                size={50}
                 color={getProgressColor(sensorData.ambientTemp)}
               />
               <Text style={styles.percentageText}>
@@ -121,14 +114,8 @@ const MonitoringPage = ({ navigation }) => {
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <FontAwesome
-                name={
-                  sensorData.objectTemp > 40
-                    ? "thermometer-full"
-                    : sensorData.objectTemp > 30
-                    ? "thermometer-half"
-                    : "thermometer-quarter"
-                }
-                size={70}
+                name="thermometer-half"
+                size={50}
                 color={getProgressColor(sensorData.objectTemp)}
               />
               <Text style={styles.percentageText}>

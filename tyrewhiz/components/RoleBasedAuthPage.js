@@ -11,6 +11,7 @@ import {
   Image,
 } from "react-native";
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import logoimg from "../assets/rolebasedauthimage.png";
 
 const RoleBasedAuthPage = ({ route, navigation }) => {
@@ -49,7 +50,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/signup",
+          "http://192.168.32.162:5000/api/signup",
           data
         );
         showModal(response.data.message, false);
@@ -70,12 +71,13 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/login",
+        "http://192.168.32.162:5000/api/login",
         data
       );
       showModal(response.data.message, false);
       const { userType } = response.data; // Ensure this is the correct property from your backend response.
-
+       
+      await AsyncStorage.setItem('userEmail', email);
       // Navigate based on userType
       if (userType === "driver") {
         navigation.replace("DriverPage");
@@ -87,7 +89,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         showModal("Unknown user type. Please contact support.", true);
       }
     } catch (error) {
-      showModal(error.response.data.error, true);
+      showModal(error.response.data.error || "Login failed. Please try again.", true);
     }
   };
 

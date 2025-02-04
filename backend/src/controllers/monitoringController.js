@@ -11,3 +11,33 @@
 // module.exports = {
 //   handleSensorData,
 // };
+
+
+// monitoringController.js
+
+let sensorData = {};
+
+// Function to handle receiving data from ESP32
+const receiveSensorData = (req, res) => {
+    const { pressure1, pressure2, ambientTemp, objectTemp } = req.body;
+
+    if (pressure1 && pressure2 && ambientTemp && objectTemp) {
+        sensorData = { pressure1, pressure2, ambientTemp, objectTemp };
+        console.log('Received sensor data:', sensorData);
+
+        // Respond to ESP32
+        res.status(200).send('Data received');
+    } else {
+        res.status(400).send('Invalid data');
+    }
+};
+
+// Function to handle retrieving the latest sensor data
+const getSensorData = (req, res) => {
+    res.json(sensorData);
+};
+
+module.exports = {
+    receiveSensorData,
+    getSensorData,
+};
