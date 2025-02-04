@@ -26,18 +26,12 @@ router.put("/drivers/:id", driverController.updateDriver);
 router.delete("/drivers/:id", driverController.deleteDriver);
 router.get("/drivers/count", driverController.getDriverCount);
 
+const monitoringController = require("../controllers/monitoringController");
 
+// Route to handle POST request for receiving sensor data
+router.post("/data", monitoringController.fetchSensorData);
 
-
-
-const { receiveSensorData, getSensorData } = require('../controllers/monitoringController');
-
-
-
-// Route to receive data from ESP32
-router.post('/data', receiveSensorData);
-
-// Route to retrieve the latest sensor data
-router.get('/data', getSensorData);
+// Route to handle GET request to fetch the last 10 sensor readings
+router.get("/data", monitoringController.getSensorData);
 
 module.exports = router;
