@@ -25,8 +25,8 @@ const OrganisationPage = () => {
   const fetchFleetData = async () => {
     try {
       // Fetch drivers data from the driver list API
-      const response = await fetch('http://192.168.5.41:5000/api/drivers');
-      const response1 = await fetch('http://192.168.5.41:5000/api/vehicles');
+      const response = await fetch(`${process.env.API_URL}/api/drivers`);
+      const response1 = await fetch(`${process.env.API_URL}/api/vehicles`);
       const driverData = await response.json();
       const vehicleData = await response1.json();
   
@@ -67,7 +67,7 @@ const OrganisationPage = () => {
   
     console.log("Updating driver:", selectedDriver); // Log selected driver data
     try {
-      const response = await fetch(`http://192.168.32.162:5000/api/drivers/${selectedDriver.id}`, {
+      const response = await fetch(`${process.env.API_URL}/api/drivers/${selectedDriver.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedDriver),

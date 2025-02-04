@@ -40,7 +40,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch("http://192.168.32.162:5000/api/vehicles");
+      const response = await fetch(`${process.env.API_URL}/api/vehicles`);
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched Vehicles data:", data); // Debugging

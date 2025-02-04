@@ -49,7 +49,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/signup",
+          `${process.env.API_URL}/api/signup`,
           data
         );
         showModal(response.data.message, false);
@@ -70,7 +70,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/login",
+        `${process.env.API_URL}/api/login`,
         data
       );
       showModal(response.data.message, false);
