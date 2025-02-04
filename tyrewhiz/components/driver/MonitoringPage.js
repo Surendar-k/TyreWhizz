@@ -12,6 +12,8 @@ import { CircularProgress } from "react-native-circular-progress";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios"; // Ensure you have axios installed
+import { API_URL } from '@env';
+
 const cartopimg = require("../../assets/car-top-view.png");
 
 const MonitoringPage = ({ navigation }) => {
@@ -47,7 +49,7 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.API_URL}/data`); // Correct endpoint for sensor data
+        const response = await axios.get(`${API_URL}/data`); // Correct endpoint for sensor data
         setSensorData(response.data); // Assuming backend sends sensorData in response
         setLoading(false);
       } catch (error) {

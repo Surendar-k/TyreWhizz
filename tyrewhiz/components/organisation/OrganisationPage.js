@@ -6,6 +6,7 @@ import tyremo from '../../assets/tyremo.png';
 import carmo from '../../assets/carmo.png';
 import drivermo from '../../assets/drivermo.png';
 import reportmo from '../../assets/reportmo.png';
+import { API_URL } from '@env';
 
 
 const OrganisationPage = () => {
@@ -25,7 +26,7 @@ const OrganisationPage = () => {
   const fetchFleetData = async () => {
     try {
       // Fetch drivers data from the driver list API
-      const response = await fetch(`${process.env.API_URL}/api/drivers`);
+      const response = await fetch(`${API_URL}/api/drivers`);
       const driverData = await response.json();
   
       // Calculate the total number of drivers from the fetched data

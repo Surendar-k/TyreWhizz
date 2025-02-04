@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import logoimg from "../assets/rolebasedauthimage.png";
 
+import { API_URL } from "@env";
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
   const [isSignup, setIsSignup] = useState(false);
@@ -49,7 +50,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
       try {
         const response = await axios.post(
-          `${process.env.API_URL}/api/signup`,
+          `${API_URL}/api/signup`,
           data
         );
         showModal(response.data.message, false);
@@ -70,7 +71,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     try {
       const response = await axios.post(
-        `${process.env.API_URL}/api/login`,
+        `${API_URL}/api/login`,
         data
       );
       showModal(response.data.message, false);
@@ -168,7 +169,6 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
