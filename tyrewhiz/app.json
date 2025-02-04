@@ -15,14 +15,17 @@
     "ios": {
       "supportsTablet": true
     },
+    "permissions": ["location"],
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+        
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./assets/logo.png"
+      
     },
     "plugins": [
       "expo-barcode-scanner"
