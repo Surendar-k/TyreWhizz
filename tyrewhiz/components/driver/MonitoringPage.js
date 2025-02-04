@@ -47,9 +47,9 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://192.168.50.69:5000/api/data");
-        console.log("Fetched data from API:", response.data);
-        setSensorData(response.data);
+        const response = await axios.get("http://192.168.137.1:5000/data"); // Correct endpoint for sensor data
+        setSensorData(response.data); // Assuming backend sends sensorData in response
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -64,7 +64,7 @@ const MonitoringPage = ({ navigation }) => {
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
-
+  
   const renderContent = () => {
     if (loading) {
       return (
@@ -100,8 +100,8 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={(pressure1 / 100) * 100}
-                tintColor={getProgressColor(pressure1)}
+                fill={sensorData.pressure1}
+                tintColor={getProgressColor(sensorData.pressure1)}
                 backgroundColor="#e0e0e0"
               />
               <Text style={styles.percentageText}>{pressure1} PSI</Text>
@@ -110,8 +110,8 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={(pressure2 / 100) * 100}
-                tintColor={getProgressColor(pressure2)}
+                fill={sensorData.pressure2}
+                tintColor={getProgressColor(sensorData.pressure2)}
                 backgroundColor="#e0e0e0"
               />
               <Text style={styles.percentageText}>{pressure2} PSI</Text>
@@ -131,7 +131,7 @@ const MonitoringPage = ({ navigation }) => {
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(ambientTemp, "temperature")}
+                color={getProgressColor(sensorData.ambientTemp)}
               />
               <Text style={styles.percentageText}>{ambientTemp} °C</Text>
             </View>
@@ -139,7 +139,7 @@ const MonitoringPage = ({ navigation }) => {
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(objectTemp, "temperature")}
+                color={getProgressColor(sensorData.objectTemp)}
               />
               <Text style={styles.percentageText}>{objectTemp} °C</Text>
             </View>

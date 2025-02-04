@@ -16,24 +16,28 @@ const getDrivers = (req, res) => {
 
 // Add a new driver
 const addDriver = (req, res) => {
+  console.log("Incoming request body:", req.body); // Debugging
+
   const { name, Driver_No, Vehicle_No, exp, contact } = req.body;
-  
-  console.log('Request Body:', req.body);
-  console.log({ name, Driver_No, Vehicle_No, exp, contact });
 
   if (!name || !Driver_No || !Vehicle_No || !exp || !contact) {
-    return res.status(400).json({ error: 'All fields are required' });
+    console.log("Error: Missing fields"); // Debugging
+    return res.status(400).json({ error: "All fields are required" });
   }
 
-  const query = 'INSERT INTO drivers (name, Driver_No, Vehicle_No, exp, contact) VALUES (?, ?, ?, ?,?)';
+  const query = "INSERT INTO drivers (name, Driver_No, Vehicle_No, exp, contact) VALUES (?, ?, ?, ?, ?)";
+  
   db.query(query, [name, Driver_No, Vehicle_No, exp, contact], (err, results) => {
     if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
+      console.error("Database error:", err); // Debugging
+      return res.status(500).json({ error: "Database error" });
     }
+
+    console.log("Driver added successfully with ID:", results.insertId);
     res.json({ driverId: results.insertId, name, Driver_No, Vehicle_No, exp, contact });
   });
 };
+
 
 
 // Update a driver's details

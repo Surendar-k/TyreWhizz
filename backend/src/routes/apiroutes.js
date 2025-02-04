@@ -16,6 +16,7 @@ router.post("/login", authController.login);
 router.get("/vehicles", vehicleController.getVehicles);
 router.post("/vehicles", vehicleController.addVehicle);
 router.delete("/vehicles/:id", vehicleController.deleteVehicle);
+router.put("/vehicles/:id", vehicleController.updateVehicle);
 router.get("/vehicle-count", vehicleController.getVehicleCount);
 
 // Routes for CRUD operations

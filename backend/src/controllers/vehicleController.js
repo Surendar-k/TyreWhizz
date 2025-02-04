@@ -55,15 +55,18 @@ const updateVehicle = (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
-  const query = 'UPDATE vehicles SET driver_id = ?, type = ?, capacity = ? WHERE id = ?';
-  db.query(query, [driver_id, type, capacity, id], (err) => {
+  const query = 'UPDATE vehicles SET vehicle_no=?, driver_id=?, type=?, capacity=? WHERE id=?';
+  db.query(query, [vehicle_no, driver_id, type, capacity, id], (err) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
+
     res.json({ success: true, message: 'Vehicle updated successfully' });
   });
 };
+
+
 
 
 

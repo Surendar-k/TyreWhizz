@@ -2,16 +2,22 @@ const db = require('../config/db');  // Your MySQL database connection
 
 // Get organization profile details
 const getProfile = (req, res) => {
-  const query = 'SELECT * FROM organization_profile LIMIT 1';  // Assuming only one profile exists
-  db.query(query, (err, results) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  const query = "SELECT * FROM organization_profile WHERE LOWER(email) = LOWER(?)";
+  db.query(query, [email], (err, results) => {
     if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Database error' });
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database error" });
     }
     if (results.length === 0) {
-      return res.status(404).json({ error: 'Profile not found' });
+      return res.status(404).json({ error: "Profile not found" });
     }
-    res.json(results[0]);  // Send the first profile (there should be only one)
+    res.json(results[0]);
   });
 };
 
@@ -26,10 +32,10 @@ const updateProfile = (req, res) => {
 
   const query = `
     UPDATE organization_profile
-    SET organization_name = ?, manager_name = ?, email = ?, phone = ?
-    WHERE id = 1`;  // Assuming there is only one profile with id = 1
+    SET organization_name = ?, manager_name = ?,  phone = ?
+    WHERE email=?`;  // Assuming there is only one profile with id = 1
 
-  const values = [organizationName, managerName, email, phone];
+  const values = [organizationName, managerName,  phone,email];
 
   db.query(query, values, (err, results) => {
     if (err) {

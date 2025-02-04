@@ -1,45 +1,43 @@
-const sensorData = [];
+// const handleSensorData = (req, res) => {
+//   const { pressure1, pressure2, ambientTemp, objectTemp } = req.body;
+//   console.log('Received Data:');
+//   console.log(`Pressure 1: ${pressure1} PSI`);
+//   console.log(`Pressure 2: ${pressure2} PSI`);
+//   console.log(`Ambient Temp: ${ambientTemp} °C`);
+//   console.log(`Object Temp: ${objectTemp} °C`);
+//   res.status(200).send('Data received successfully');
+// };
 
-const fetchSensorData = (req, res) => {
-  // Extract data from the request body
-  const newData = {
-    pressure1: req.body.pressure1, // Expecting pressure1 from the request
-    pressure2: req.body.pressure2, // Expecting pressure2 from the request
-    ambientTemp: req.body.ambientTemp,
-    objectTemp: req.body.objectTemp,
-    timestamp: new Date(),
-  };
+// module.exports = {
+//   handleSensorData,
+// };
 
-  // Log the incoming sensor data
-  console.log("Received sensor data:", newData);
 
-  // Push the incoming data to the sensorData array
-  sensorData.push(newData); // Store the data
+// monitoringController.js
 
-  // Log the updated sensorData array
-  console.log("Updated sensor data array:", sensorData);
+let sensorData = {};
 
-  res.status(200).json({
-    success: true,
-    message: "Sensor data received successfully",
-    data: newData,
-  });
+// Function to handle receiving data from ESP32
+const receiveSensorData = (req, res) => {
+    const { pressure1, pressure2, ambientTemp, objectTemp } = req.body;
+
+    if (pressure1 && pressure2 && ambientTemp && objectTemp) {
+        sensorData = { pressure1, pressure2, ambientTemp, objectTemp };
+        console.log('Received sensor data:', sensorData);
+
+        // Respond to ESP32
+        res.status(200).send('Data received');
+    } else {
+        res.status(400).send('Invalid data');
+    }
 };
 
+// Function to handle retrieving the latest sensor data
 const getSensorData = (req, res) => {
-  // Log the request for sensor data
-  console.log("Fetching last 10 sensor readings...");
-
-  // Send the last 10 sensor readings, including pressure1 and pressure2
-  const recentData = sensorData.slice(-10);
-
-  // Log the recent sensor data being sent
-  console.log("Recent sensor data:", recentData);
-
-  res.status(200).json({
-    success: true,
-    data: recentData,
-  });
+    res.json(sensorData);
 };
 
-module.exports = { fetchSensorData, getSensorData };
+module.exports = {
+    receiveSensorData,
+    getSensorData,
+};

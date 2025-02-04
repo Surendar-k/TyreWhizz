@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal, Alert, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import tyremo from '../../assets/tyremo.png';
@@ -14,26 +15,56 @@ const OrganisationPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [profileData, setProfileData] = useState({
-    organizationName: 'TyreWhizz Inc.',
-    managerName: 'Shreya',
-    email: 'shhre@example.com',
-    phone: '+91 8973901821',
+    organizationName: '',
+    managerName: '',
+    email: '',
+    phone: '',
   });
   
   const navigation = useNavigation();
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const userEmail = await AsyncStorage.getItem('userEmail');
+        console.log("Retrieved Email from AsyncStorage:", userEmail);  // Debugging line
+        if (!userEmail) return console.error('No email found in storage');
+  
+        const response = await axios.get(`http://192.168.32.162:5000/api/profile?email=${userEmail}`);
+        console.log("Fetched Profile Data:", response.data);  // Debugging line
+  
+        setProfileData({
+          organizationName: response.data.organizationName || '',
+          managerName: response.data.managerName || '',
+          email: response.data.email ,  // ✅ Ensure email is set
+          phone: response.data.phone || '',
+        });
+  
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchProfile();
+  }, []);
+     
+
   const fetchFleetData = async () => {
     try {
       // Fetch drivers data from the driver list API
-      const response = await fetch('http://localhost:5000/api/drivers');
+      const response = await fetch('http://192.168.32.162:5000/api/drivers');
+      const response1=await fetch('http://192.168.32.162:5000/api/vehicles');
       const driverData = await response.json();
+      const vehicleData=await response1.json();
   
       // Calculate the total number of drivers from the fetched data
       const totalDrivers = driverData.length;  // Assuming each driver in the response is an object
-  
+      const totalVehicles=vehicleData.length;
       // Example of other fleet data (replace with your actual data)
       const mockData = {
-        totalVehicles: 50,
+        totalVehicles: totalVehicles,
         totalDrivers: totalDrivers, // Use the calculated number of drivers
         activeIssues: 5,
         resolvedIssues: [
@@ -66,10 +97,7 @@ const OrganisationPage = () => {
 
   // Function to handle profile data change
   const handleProfileChange = (field, value) => {
-    setProfileData(prevState => ({
-      ...prevState,
-      [field]: value,
-    }));
+    setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
   // Handle Logout
@@ -77,6 +105,15 @@ const OrganisationPage = () => {
     setIsModalVisible(false); // Close the modal
     navigation.navigate('UserTypeSelectionPage'); // Navigate to the User Type Selection Page
     Alert.alert('Logged Out', 'You have been logged out'); // Show logout alert
+  };
+  const handleUpdateProfile = async () => {
+    try {
+      await axios.put("http://192.168.32.162:5000/api/profile/update", profileData);
+      alert("Profile Updated Successfully!");
+      setIsEditMode(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
   
 
@@ -116,54 +153,58 @@ const OrganisationPage = () => {
             {/* Profile Content */}
             <View style={styles.profileRow}>
   <Text style={styles.profileLabel}>Organization Name:</Text>
-  {isEditMode ? (
+   (
     <TextInput
       style={styles.input}
       value={profileData.organizationName}
       onChangeText={(text) => handleProfileChange('organizationName', text)}
+      editable={isEditMode}
     />
   ) : (
     <Text style={styles.profileValue}>{profileData.organizationName}</Text>
-  )}
+  )
 </View>
 
 <View style={styles.profileRow}>
   <Text style={styles.profileLabel}>Manager Name:</Text>
-  {isEditMode ? (
+  (
     <TextInput
       style={styles.input}
       value={profileData.managerName}
       onChangeText={(text) => handleProfileChange('managerName', text)}
+      editable={isEditMode}
     />
   ) : (
     <Text style={styles.profileValue}>{profileData.managerName}</Text>
-  )}
+  )
 </View>
 
 <View style={styles.profileRow}>
   <Text style={styles.profileLabel}>Email:</Text>
-  {isEditMode ? (
+  (
     <TextInput
       style={styles.input}
       value={profileData.email}
-      onChangeText={(text) => handleProfileChange('email', text)}
+      editable={false}
+      
     />
   ) : (
     <Text style={styles.profileValue}>{profileData.email}</Text>
-  )}
+  )
 </View>
 
 <View style={styles.profileRow}>
   <Text style={styles.profileLabel}>Phone:</Text>
-  {isEditMode ? (
+  (
     <TextInput
       style={styles.input}
       value={profileData.phone}
       onChangeText={(text) => handleProfileChange('phone', text)}
+      editable={isEditMode}
     />
   ) : (
     <Text style={styles.profileValue}>{profileData.phone}</Text>
-  )}
+  )
 </View>
 
 
