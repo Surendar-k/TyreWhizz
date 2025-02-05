@@ -29,7 +29,7 @@ router.get("/drivers/count", driverController.getDriverCount);
 const monitoringController = require("../controllers/monitoringController");
 
 // Route to handle POST request for receiving sensor data
-router.post("/data", monitoringController.fetchSensorData);
+router.post("/data", monitoringController.getSensorData);
 
 // Route to handle GET request to fetch the last 10 sensor readings
 router.get("/data", monitoringController.getSensorData);

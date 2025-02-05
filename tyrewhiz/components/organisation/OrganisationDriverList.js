@@ -39,7 +39,7 @@ const OrganisationDriverList = ({ navigation }) => {
         style: "destructive",
         onPress: async () => {
           try {
-            const response = await fetch(`http://192.168.32.162:5000/api/drivers/${id}`, {
+            const response = await fetch(`http://192.168.5.41:5000/api/drivers/${id}`, {
               method: "DELETE",
             });
   
@@ -69,7 +69,7 @@ const OrganisationDriverList = ({ navigation }) => {
     console.log("Adding driver:", newDriver); // Debugging
   
     try {
-      const response = await fetch("http://192.168.32.162:5000/api/drivers", {
+      const response = await fetch("http://192.168.5.41:5000/api/drivers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newDriver),
@@ -127,7 +127,7 @@ const OrganisationDriverList = ({ navigation }) => {
   
   const fetchDrivers = async () => {
     try {
-      const response = await fetch("http://192.168.32.162:5000/api/drivers");
+      const response = await fetch("http://192.168.5.41:5000/api/drivers");
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched drivers data:", data); // Debugging
@@ -155,7 +155,7 @@ const OrganisationDriverList = ({ navigation }) => {
   
     console.log("Updating driver:", selectedDriver); // Log selected driver data
     try {
-      const response = await fetch(`http://192.168.32.162:5000/api/drivers/${selectedDriver.id}`, {
+      const response = await fetch(`http://192.168.5.41:5000/api/drivers/${selectedDriver.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedDriver),
