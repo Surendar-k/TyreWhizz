@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 
+import { API_URL } from "@env";
 const OrganisationVehicleList = ({ navigation }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch("http://192.168.5.41:5000/api/vehicles");
+      const response = await fetch(`${API_URL}/api/vehicles`);
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched Vehicles data:", data); // Debugging
@@ -70,7 +71,7 @@ const OrganisationVehicleList = ({ navigation }) => {
     
       try {
         const response = await fetch(
-          `http://192.168.5.41:5000/api/vehicles/${selectedVehicle.id}`, // 
+          `${API_URL}/api/vehicles/${selectedVehicle.id}`, // 
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -116,7 +117,7 @@ useEffect(() => {
         style: "destructive",
         onPress: async () => {
           try {
-            const response = await fetch(`http://192.168.5.41:5000/api/vehicles/${id}`, {
+            const response = await fetch(`${API_URL}/api/vehicles/${id}`, {
               method: "DELETE",
             });
   
@@ -146,7 +147,7 @@ useEffect(() => {
       console.log("Adding vehicle:", newVehicle); // Debugging
     
       try {
-        const response = await fetch("http://192.168.5.41:5000/api/vehicles", {
+        const response = await fetch(`${API_URL}/api/vehicles`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newVehicle),

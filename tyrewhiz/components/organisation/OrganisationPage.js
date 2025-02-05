@@ -7,6 +7,7 @@ import tyremo from '../../assets/tyremo.png';
 import carmo from '../../assets/carmo.png';
 import drivermo from '../../assets/drivermo.png';
 import reportmo from '../../assets/reportmo.png';
+import { API_URL } from '@env';
 
 
 const OrganisationPage = () => {
@@ -15,10 +16,10 @@ const OrganisationPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [profileData, setProfileData] = useState({
-    organizationName: '',
-    managerName: '',
-    email: '',
-    phone: '',
+    organizationName: 'TyreWhizz Inc.',
+    managerName: 'Shreya',
+    email: 'shhre@example.com',
+    phone: '+91 8973901821',
   });
   
   const navigation = useNavigation();
@@ -26,18 +27,15 @@ const OrganisationPage = () => {
   const fetchFleetData = async () => {
     try {
       // Fetch drivers data from the driver list API
-      const response = await fetch('http://192.168.5.41:5000/api/drivers');
-      const response1 = await fetch('http://192.168.5.41:5000/api/vehicles');
+      const response = await fetch(`${API_URL}/api/drivers`);
       const driverData = await response.json();
-      const vehicleData = await response1.json();
   
       // Calculate the total number of drivers from the fetched data
-      const totalDrivers = driverData.length; 
-      const totalVehicles = vehicleData.length;  // Assuming each driver in the response is an object
+      const totalDrivers = driverData.length;  // Assuming each driver in the response is an object
   
       // Example of other fleet data (replace with your actual data)
       const mockData = {
-        totalVehicles: totalVehicles,
+        totalVehicles: 50,
         totalDrivers: totalDrivers, // Use the calculated number of drivers
         activeIssues: 5,
         resolvedIssues: [
