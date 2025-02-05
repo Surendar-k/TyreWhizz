@@ -49,10 +49,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post(
-          `${API_URL}/api/signup`,
-          data
-        );
+        const response = await axios.post(`${API_URL}/api/signup`, data);
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail("");
@@ -70,10 +67,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     }
 
     try {
-      const response = await axios.post(
-        `${API_URL}/api/login`,
-        data
-      );
+      const response = await axios.post(`${API_URL}/api/login`, data);
       showModal(response.data.message, false);
       const { userType } = response.data; // Ensure this is the correct property from your backend response.
 
@@ -88,7 +82,20 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         showModal("Unknown user type. Please contact support.", true);
       }
     } catch (error) {
-      showModal(error.response.data.error, true);
+      // Handle network or timeout errors gracefully
+      if (error.response) {
+        showModal(error.response.data.error, true);
+      } else if (error.request) {
+        showModal(
+          "Network error or server unreachable. Please try again later.",
+          true
+        );
+      } else {
+        showModal(
+          "An unexpected error occurred. Please try again later.",
+          true
+        );
+      }
     }
   };
 
