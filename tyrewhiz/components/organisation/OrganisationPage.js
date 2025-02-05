@@ -28,14 +28,15 @@ const OrganisationPage = () => {
     try {
       // Fetch drivers data from the driver list API
       const response = await fetch(`${API_URL}/api/drivers`);
+      const response1=await fetch(`${API_URL}/api/vehicles`)
       const driverData = await response.json();
-  
+      const vehicleData=await response1.json();
       // Calculate the total number of drivers from the fetched data
       const totalDrivers = driverData.length;  // Assuming each driver in the response is an object
-  
+      const totalVehicles=vehicleData.length;
       // Example of other fleet data (replace with your actual data)
       const mockData = {
-        totalVehicles: 50,
+        totalVehicles: totalVehicles,
         totalDrivers: totalDrivers, // Use the calculated number of drivers
         activeIssues: 5,
         resolvedIssues: [

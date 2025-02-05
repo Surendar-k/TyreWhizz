@@ -106,7 +106,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       >
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
-      <View style={styles.logocontainer}>
+      <View style={styles.logoContainer}>
         <Image source={logoimg} style={styles.logo} />
       </View>
       <Text style={styles.title}>

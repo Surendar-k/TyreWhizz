@@ -2,6 +2,7 @@
   import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
   import { useNavigation } from '@react-navigation/native';
   import { BarChart, PieChart } from 'react-native-chart-kit';
+  import { API_URL } from '@env';
   
   const OrganisationAnalytics = () => {
     const navigation = useNavigation();
@@ -17,8 +18,8 @@
     useEffect(() => {
       const fetchFleetData = async () => {
         try {
-          const vehicleResponse = await fetch('http://192.168.5.41:5000/api/vehicles');
-          const driverResponse = await fetch('http://192.168.5.41:5000/api/drivers');
+          const vehicleResponse = await fetch(`${API_URL}/api/vehicles`);
+          const driverResponse = await fetch(`${API_URL}/api/drivers`);
   
           const vehicleData = await vehicleResponse.json();
           const driverData = await driverResponse.json();

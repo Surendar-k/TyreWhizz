@@ -10,9 +10,8 @@ import {
   Modal,
   ActivityIndicator,
 } from "react-native";
-
-
 import { API_URL } from "@env";
+
 const OrganisationVehicleList = ({ navigation }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);

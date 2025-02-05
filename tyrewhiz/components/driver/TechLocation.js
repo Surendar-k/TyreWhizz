@@ -41,7 +41,7 @@ const TechLocation = () => {
         "http://overpass-api.de/api/interpreter",
         {
           params: {
-            data: `[out:json];(node["shop"="car_repair"](around:5000,${latitude},${longitude}););out;`,
+            data: `[out:json];(node["shop"="car_repair"](around:5000, ${latitude},${longitude}););out;`,
           },
         }
       );
