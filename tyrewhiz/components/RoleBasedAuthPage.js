@@ -13,7 +13,7 @@ import {
 import axios from "axios";
 import logoimg from "../assets/rolebasedauthimage.png";
 
-import { API_URL } from "@env";
+const API_URL = process.env.API_URL;
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
   const [isSignup, setIsSignup] = useState(false);
@@ -267,6 +267,32 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     resizeMode: "contain",
+  },
+
+  // Media queries for web responsiveness
+  "@media (min-width: 768px)": {
+    container: {
+      width: "60%", // Adjust container width for larger screens
+      padding: 40,
+    },
+    input: {
+      width: "70%", // Make inputs larger for web
+      height: 60, // Increase input height for web
+    },
+    button: {
+      width: "70%", // Make buttons larger for web
+      height: 60, // Increase button height for web
+    },
+    title: {
+      fontSize: 32, // Increase title font size for web
+    },
+    modalContainer: {
+      width: "50%", // Adjust modal width for larger screens
+    },
+    logo: {
+      width: 250, // Adjust logo size for web
+      height: 250,
+    },
   },
 });
 
