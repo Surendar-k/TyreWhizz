@@ -12,8 +12,7 @@ import { CircularProgress } from "react-native-circular-progress";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios"; // Ensure you have axios installed
-import { API_URL } from '@env';
-
+const API_URL=process.env.API_URL;
 const cartopimg = require("../../assets/car-top-view.png");
 
 const MonitoringPage = ({ navigation }) => {

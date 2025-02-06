@@ -2,7 +2,7 @@
   import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
   import { useNavigation } from '@react-navigation/native';
   import { BarChart, PieChart } from 'react-native-chart-kit';
-  import { API_URL } from '@env';
+  const API_URL=process.env.API_URL;
   
   const OrganisationAnalytics = () => {
     const navigation = useNavigation();

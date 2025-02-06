@@ -68,6 +68,8 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     try {
       const response = await axios.post(`${API_URL}/api/login`, data);
+      console.log("Response:", response.data); // Debugging
+      
       showModal(response.data.message, false);
       const { userType } = response.data; // Ensure this is the correct property from your backend response.
 

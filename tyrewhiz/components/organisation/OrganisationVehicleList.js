@@ -8,10 +8,10 @@ import {
   Alert,
   TextInput,
   Modal,
-  ActivityIndicator,  
+  ActivityIndicator,
 } from "react-native";
-import { API_URL } from "@env";
 
+const API_URL = process.env.API_URL;
 const OrganisationVehicleList = ({ navigation }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,21 +22,18 @@ const OrganisationVehicleList = ({ navigation }) => {
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState({
     vehicle_no: "",
-    driver_id:"",
+    driver_id: "",
     type: "",
     capacity: "",
   });
-  
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-  
+
   useEffect(() => {
     console.log("Fetching vehicles...");
     fetchVehicles();
   }, []);
-
-  
-   
 
   const fetchVehicles = async () => {
     try {
@@ -56,146 +53,153 @@ const OrganisationVehicleList = ({ navigation }) => {
     }
   };
 
-    useEffect(() => {
-       setFilteredVehicles(vehicles);
-     }, [vehicles]); // Ensures filtered drivers are updated whenever drivers change
-     
-     const updateVehicle = async () => {
-      if (!selectedVehicle ) {
-        Alert.alert("Error", "No vehicle selected for update");
-        return;
-      }
-    
-      console.log("Updating vehicle:", selectedVehicle);
-    
-      try {
-        const response = await fetch(
-          `${API_URL}/api/vehicles/${selectedVehicle.id}`, // 
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(selectedVehicle),
-          }
-        );
-    
-        const updatedVehicle = await response.json();
-        console.log("Response from server:", updatedVehicle);
-    
-        if (response.ok) {
-          const updatedVehicles = vehicles.map((vehicle) =>
-            vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
-          );
-          setVehicles(updatedVehicles);
-          setFilteredVehicles(updatedVehicles);
-          setModalVisible(false);
-        } else {
-          Alert.alert("Error", "Failed to update vehicle");
+  useEffect(() => {
+    setFilteredVehicles(vehicles);
+  }, [vehicles]); // Ensures filtered drivers are updated whenever drivers change
+
+  const updateVehicle = async () => {
+    if (!selectedVehicle) {
+      Alert.alert("Error", "No vehicle selected for update");
+      return;
+    }
+
+    console.log("Updating vehicle:", selectedVehicle);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/vehicles/${selectedVehicle.id}`, //
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selectedVehicle),
         }
-      } catch (error) {
-        console.error("Error updating vehicle:", error);
-        Alert.alert("Error", "Failed to connect to the server");
+      );
+
+      const updatedVehicle = await response.json();
+      console.log("Response from server:", updatedVehicle);
+
+      if (response.ok) {
+        const updatedVehicles = vehicles.map((vehicle) =>
+          vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
+        );
+        setVehicles(updatedVehicles);
+        setFilteredVehicles(updatedVehicles);
+        setModalVisible(false);
+      } else {
+        Alert.alert("Error", "Failed to update vehicle");
       }
-    };
-    
-    
-    useEffect(() => {
-      console.log("Updated vehicles state:", vehicles);
-    }, [vehicles]);
-  
-   
-  
-useEffect(() => {
+    } catch (error) {
+      console.error("Error updating vehicle:", error);
+      Alert.alert("Error", "Failed to connect to the server");
+    }
+  };
+
+  useEffect(() => {
+    console.log("Updated vehicles state:", vehicles);
+  }, [vehicles]);
+
+  useEffect(() => {
     setFilteredVehicles(vehicles);
   }, [vehicles]);
-  
-  const deleteVehicle = async (id) => {
-    Alert.alert("Delete Vehicle", "Are you sure you want to delete this Vehicle?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const response = await fetch(`${API_URL}/api/vehicles/${id}`, {
-              method: "DELETE",
-            });
-  
-            if (response.ok) {
-              const updatedVehicles = vehicles.filter((vehicle) => vehicle.id !== id);
-              setVehicles(updatedVehicles);
-              setFilteredVehicles(updatedVehicles);
-            } else {
-              Alert.alert("Error", "Failed to delete vehicle");
-            }
-          } catch (error) {
-            console.error("Error deleting vehicle:", error);
-            Alert.alert("Error", "Failed to connect to the server");
-          }
-        },
-      },
-    ]);
-  };
-  
 
+  const deleteVehicle = async (id) => {
+    Alert.alert(
+      "Delete Vehicle",
+      "Are you sure you want to delete this Vehicle?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_URL}/api/vehicles/${id}`, {
+                method: "DELETE",
+              });
+
+              if (response.ok) {
+                const updatedVehicles = vehicles.filter(
+                  (vehicle) => vehicle.id !== id
+                );
+                setVehicles(updatedVehicles);
+                setFilteredVehicles(updatedVehicles);
+              } else {
+                Alert.alert("Error", "Failed to delete vehicle");
+              }
+            } catch (error) {
+              console.error("Error deleting vehicle:", error);
+              Alert.alert("Error", "Failed to connect to the server");
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const addVehicle = async () => {
-      if (!newVehicle.vehicle_no  || !newVehicle.driver_id || !newVehicle.type || !newVehicle.capacity ) {
-        Alert.alert("Error", "All fields are required to add a vehicle.");
-        return;
-      }
-    
-      console.log("Adding vehicle:", newVehicle); // Debugging
-    
-      try {
-        const response = await fetch(`${API_URL}/api/vehicles`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newVehicle),
-        });
-    
-        const data = await response.json();
-        console.log("Response from server:", data); // Debugging
-    
-        if (response.ok) {
-          setVehicles((prev) => [...prev, data]);  // Update state immediately
-          setFilteredVehicles((prev) => [...prev, data]);
-          setNewVehicle({  vehicle_no: "",driver_id: "", type: "", capacity: "" });
-          setShowAddVehicle(false);
-        } else {
-          Alert.alert("Error", data.error || "Failed to add vehicle");
-        }
-      } catch (error) {
-        console.error("Error during API call:", error);
-        Alert.alert("Error", "Failed to connect to the server");
-      }
-    };
-    
-    
+    if (
+      !newVehicle.vehicle_no ||
+      !newVehicle.driver_id ||
+      !newVehicle.type ||
+      !newVehicle.capacity
+    ) {
+      Alert.alert("Error", "All fields are required to add a vehicle.");
+      return;
+    }
 
-    const searchVehicle = (text) => {
-      // Trim input to handle leading/trailing spaces and ensure case-insensitivity
-      const query = text.trim().toLowerCase();
-    
-      // If the query is empty, set filteredDrivers to all drivers
-      if (!query) {
-        setFilteredVehicles(vehicles);
-        return;
-      }
-      const filteredList = vehicles.filter((vehicle) => {
-        // Ensure the driver's Driver_No exists and is a string before performing the search
-        const Vehicleno = vehicle.vehicle_no ? vehicle.vehicle_no.toString() : '';  // Convert to string if it's not already
-    
-        return Vehicleno.toLowerCase().includes(query);
+    console.log("Adding vehicle:", newVehicle); // Debugging
+
+    try {
+      const response = await fetch(`${API_URL}/api/vehicles`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newVehicle),
       });
-    
-      // Debugging: Log the filtered list to ensure the logic is working
-      console.log(filteredList);
-    
-      // Update state with the filtered list
-      setFilteredVehicles(filteredList);
-    };
 
-  
+      const data = await response.json();
+      console.log("Response from server:", data); // Debugging
+
+      if (response.ok) {
+        setVehicles((prev) => [...prev, data]); // Update state immediately
+        setFilteredVehicles((prev) => [...prev, data]);
+        setNewVehicle({
+          vehicle_no: "",
+          driver_id: "",
+          type: "",
+          capacity: "",
+        });
+        setShowAddVehicle(false);
+      } else {
+        Alert.alert("Error", data.error || "Failed to add vehicle");
+      }
+    } catch (error) {
+      console.error("Error during API call:", error);
+      Alert.alert("Error", "Failed to connect to the server");
+    }
+  };
+
+  const searchVehicle = (text) => {
+    // Trim input to handle leading/trailing spaces and ensure case-insensitivity
+    const query = text.trim().toLowerCase();
+
+    // If the query is empty, set filteredDrivers to all drivers
+    if (!query) {
+      setFilteredVehicles(vehicles);
+      return;
+    }
+    const filteredList = vehicles.filter((vehicle) => {
+      // Ensure the driver's Driver_No exists and is a string before performing the search
+      const Vehicleno = vehicle.vehicle_no ? vehicle.vehicle_no.toString() : ""; // Convert to string if it's not already
+
+      return Vehicleno.toLowerCase().includes(query);
+    });
+
+    // Debugging: Log the filtered list to ensure the logic is working
+    console.log(filteredList);
+
+    // Update state with the filtered list
+    setFilteredVehicles(filteredList);
+  };
 
   if (loading) {
     // Show the loading spinner when loading state is true
@@ -207,166 +211,180 @@ useEffect(() => {
     );
   }
 
-   if (!vehicles || vehicles.length === 0) {
-        return <Text>No vehicles found</Text>;
-      }
-      const renderVehicleItem = ({ item }) => (
-        <View style={styles.card}>
-          <TouchableOpacity
-            onPress={() =>{
-              setSelectedVehicle(item); // Set the selected driver
-              setModalVisible(true);  // Open the modal
-            }}
-            style={{ flex: 1 }}
-          >
-            <Text style={styles.vehicleNo}>Vehicle No: {item.vehicle_no}</Text>
-            <Text style={styles.driver_id}>Driver_id: {item.driver_id}</Text>
-            <Text style={styles.type}>Type: {item.type}</Text>
-            <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
-          </TouchableOpacity>
-    
-          <TouchableOpacity
-            onPress={() => deleteVehicle(item.id)}
-            style={styles.deleteButton}
-          >
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      );
+  if (!vehicles || vehicles.length === 0) {
+    return <Text>No vehicles found</Text>;
+  }
+  const renderVehicleItem = ({ item }) => (
+    <View style={styles.card}>
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedVehicle(item); // Set the selected driver
+          setModalVisible(true); // Open the modal
+        }}
+        style={{ flex: 1 }}
+      >
+        <Text style={styles.vehicleNo}>Vehicle No: {item.vehicle_no}</Text>
+        <Text style={styles.driver_id}>Driver_id: {item.driver_id}</Text>
+        <Text style={styles.type}>Type: {item.type}</Text>
+        <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => deleteVehicle(item.id)}
+        style={styles.deleteButton}
+      >
+        <Text style={styles.deleteText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.backButtonText}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>TyreWhizz</Text>
-        </View>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>TyreWhizz</Text>
+      </View>
 
-        <View style={styles.roleContainer}>
-          <Text style={styles.role}>Logged in as: Organization</Text>
-        </View>
+      <View style={styles.roleContainer}>
+        <Text style={styles.role}>Logged in as: Organization</Text>
+      </View>
 
-        
+      <View style={styles.actionRow}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by Vehicle No"
+          value={searchText}
+          onChangeText={(text) => {
+            setSearchText(text);
+            searchVehicle(text);
+          }}
+        />
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => setShowAddVehicle(!showAddVehicle)}
+        >
+          <Text style={styles.addText}>Add Vehicle</Text>
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.actionRow}>
+      {showAddVehicle && (
+        <View style={styles.addVehicleForm}>
           <TextInput
-            style={styles.searchInput}
-            placeholder="Search by Vehicle No"
-            value={searchText}
-            onChangeText={(text) => {
-              setSearchText(text);
-              searchVehicle(text);
-            }}
+            style={styles.input}
+            placeholder="Vehicle No"
+            value={newVehicle.vehicle_no}
+            onChangeText={(text) =>
+              setNewVehicle((prev) => ({ ...prev, vehicle_no: text }))
+            }
           />
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowAddVehicle(!showAddVehicle)}
-          >
-            <Text style={styles.addText}>Add Vehicle</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Driver_id"
+            value={newVehicle.driver_id}
+            onChangeText={(text) =>
+              setNewVehicle((prev) => ({ ...prev, driver_id: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Type"
+            value={newVehicle.type}
+            onChangeText={(text) =>
+              setNewVehicle((prev) => ({ ...prev, type: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Capacity"
+            value={newVehicle.capacity}
+            onChangeText={(text) =>
+              setNewVehicle((prev) => ({ ...prev, capacity: text }))
+            }
+          />
+          <TouchableOpacity style={styles.saveButton} onPress={addVehicle}>
+            <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
         </View>
+      )}
 
-        {showAddVehicle && (
-          <View style={styles.addVehicleForm}>
+      <FlatList
+        data={filteredVehicles}
+        renderItem={renderVehicleItem}
+        keyExtractor={(item) =>
+          item.id ? item.id.toString() : String(item.Vehicle_No)
+        }
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+        transparent={true}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Update Driver Details</Text>
+
             <TextInput
               style={styles.input}
+              value={selectedVehicle?.vehicle_no || ""} // Ensures an empty string instead of undefined
+              onChangeText={(text) =>
+                setSelectedVehicle((prev) => ({ ...prev, vehicle_no: text }))
+              }
               placeholder="Vehicle No"
-              value={newVehicle.vehicle_no}
-              onChangeText={(text) =>
-                setNewVehicle((prev) => ({ ...prev, vehicle_no: text }))
-              }
-            />
-             <TextInput
-              style={styles.input}
-              placeholder="Driver_id"
-              value={newVehicle.driver_id}
-              onChangeText={(text) =>
-                setNewVehicle((prev) => ({ ...prev, driver_id: text }))
-              }
             />
             <TextInput
               style={styles.input}
-              placeholder="Type"
-              value={newVehicle.type}
+              value={
+                selectedVehicle?.driver_id
+                  ? String(selectedVehicle.driver_id)
+                  : ""
+              } // Convert to string
               onChangeText={(text) =>
-                setNewVehicle((prev) => ({ ...prev, type: text }))
+                setSelectedVehicle((prev) => ({ ...prev, driver_id: text }))
               }
+              placeholder="Driver ID"
             />
             <TextInput
               style={styles.input}
+              value={selectedVehicle?.type || ""}
+              onChangeText={(text) =>
+                setSelectedVehicle((prev) => ({ ...prev, type: text }))
+              }
+              placeholder="Type of Vehicle"
+            />
+            <TextInput
+              style={styles.input}
+              value={
+                selectedVehicle?.capacity
+                  ? String(selectedVehicle.capacity)
+                  : ""
+              } // Convert to string
+              onChangeText={(text) =>
+                setSelectedVehicle((prev) => ({ ...prev, capacity: text }))
+              }
               placeholder="Capacity"
-              value={newVehicle.capacity}
-              onChangeText={(text) =>
-                setNewVehicle((prev) => ({ ...prev, capacity: text }))
-              }
             />
-            <TouchableOpacity style={styles.saveButton} onPress={addVehicle}>
-              <Text style={styles.saveText}>Save</Text>
+
+            <TouchableOpacity style={styles.saveButton} onPress={updateVehicle}>
+              <Text style={styles.saveText}>Save Changes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        <FlatList
-          data={filteredVehicles}
-          renderItem={renderVehicleItem}
-          keyExtractor={(item) => (item.id ? item.id.toString() : String(item.Vehicle_No))}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          
-        />
-
-        <Modal
-          visible={modalVisible}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}
-          transparent={true}
-        >
-        <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Update Driver Details</Text>
-              
-              
-              <TextInput
-  style={styles.input}
-  value={selectedVehicle?.vehicle_no || ''}  // Ensures an empty string instead of undefined
-  onChangeText={(text) => setSelectedVehicle((prev) => ({ ...prev, vehicle_no: text }))}
-  placeholder="Vehicle No"
-/>
-<TextInput
-  style={styles.input}
-  value={selectedVehicle?.driver_id ? String(selectedVehicle.driver_id) : ''} // Convert to string
-  onChangeText={(text) => setSelectedVehicle((prev) => ({ ...prev, driver_id: text }))}
-  placeholder="Driver ID"
-/>
-<TextInput
-  style={styles.input}
-  value={selectedVehicle?.type || ''}  
-  onChangeText={(text) => setSelectedVehicle((prev) => ({ ...prev, type: text }))}
-  placeholder="Type of Vehicle"
-/>
-<TextInput
-  style={styles.input}
-  value={selectedVehicle?.capacity ? String(selectedVehicle.capacity) : ''} // Convert to string
-  onChangeText={(text) => setSelectedVehicle((prev) => ({ ...prev, capacity: text }))}
-  placeholder="Capacity"
-/>
-
-        
-              <TouchableOpacity style={styles.saveButton} onPress={updateVehicle}>
-                <Text style={styles.saveText}>Save Changes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      </View>
-    
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -449,7 +467,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 5,
     backgroundColor: "#fff",
-    width: '100%',
+    width: "100%",
   },
   saveButton: {
     backgroundColor: "rgb(110 89 149)",
@@ -459,20 +477,20 @@ const styles = StyleSheet.create({
   },
   modalBackground: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
-    width: '80%',
-    alignItems: 'center',
+    width: "80%",
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   saveText: { color: "#fff", fontWeight: "bold", textAlign: "center" },
@@ -489,9 +507,8 @@ const styles = StyleSheet.create({
   },
   vehicleNo: { fontSize: 18, fontWeight: "bold", color: "#333" },
   driver_id: { fontSize: 16, color: "#555" },
-  type: { fontSize: 16, color: "#555"},
+  type: { fontSize: 16, color: "#555" },
   capacity: { fontSize: 16, color: "#555" },
-  
 
   deleteButton: {
     backgroundColor: "#ff4d4d",
@@ -502,12 +519,12 @@ const styles = StyleSheet.create({
   },
   deleteText: { color: "#fff", fontWeight: "bold" },
   cancelButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: "#f44336",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  cancelText: { color: '#fff', fontWeight: 'bold' },
+  cancelText: { color: "#fff", fontWeight: "bold" },
 });
 
 export default OrganisationVehicleList;

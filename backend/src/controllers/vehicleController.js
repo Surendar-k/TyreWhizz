@@ -7,31 +7,36 @@ const getVehicles = (req, res) => {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Database error' });
     }
+
+    // Check if no vehicles are found
+    if (results.length === 0) {
+      return res.json({ message: 'No vehicles available' });
+    }
+
+    // If vehicles are found, return them
     res.json(results);
   });
 };
 
 const addVehicle = (req, res) => {
-    const {  vehicle_no,driver_id,type, capacity, } = req.body;
-    if ( !vehicle_no||!driver_id|| !type || !capacity ) {
-      return res.status(400).json({ error: 'All fields are required' });
+  const { vehicle_no, driver_id, type, capacity } = req.body;
+  if (!vehicle_no || !driver_id || !type || !capacity) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  if (isNaN(driver_id) || isNaN(capacity)) {
+    return res.status(400).json({ error: 'driver_id and capacity must be numbers' });
+  }
+
+  const query = 'INSERT INTO vehicles (vehicle_no, driver_id, type, capacity) VALUES (?, ?, ?, ?)';
+  db.query(query, [vehicle_no, driver_id, type, capacity], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Database error' });
     }
-    if (isNaN(driver_id) || isNaN(capacity)) {
-      return res.status(400).json({ error: 'driver_id and capacity must be numbers' });
-    }
-  
-  
-    const query = 'INSERT INTO vehicles (vehicle_no,driver_id, type, capacity) VALUES (?, ?, ?,?)';
-    db.query(query, [vehicle_no,driver_id,type, capacity], (err, results) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-      
-      res.json({ vehicleId: results.insertId, vehicle_no,driver_id, type, capacity });
-    });
-  };
-  
+    
+    res.json({ vehicleId: results.insertId, vehicle_no, driver_id, type, capacity });
+  });
+};
 
 const deleteVehicle = (req, res) => {
   const query = 'DELETE FROM vehicles WHERE id = ?';
@@ -43,6 +48,7 @@ const deleteVehicle = (req, res) => {
     res.json({ success: true });
   });
 };
+
 // Update a vehicle's details
 const updateVehicle = (req, res) => {
   console.log('Received PUT request for vehicle:', req.params.id);
@@ -66,11 +72,6 @@ const updateVehicle = (req, res) => {
   });
 };
 
-
-
-
-
-
 const getVehicleCount = (req, res) => {
   const query = 'SELECT COUNT(*) as count FROM vehicles';
   db.query(query, (err, results) => {
@@ -81,6 +82,7 @@ const getVehicleCount = (req, res) => {
     res.json({ count: results[0].count });
   });
 };
+
 module.exports = {
   getVehicles,
   addVehicle,

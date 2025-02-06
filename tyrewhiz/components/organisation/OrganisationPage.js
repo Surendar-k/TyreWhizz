@@ -18,8 +18,8 @@ import tyremo from "../../assets/tyremo.png";
 import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
-import { API_URL } from "@env";
 
+const API_URL=process.env.API_URL;
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState(null);
   const [loading, setLoading] = useState(true);
