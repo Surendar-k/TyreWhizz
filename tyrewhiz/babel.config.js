@@ -1,5 +1,7 @@
 module.exports = {
-  presets: ["module:metro-react-native-babel-preset"],
+  presets: ["module:metro-react-native-babel-preset",
+    
+  ],
   plugins: [
     "module:react-native-dotenv", // Ensure dotenv is added if you're using .env files
     "@babel/plugin-transform-private-methods", // Add for private methods support
