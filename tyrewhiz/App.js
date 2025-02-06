@@ -38,6 +38,7 @@ const App = () => {
         />
 
         <Stack.Screen name="TechLocation" component={TechLocation} />
+      
         <Stack.Screen name="OrganisationPage" component={OrganisationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
 
