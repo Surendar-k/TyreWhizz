@@ -136,6 +136,7 @@ useEffect(() => {
     ]);
   };
   
+  
 
   const addVehicle = async () => {
       if (!newVehicle.vehicle_no  || !newVehicle.driver_id || !newVehicle.type || !newVehicle.capacity ) {
