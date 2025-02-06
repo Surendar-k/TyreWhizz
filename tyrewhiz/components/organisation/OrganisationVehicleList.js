@@ -136,7 +136,7 @@ useEffect(() => {
     ]);
   };
   
-  
+
 
   const addVehicle = async () => {
       if (!newVehicle.vehicle_no  || !newVehicle.driver_id || !newVehicle.type || !newVehicle.capacity ) {
@@ -158,7 +158,7 @@ useEffect(() => {
     
         if (response.ok) {
           setVehicles((prev) => [...prev, data]);  // Update state immediately
-          setFilteredVehicles((prev) => [...prev, data]); // Update filtered drivers as well
+          setFilteredVehicles((prev) => [...prev, data]);
           setNewVehicle({  vehicle_no: "",driver_id: "", type: "", capacity: "" });
           setShowAddVehicle(false);
         } else {
