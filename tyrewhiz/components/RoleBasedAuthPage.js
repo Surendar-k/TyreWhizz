@@ -14,6 +14,7 @@ import axios from "axios";
 import logoimg from "../assets/rolebasedauthimage.png";
 
 const API_URL = process.env.API_URL;
+
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
   const [isSignup, setIsSignup] = useState(false);
@@ -69,7 +70,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     try {
       const response = await axios.post(`${API_URL}/api/login`, data);
       console.log("Response:", response.data); // Debugging
-      
+
       showModal(response.data.message, false);
       const { userType } = response.data; // Ensure this is the correct property from your backend response.
 
@@ -86,13 +87,17 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     } catch (error) {
       // Handle network or timeout errors gracefully
       if (error.response) {
+        console.error("Response Data:", error.response.data);
         showModal(error.response.data.error, true);
       } else if (error.request) {
+        console.error("Request Error:", error.request);
         showModal(
           "Network error or server unreachable. Please try again later.",
           true
         );
       } else {
+        console.error("Unexpected Error:", error.message);
+
         showModal(
           "An unexpected error occurred. Please try again later.",
           true

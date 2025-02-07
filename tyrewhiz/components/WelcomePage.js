@@ -16,7 +16,7 @@ const WelcomePage = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image source={logoimg} style={styles.logo} />
-      <Text style={styles.title}>Welcome to TyreWhizz...</Text>
+      <Text style={styles.title}>Welcome to TyreWhizz...</Text>   
     </View>
   );
 };

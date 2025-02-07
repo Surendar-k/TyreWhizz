@@ -19,55 +19,82 @@ import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
 
-const API_URL=process.env.API_URL;
+const API_URL = process.env.API_URL;
 const OrganisationPage = () => {
-  const [fleetData, setFleetData] = useState(null);
+  const [fleetData, setFleetData] = useState({
+    totalVehicles: 0,
+    totalDrivers: 0,
+    activeIssues: 0,
+    resolvedIssues: [],
+  });
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
   const [profileData, setProfileData] = useState({
-    organizationName: "TyreWhizz Inc.",
-    managerName: "Shreya",
-    email: "shhre@example.com",
-    phone: "+91 8973901821",
+    organizationName: "",
+    managerName: "",
+    email: "",
+    phone: "",
   });
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("userData");
+    if (storedUser) {
+      setProfileData(JSON.parse(storedUser));
+    }
+  }, []);
 
   const navigation = useNavigation();
 
-  const fetchFleetData = async () => {
-    try {
-      // Fetch drivers data from the driver list API
-      const response = await fetch(`${API_URL}/api/drivers`);
-      const response1 = await fetch(`${API_URL}/api/vehicles`);
-      const driverData = await response.json();
-      const vehicleData = await response1.json();
-      // Calculate the total number of drivers from the fetched data
-      const totalDrivers = driverData.length; // Assuming each driver in the response is an object
-      const totalVehicles = vehicleData.length;
-      // Example of other fleet data (replace with your actual data)
-      const mockData = {
-        totalVehicles: totalVehicles,
-        totalDrivers: totalDrivers, // Use the calculated number of drivers
-        activeIssues: 5,
-        resolvedIssues: [
-          { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
-          { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
-          { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
-        ],
-      };
-
-      // Set the fleet data with the actual fetched data
-      setFleetData(mockData); // Replace mockData with actual data from API
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching fleet data:", error);
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchFleetData = async () => {
+      try {
+        const [driversRes, vehiclesRes] = await Promise.all([
+          fetch(`${API_URL}/api/drivers`),
+          fetch(`${API_URL}/api/vehicles`),
+        ]);
+
+        if (!driversRes.ok || !vehiclesRes.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const [driverData, vehicleData] = await Promise.all([
+          driversRes.json(),
+          vehiclesRes.json(),
+        ]);
+
+        setFleetData({
+          totalVehicles: vehicleData.length,
+          totalDrivers: driverData.length,
+          activeIssues: 5,
+          resolvedIssues: [
+            { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
+            { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
+            { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
+          ],
+        });
+      } catch (error) {
+        console.error("Error fetching fleet data:", error);
+        setFleetData({
+          totalVehicles: 0,
+          totalDrivers: 0,
+          activeIssues: 0,
+          resolvedIssues: [],
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchFleetData();
+    const interval = setInterval(fetchFleetData, 5000); // Fetch every 5 seconds
+
+    return () => clearInterval(interval);
   }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   const getResolvedIssuesLast24Hrs = () => {
     const now = Date.now();

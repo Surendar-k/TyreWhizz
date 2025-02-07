@@ -7,7 +7,9 @@ import {
   Alert,
   Platform,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import axios from "axios";
 import * as Location from "expo-location";
 import { WebView } from "react-native-webview";
@@ -15,8 +17,9 @@ import { WebView } from "react-native-webview";
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 const TechLocation = () => {
+  const navigation = useNavigation(); // Get navigation instance
   const [location, setLocation] = useState(null);
-  const [locationName, setLocationName] = useState(null); // New state for location name
+  const [locationName, setLocationName] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +42,11 @@ const TechLocation = () => {
 
   useEffect(() => {
     if (location) {
-      fetchLocationName(); // Fetch location name when the location is available
+      fetchLocationName();
       fetchNearbyShops();
     }
   }, [location]);
 
-  // Reverse geocode the coordinates to get the location name
   const fetchLocationName = async () => {
     const { latitude, longitude } = location;
 
@@ -60,7 +62,7 @@ const TechLocation = () => {
       );
 
       if (response.data.results.length > 0) {
-        setLocationName(response.data.results[0].formatted_address); // Set location name
+        setLocationName(response.data.results[0].formatted_address);
       } else {
         setLocationName("Unable to fetch location name");
       }
@@ -122,12 +124,23 @@ const TechLocation = () => {
 
   return (
     <View style={styles.container}>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text style={styles.headerText}>{"<"}</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Nearby Mechanics</Text>
+      </View>
+
       {/* Map Section */}
       <View style={styles.mapContainer}>
         {Platform.OS === "web" ? (
           <iframe
             width="100%"
-            height="400px" // Increased map height
+            height="400px"
             style={{ border: 0 }}
             src={`https://www.google.com/maps/embed/v1/search?key=${GOOGLE_MAPS_API_KEY}&q=mechanic+shop+near+${location.latitude},${location.longitude}&center=${location.latitude},${location.longitude}&zoom=14`}
             allowFullScreen
@@ -144,7 +157,6 @@ const TechLocation = () => {
 
       {/* List Section */}
       <ScrollView style={styles.listSection}>
-        <Text style={styles.heading}>Nearby Mechanic Shops</Text>
         <Text style={styles.userLocation}>
           Your Location: {locationName || "Fetching location name..."}
         </Text>
@@ -171,10 +183,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: "#6200ea",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  backButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  headerText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#fff",
+    fontFamily: "monospace",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+  },
   mapContainer: {
     width: "100%",
-    height: 400, // Increased height for the map
-    marginBottom: 20, // Space between map and the list
+    height: 400,
+    marginBottom: 20,
   },
   webView: {
     width: "100%",
@@ -184,15 +222,11 @@ const styles = StyleSheet.create({
     width: "100%",
     flexGrow: 1,
   },
-  heading: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
   userLocation: {
     fontSize: 16,
     color: "blue",
     marginBottom: 10,
+    textAlign: "center",
   },
   listContainer: {
     width: "100%",
