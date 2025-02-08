@@ -13,10 +13,11 @@ import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
+import ProfessionalDriverMessages from "./ProfessionalDriverMessages";
+import ProfessionalDriverNotifications from "./ProfessionalDriverNotifications";
 const defaultImage = require("../../assets/logo.png");
 
-const ProfessionalDriverPage = () => {
+const ProfessionalDriverDashboardPage = () => {
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = useState("connection");
   const [isModalVisible, setModalVisible] = useState(false);
@@ -247,37 +248,12 @@ const ProfessionalDriverPage = () => {
           )}
         </View>
       )}
-
-      {/* Notifications Tab Content */}
-      {selectedTab === "notifications" && (
-        <View style={styles.tabContent}>
-          {notifications.map((notification) => (
-            <View key={notification.id} style={styles.notificationItem}>
-              <Text style={styles.notificationMessage}>
-                {notification.message}
-              </Text>
-              <Text style={styles.notificationDate}>{notification.date}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Messages Tab Content */}
+      {/* Tab Content */}
       {selectedTab === "messages" && (
-        <View style={styles.tabContent}>
-          {messages.map((message) => (
-            <View
-              key={message.id}
-              style={[styles.messageItem, message.unread && styles.unread]}
-            >
-              <View style={styles.messageHeader}>
-                <Text style={styles.messageSender}>{message.sender}</Text>
-                <Text style={styles.messageTime}>{message.time}</Text>
-              </View>
-              <Text style={styles.messageText}>{message.message}</Text>
-            </View>
-          ))}
-        </View>
+        <ProfessionalDriverMessages messages={messages} />
+      )}
+      {selectedTab === "notifications" && (
+        <ProfessionalDriverNotifications notifications={notifications} />
       )}
 
       {/* Profile Modal */}
@@ -557,4 +533,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfessionalDriverPage;
+export default ProfessionalDriverDashboardPage;

@@ -9,12 +9,17 @@ import OrganisationPage from "./components/organisation/OrganisationPage";
 import TechnicianPage from "./components/technician/TechnicianPage";
 import TireMonitoring from "./components/organisation/TireMonitoring";
 import OrganisationDriverList from "./components/organisation/OrganisationDriverList";
-import IndividualDriverPage from "./components/driver/IndividualDriverPage";
-import ProfessionalDriverPage from "./components/driver/ProfessionalDriverPage";
+
 import MonitoringPage from "./components/driver/MonitoringPage";
 import OrganisationAnalytics from "./components/organisation/OrganisationAnalytics";
 import OrganisationVehicleList from "./components/organisation/OrganisationVehicleList";
 import TechLocation from "./components/driver/TechLocation";
+import IndividualDriverNotifications from "./components/driver/IndividualDriverNotifications";
+import IndividualDriverMessages from "./components/driver/IndividualDriverMessages";
+import IndividualDriverDashboardPage from "./components/driver/IndividualDriverDashboardPage";
+import ProfessionalDriverDashboardPage from "./components/driver/ProfessionalDriverDashboardPage";
+import ProfessionalDriverNotifications from "./components/driver/ProfessionalDriverNotifications";
+import ProfessionalDriverMessages from "./components/driver/ProfessionalDriverMessages";
 
 const Stack = createStackNavigator();
 const App = () => {
@@ -29,16 +34,32 @@ const App = () => {
         <Stack.Screen name="RoleBasedAuthPage" component={RoleBasedAuthPage} />
         <Stack.Screen name="DriverPage" component={DriverPage} />
         <Stack.Screen
-          name="IndividualDriverPage"
-          component={IndividualDriverPage}
+          name="IndividualDriverDashboardPage"
+          component={IndividualDriverDashboardPage}
         />
         <Stack.Screen
-          name="ProfessionalDriverPage"
-          component={ProfessionalDriverPage}
+          name="IndividualDriverNotifications"
+          component={IndividualDriverNotifications}
+        />
+        <Stack.Screen
+          name="IndividualDriverMessages"
+          component={IndividualDriverMessages}
         />
 
+        <Stack.Screen
+          name="ProfessionalDriverDashboardPage"
+          component={ProfessionalDriverDashboardPage}
+        />
+        <Stack.Screen
+          name="ProfessionalDriverMessages"
+          component={ProfessionalDriverMessages}
+        />
+        <Stack.Screen
+          name="ProfessionalDriverNotifications"
+          component={ProfessionalDriverNotifications}
+        />
         <Stack.Screen name="TechLocation" component={TechLocation} />
-      
+
         <Stack.Screen name="OrganisationPage" component={OrganisationPage} />
         <Stack.Screen name="TechnicianPage" component={TechnicianPage} />
 

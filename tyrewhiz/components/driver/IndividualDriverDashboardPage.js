@@ -12,11 +12,12 @@ import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
+import IndividualDriverMessages from "./IndividualDriverMessages";
+import IndividualDriverNotifications from "./IndividualDriverNotifications";
 const cartopimg = require("../../assets/car-top-view.png");
 const defaultImage = require("../../assets/logo.png");
 
-const IndividualDriverPage = () => {
+const IndividualDriverDashboardPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [driverName, setDriverName] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
@@ -167,21 +168,6 @@ const IndividualDriverPage = () => {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-  const requestPermissions = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: "Permissions Required",
-          message: "This app needs access to your gallery to pick images",
-        }
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-      console.warn(err);
-      return false;
-    }
-  };
   const pickImage = () => {
     launchImageLibrary(
       {
@@ -260,11 +246,9 @@ const IndividualDriverPage = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.roleContainer}>
-                      <Text style={styles.role}>Logged in as: Driver</Text>
-                    </View>
+        <Text style={styles.role}>Logged in as: Driver</Text>
+      </View>
       <View style={styles.tabsContainer}>
-        {/*list of tabs*/}
-        {/* Notifications Tab */}
         <TouchableOpacity
           style={[
             styles.tab,
@@ -282,7 +266,6 @@ const IndividualDriverPage = () => {
           </Text>
         </TouchableOpacity>
 
-        {/* Pair Connection Tab */}
         <TouchableOpacity
           style={[
             styles.tab,
@@ -300,7 +283,6 @@ const IndividualDriverPage = () => {
           </Text>
         </TouchableOpacity>
 
-        {/* Messages Tab */}
         <TouchableOpacity
           style={[styles.tab, selectedTab === "messages" && styles.selectedTab]}
           onPress={() => setSelectedTab("messages")}
@@ -316,55 +298,14 @@ const IndividualDriverPage = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Tab Content */}
-
       {/*message content*/}
-
       {selectedTab === "messages" && (
-        <View style={styles.tabContent}>
-          <View style={styles.contentContainer}>
-            {messages.map((message) => (
-              <View
-                key={message.id}
-                style={[styles.messageItem, message.unread && styles.unread]}
-              >
-                <View style={styles.messageHeader}>
-                  <Text style={styles.messageSender}>{message.sender}</Text>
-                  <Text style={styles.messageTime}>{message.time}</Text>
-                </View>
-                <Text style={styles.messageText}>{message.message}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
+        <IndividualDriverMessages messages={messages} />
       )}
 
-      {/* Notifications Tab Content */}
       {selectedTab === "notifications" && (
-        <View style={styles.tabContent}>
-          <Text style={styles.notificationTitle}>Notifications</Text>
-          {/* Displaying the notifications list */}
-          {notifications.length > 0 ? (
-            <View style={styles.notificationsList}>
-              {notifications.map((notification, index) => (
-                <View key={index} style={styles.notificationItem}>
-                  <Text style={styles.notificationText}>
-                    {notification.message}
-                  </Text>
-                  <Text style={styles.notificationDate}>
-                    {notification.date}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.noNotifications}>
-              No notifications available.
-            </Text>
-          )}
-        </View>
+        <IndividualDriverNotifications notifications={notifications} />
       )}
-
       {/*pairconnection tab content */}
       {selectedTab === "pairConnection" && (
         <View style={styles.tabContent}>
@@ -428,41 +369,40 @@ const IndividualDriverPage = () => {
             <View style={styles.recentConnectionsList}>
               {recentConnections.map((connection, index) => (
                 <View key={index} style={styles.recentConnectionItem}>
-                    <View>
-                      <Text>
-                        {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
+                  <View>
+                    <Text>
+                      {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
+                    </Text>
+                    <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
+                    <Text>
+                      Status:{" "}
+                      <Text style={styles.pairStatus}>
+                        {connection.paired ? "Paired" : "Not Paired"}
                       </Text>
-                      <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
-                      <Text>
-                        Status:{" "}
-                        <Text style={styles.pairStatus}>
-                          {connection.paired ? "Paired" : "Not Paired"}
-                        </Text>
-                      </Text>
-                      <View style={styles.buttonContainer}>
-                        {!connection.paired && (
-                          <TouchableOpacity
-                            onPress={() => handlePairClick(index)}
-                            style={styles.pairButton}
-                          >
-                            <Text style={styles.pairButtonText}>Pair</Text>
-                          </TouchableOpacity>
-                        )}
+                    </Text>
+                    <View style={styles.buttonContainer}>
+                      {!connection.paired && (
                         <TouchableOpacity
-                          onPress={() => handleDeleteConnection(index)}
-                          style={styles.deleteButton}
+                          onPress={() => handlePairClick(index)}
+                          style={styles.pairButton}
                         >
-                          <Text style={styles.deleteButtonText}>Delete</Text>
+                          <Text style={styles.pairButtonText}>Pair</Text>
                         </TouchableOpacity>
-                      </View>
+                      )}
+                      <TouchableOpacity
+                        onPress={() => handleDeleteConnection(index)}
+                        style={styles.deleteButton}
+                      >
+                        <Text style={styles.deleteButtonText}>Delete</Text>
+                      </TouchableOpacity>
                     </View>
+                  </View>
                 </View>
               ))}
             </View>
           ) : (
             <Text>No recent connections.</Text>
-          )
-          }
+          )}
         </View>
       )}
 
@@ -759,8 +699,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
-  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
-  role: { fontSize: 18, color: 'rgb(42 10 62)' },
+  roleContainer: {
+    padding: 10,
+    backgroundColor: "rgb(245, 245, 245)",
+    alignItems: "center",
+  },
+  role: { fontSize: 18, color: "rgb(42 10 62)" },
   profileSection: {
     alignItems: "center",
     paddingRight: 20,
@@ -1240,9 +1184,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center", // Center the text
-    
   },
 });
 
-
-export default IndividualDriverPage;
+export default IndividualDriverDashboardPage;
