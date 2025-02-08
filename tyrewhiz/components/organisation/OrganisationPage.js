@@ -19,7 +19,7 @@ import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
 
-const API_URL = process.env.API_URL;
+// const API_URL = process.env.API_URL;
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState({
     totalVehicles: 0,
@@ -50,8 +50,8 @@ const OrganisationPage = () => {
     const fetchFleetData = async () => {
       try {
         const [driversRes, vehiclesRes] = await Promise.all([
-          fetch(`${API_URL}/api/drivers`),
-          fetch(`${API_URL}/api/vehicles`),
+          fetch("http://localhost:5000/api/drivers"),
+          fetch("http://localhost:5000/api/vehicles"),
         ]);
 
         if (!driversRes.ok || !vehiclesRes.ok) {

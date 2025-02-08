@@ -10,7 +10,7 @@ import {
   Modal,
   ActivityIndicator,
 } from "react-native";
-const API_URL = process.env.API_URL;
+// const API_URL = process.env.API_URL;
 const OrganisationDriverList = ({ navigation }) => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ const OrganisationDriverList = ({ navigation }) => {
 
   const fetchDrivers = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/drivers`);
+      const response = await fetch("http://localhost:5000/api/drivers");
       if (response.ok) {
         const data = await response.json();
         setDrivers(data);
@@ -79,7 +79,7 @@ const OrganisationDriverList = ({ navigation }) => {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await fetch(`${API_URL}/api/drivers/${id}`, {
+              const response = await fetch("http://localhost:5000/api/drivers/${id}", {
                 method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
@@ -119,7 +119,7 @@ const OrganisationDriverList = ({ navigation }) => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/drivers`, {
+      const response = await fetch("http://localhost:5000/api/drivers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newDriver),
@@ -155,7 +155,7 @@ const OrganisationDriverList = ({ navigation }) => {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/drivers/${selectedDriver.id}`,
+        "http://localhost:5000/api/drivers/${selectedDriver.id}",
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

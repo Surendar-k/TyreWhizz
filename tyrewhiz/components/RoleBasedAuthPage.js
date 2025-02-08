@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import axios from "axios";
 import logoimg from "../assets/rolebasedauthimage.png";
-
-const API_URL = process.env.API_URL;
+import { API_URL } from "@env";
+// const API_URL = process.env.API_URL;
 
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
@@ -50,7 +50,10 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post(`${API_URL}/api/signup`, data);
+        const response = await axios.post(
+          "http://localhost:5000/api/signup",
+          data
+        );
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail("");
@@ -68,7 +71,10 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/login`, data);
+      const response = await axios.post(
+        "http://localhost:5000/api/login",
+        data
+      );
       console.log("Response:", response.data); // Debugging
 
       showModal(response.data.message, false);

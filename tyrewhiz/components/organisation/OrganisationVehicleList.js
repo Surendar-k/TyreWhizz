@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-const API_URL = process.env.API_URL;
+// const API_URL = process.env.API_URL;
 const OrganisationVehicleList = ({ navigation }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/vehicles`);
+      const response = await fetch("http://localhost:5000/api/vehicles");
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched Vehicles data:", data); // Debugging
@@ -67,7 +67,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/vehicles/${selectedVehicle.id}`, //
+        `http://localhost:5000/api/vehicles/${selectedVehicle.id}`, //
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -113,9 +113,12 @@ const OrganisationVehicleList = ({ navigation }) => {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await fetch(`${API_URL}/api/vehicles/${id}`, {
-                method: "DELETE",
-              });
+              const response = await fetch(
+                `http://localhost:5000/api/vehicles/${id}`,
+                {
+                  method: "DELETE",
+                }
+              );
 
               if (response.ok) {
                 const updatedVehicles = vehicles.filter(
@@ -150,7 +153,7 @@ const OrganisationVehicleList = ({ navigation }) => {
     console.log("Adding vehicle:", newVehicle); // Debugging
 
     try {
-      const response = await fetch(`${API_URL}/api/vehicles`, {
+      const response = await fetch("http://localhost:5000/api/vehicles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newVehicle),
