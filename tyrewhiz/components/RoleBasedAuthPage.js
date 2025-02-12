@@ -59,7 +59,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        setTimeout(() => navigation.replace("LoginPage", { userType }), 3000);
+       setIsSignup(false);
       } catch (error) {
         showModal(
           error.response?.data?.error || "Signup failed. Please try again.",
