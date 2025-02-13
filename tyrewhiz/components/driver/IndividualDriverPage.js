@@ -12,6 +12,8 @@ import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 const cartopimg = require("../../assets/car-top-view.png");
 const defaultImage = require("../../assets/logo.png");
@@ -27,7 +29,8 @@ const IndividualDriverPage = () => {
   const [recentConnections, setRecentConnections] = useState([]);
   const [vehicleType, setVehicleType] = useState("4wheeler"); // Default vehicle type
   const navigation = useNavigation();
-
+  const { translatedText,updateTranslations } = useTranslation(); // ✅ Import global translations
+  
   const [messages] = useState([
     {
       id: 1,
@@ -100,6 +103,20 @@ const IndividualDriverPage = () => {
     rearRight: "",
   });
 
+  useFocusEffect(React.useCallback(() =>{
+    updateTranslations([
+      "Please fill all tire sensor IDs",
+      "Permissions Required",
+      "This app needs access to your gallery to pick images",
+      "Driver details saved successfully!","This app needs access to your gallery to pick images","Edit Profile",
+      "Logged in as: Driver","Notifications","Pair","Messages","No notifications available","Select Vehicle Type",
+      "2-Wheeler","4-Wheeler","6-Wheeler","8-Wheeler","Select Pairing Method","Manual","Auto","Manual Pairing","Auto Pairing",
+      "Connect","Driver Details","Driver Name","Vehicle No","Upload Profile Picture","Enter Driver Name","Enter Vehicle No",
+      "Sensor ID/Vehicle ID","Add Pair Connection","Recent Paired Connections:","Delete","No recent connections.",
+      "Connection in progress...","Upload Images(License,RC,etc.)","Save","Logout"
+    ])
+  }));
+
   // Function to handle pair button click
   const handlePairClick = (index) => {
     setSelectedConnectionIndex(index);
@@ -136,11 +153,11 @@ const IndividualDriverPage = () => {
 
   // Function to handle manual connection
   const handleManualConnect = () => {
-    // Validate all tire sensors are filled
+    // ✅ Validate all tire sensors are filled
     if (Object.values(manualTireSensors).some((value) => !value)) {
-      alert("Please fill all tire sensor IDs");
+      alert(translatedText["Please fill all tire sensor IDs"] || "Please fill all tire sensor IDs");
       return;
-    }
+    }  
 
     // Update the connection status
     const updatedConnections = [...recentConnections];
@@ -172,8 +189,8 @@ const IndividualDriverPage = () => {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
         {
-          title: "Permissions Required",
-          message: "This app needs access to your gallery to pick images",
+          title: translatedText["Permissions Required"]||"Permissions Required",
+          message: translatedText["This app needs access to your gallery to pick images"]||"This app needs access to your gallery to pick images",
         }
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
@@ -222,7 +239,7 @@ const IndividualDriverPage = () => {
     );
   };
   const saveDriverDetails = () => {
-    alert("Driver details saved successfully!");
+    alert(translatedText["Driver details saved successfully!"]||"Driver details saved successfully!");
     toggleModal();
   };
   const handleLogout = () => {
@@ -256,11 +273,11 @@ const IndividualDriverPage = () => {
             source={profileImage ? { uri: profileImage } : defaultImage}
             style={styles.profileImage}
           />
-          <Text style={styles.profileText}>Edit Profile</Text>
+          <Text style={styles.profileText}>{translatedText["Edit Profile"]||"Edit Profile"}</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.roleContainer}>
-                      <Text style={styles.role}>Logged in as: Driver</Text>
+                      <Text style={styles.role}>{translatedText["Logged in as: Driver"]||"Logged in as: Driver"}</Text>
                     </View>
       <View style={styles.tabsContainer}>
         {/*list of tabs*/}
@@ -278,7 +295,7 @@ const IndividualDriverPage = () => {
               selectedTab === "notifications" && styles.selectedTabText,
             ]}
           >
-            Notifications
+            {translatedText["Notifications"]||"Notifications"}
           </Text>
         </TouchableOpacity>
 
@@ -296,7 +313,7 @@ const IndividualDriverPage = () => {
               selectedTab === "pairConnection" && styles.selectedTabText,
             ]}
           >
-            Pair
+            {translatedText["Pair"]||"Pair"}
           </Text>
         </TouchableOpacity>
 
@@ -311,7 +328,7 @@ const IndividualDriverPage = () => {
               selectedTab === "messages" && styles.selectedTabText,
             ]}
           >
-            Messages
+           {translatedText["Messages"]||"Messages"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -342,7 +359,7 @@ const IndividualDriverPage = () => {
       {/* Notifications Tab Content */}
       {selectedTab === "notifications" && (
         <View style={styles.tabContent}>
-          <Text style={styles.notificationTitle}>Notifications</Text>
+          <Text style={styles.notificationTitle}>{translatedText["Notifications"]||"Notifications"}</Text>
           {/* Displaying the notifications list */}
           {notifications.length > 0 ? (
             <View style={styles.notificationsList}>
@@ -359,7 +376,7 @@ const IndividualDriverPage = () => {
             </View>
           ) : (
             <Text style={styles.noNotifications}>
-              No notifications available.
+              {translatedText["No notifications available"]||"No notifications available"}
             </Text>
           )}
         </View>
@@ -368,7 +385,7 @@ const IndividualDriverPage = () => {
       {/*pairconnection tab content */}
       {selectedTab === "pairConnection" && (
         <View style={styles.tabContent}>
-          <Text style={styles.vehicleTypeText}>Select Vehicle Type</Text>
+          <Text style={styles.vehicleTypeText}>{translatedText["Select Vehicle Type"]||"Select Vehicle Type"}</Text>
           <View style={styles.vehicleTypeGrid}>
             <TouchableOpacity
               onPress={() => setVehicleType("2wheeler")}
@@ -377,7 +394,7 @@ const IndividualDriverPage = () => {
                 vehicleType === "2wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>2-Wheeler</Text>
+              <Text style={styles.vehicleButtonText}>{translatedText["2-Wheeler"]||"2-Wheeler"}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("4wheeler")}
@@ -386,7 +403,7 @@ const IndividualDriverPage = () => {
                 vehicleType === "4wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>4-Wheeler</Text>
+              <Text style={styles.vehicleButtonText}>{translatedText["4-Wheeler"]||"4-Wheeler"}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("6wheeler")}
@@ -395,7 +412,7 @@ const IndividualDriverPage = () => {
                 vehicleType === "6wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>6-Wheeler</Text>
+              <Text style={styles.vehicleButtonText}>{translatedText["6-Wheeler"]||"6-Wheeler"}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("8wheeler")}
@@ -404,12 +421,12 @@ const IndividualDriverPage = () => {
                 vehicleType === "8wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>8-Wheeler</Text>
+              <Text style={styles.vehicleButtonText}>{translatedText["8-Wheeler"]||"8-Wheeler"}</Text>
             </TouchableOpacity>
           </View>
 
           <TextInput
-            placeholder="Sensor ID/Vehicle ID"
+            placeholder={translatedText["Sensor ID/Vehicle ID"]||"Sensor ID/Vehicle ID"}
             value={sensorId}
             onChangeText={setSensorId}
             style={styles.inputField}
@@ -418,11 +435,11 @@ const IndividualDriverPage = () => {
             onPress={handleSensorIdSubmit}
             style={styles.addPairButton}
           >
-            <Text style={styles.addPairButtonText}>Add Pair Connection</Text>
+            <Text style={styles.addPairButtonText}>{translatedText["Add Pair Connection"]||"Add Pair Connection"}</Text>
           </TouchableOpacity>
 
           <Text style={styles.recentConnectionsText}>
-            Recent Paired Connections:
+            {translatedText["Recent Paired Connections:"]||"Recent Paired Connections:"}
           </Text>
           {recentConnections.length > 0 ? (
             <View style={styles.recentConnectionsList}>
@@ -445,14 +462,14 @@ const IndividualDriverPage = () => {
                             onPress={() => handlePairClick(index)}
                             style={styles.pairButton}
                           >
-                            <Text style={styles.pairButtonText}>Pair</Text>
+                            <Text style={styles.pairButtonText}>{translatedText["Pair"]||"Pair"}</Text>
                           </TouchableOpacity>
                         )}
                         <TouchableOpacity
                           onPress={() => handleDeleteConnection(index)}
                           style={styles.deleteButton}
                         >
-                          <Text style={styles.deleteButtonText}>Delete</Text>
+                          <Text style={styles.deleteButtonText}>{translatedText["Delete"]||"Delete"}</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -460,7 +477,7 @@ const IndividualDriverPage = () => {
               ))}
             </View>
           ) : (
-            <Text>No recent connections.</Text>
+            <Text>{translatedText["No recent connections."]||"No recent connections."}</Text>
           )
           }
         </View>
@@ -473,23 +490,23 @@ const IndividualDriverPage = () => {
         <View style={styles.pairModalContainer}>
           {!selectedPairType ? (
             <>
-              <Text style={styles.modalTitle}>Select Pairing Method</Text>
+              <Text style={styles.modalTitle}>{translatedText["Select Pairing Method"]||"Select Pairing Method"}</Text>
               <TouchableOpacity
                 style={styles.methodButton}
                 onPress={handleManualPair}
               >
-                <Text style={styles.methodButtonText}>Manual</Text>
+                <Text style={styles.methodButtonText}>{translatedText["Manual"]||"Manual"}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.methodButton}
                 onPress={handleAutoPair}
               >
-                <Text style={styles.methodButtonText}>Auto Pair</Text>
+                <Text style={styles.methodButtonText}>{translatedText["Auto Pair"]||"Auto Pair"}</Text>
               </TouchableOpacity>
             </>
           ) : selectedPairType === "manual" ? (
             <View style={styles.manualPairingContainer}>
-              <Text style={styles.modalTitle}>Manual Pairing</Text>
+              <Text style={styles.modalTitle}>{translatedText["Manual Pairing"]||"Manual Pairing"}</Text>
 
               <View style={styles.carContainer}>
                 {/* Left side tire inputs */}
@@ -564,15 +581,15 @@ const IndividualDriverPage = () => {
                 style={styles.connectButton}
                 onPress={handleManualConnect}
               >
-                <Text style={styles.connectButtonText}>Connect</Text>
+                <Text style={styles.connectButtonText}>{translatedText["Connect"]||"Connect"}</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.autoPairingContainer}>
-              <Text style={styles.modalTitle}>Auto Pairing</Text>
+              <Text style={styles.modalTitle}>{translatedText["Auto Pairing"]||"Auto Pairing"}</Text>
               <ActivityIndicator size="large" color="#4CAF50" />
               <Text style={styles.autoPairingText}>
-                Connection in progress...
+                {translatedText["Connection in progress..."]||"Connection in progress..."}
               </Text>
             </View>
           )}
@@ -583,7 +600,7 @@ const IndividualDriverPage = () => {
         <View style={styles.tabContent}>
           <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
             <Text style={styles.uploadButtonText}>
-              Upload Images (License, RC, etc.)
+              {translatedText["Upload Images (License, RC, etc.)"]||"Upload Images (License, RC, etc.)"}
             </Text>
           </TouchableOpacity>
           {uploadedImages.length > 0 && (
@@ -606,12 +623,12 @@ const IndividualDriverPage = () => {
             <Ionicons name="close-circle" size={30} color="gray" />
           </TouchableOpacity>
 
-          <Text style={styles.modalTitle}>Driver Details</Text>
+          <Text style={styles.modalTitle}>{translatedText["Driver Details"]||"Driver Details"}</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Driver Name</Text>
+            <Text style={styles.inputLabel}>{translatedText["Driver Name"]||"Driver Name"}</Text>
             <TextInput
-              placeholder="Enter Driver Name"
+              placeholder={translatedText["Enter Driver Name"]||"Enter Driver Name"}
               value={driverName}
               onChangeText={setDriverName}
               style={styles.inputField}
@@ -619,9 +636,9 @@ const IndividualDriverPage = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Vehicle No</Text>
+            <Text style={styles.inputLabel}>{translatedText["Vehicle No"]||"Vehicle No"}</Text>
             <TextInput
-              placeholder="Enter Vehicle No"
+              placeholder={translatedText["Enter Vehicle No"]||"Enter Vehicle No"}
               value={vehicleNo}
               onChangeText={setVehicleNo}
               style={styles.inputField}
@@ -629,7 +646,7 @@ const IndividualDriverPage = () => {
           </View>
 
           <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>Upload Profile Picture</Text>
+            <Text style={styles.uploadButtonText}>{translatedText["Upload Profile Picture"]||"Upload Profile Picture"}</Text>
           </TouchableOpacity>
           {profileImage && (
             <Image
@@ -640,7 +657,7 @@ const IndividualDriverPage = () => {
 
           <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
             <Text style={styles.uploadButtonText}>
-              Upload Images (License, RC, etc.)
+            {translatedText["Upload Images (License, RC, etc.)"]||"Upload Images (License, RC, etc.)"}
             </Text>
           </TouchableOpacity>
           {uploadedImages.length > 0 && (
@@ -659,11 +676,11 @@ const IndividualDriverPage = () => {
             style={styles.saveButton}
             onPress={saveDriverDetails}
           >
-            <Text style={styles.saveButtonText}>Save</Text>
+            <Text style={styles.saveButtonText}>{translatedText["Save"]||"Save"}</Text>
           </TouchableOpacity>
           {/* Logout Button */}
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.buttonText}>Logout</Text>
+            <Text style={styles.buttonText}>{translatedText["Logout"]||"Logout"}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

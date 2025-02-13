@@ -13,7 +13,8 @@ import {
 import axios from "axios";
 import logoimg from "../assets/rolebasedauthimage.png";
 import { API_URL } from "@env";
-// const API_URL = process.env.API_URL;
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "./TranslationContext"; // Import global translation context
 
 const RoleBasedAuthPage = ({ route, navigation }) => {
   const { userType } = route.params;
@@ -24,20 +25,43 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   const [popupMessage, setPopupMessage] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
 
+  const { translatedText, updateTranslations } = useTranslation();
+
+  // Update translations when language changes
+  useFocusEffect(React.useCallback(() => {
+    updateTranslations([
+      "Back",
+      "Signup",
+      "Login",
+      "Email",
+      "Password",
+      "Confirm Password",
+      "Already have an account? Login",
+      "Don't have an account? Signup",
+      "Email and password are required.",
+      "Invalid email format. Please enter a valid email.",
+      "Password must be at least 6 characters long.",
+      "Passwords do not match.",
+      "Unknown user type. Please contact support.",
+      "Network error or server unreachable. Please try again later.",
+      "An unexpected error occurred. Please try again later.",
+    ]);
+  }, []));
+
   const handleAuthAction = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Email and password are required.");
+      Alert.alert("Error", translatedText["Email and password are required."] || "Email and password are required.");
       return;
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      showModal("Invalid email format. Please enter a valid email.", true);
+      showModal(translatedText["Invalid email format. Please enter a valid email."] || "Invalid email format.", true);
       return;
     }
 
     if (password.length < 6) {
-      showModal("Password must be at least 6 characters long.", true);
+      showModal(translatedText["Password must be at least 6 characters long."] || "Password must be at least 6 characters long.", true);
       return;
     }
 
@@ -45,15 +69,12 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     if (isSignup) {
       if (password !== confirmPassword) {
-        showModal("Passwords do not match.", true);
+        showModal(translatedText["Passwords do not match."] || "Passwords do not match.", true);
         return;
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/signup",
-          data
-        );
+        const response = await axios.post(`${API_URL}/api/signup`, data);
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail("");
@@ -61,26 +82,17 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         setConfirmPassword("");
         setTimeout(() => navigation.replace("LoginPage", { userType }), 3000);
       } catch (error) {
-        showModal(
-          error.response?.data?.error || "Signup failed. Please try again.",
-          true
-        );
+        showModal(error.response?.data?.error || "Signup failed. Please try again.", true);
       }
-
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/login",
-        data
-      );
-      console.log("Response:", response.data); // Debugging
-
+      const response = await axios.post(`${API_URL}/api/login`, data);
       showModal(response.data.message, false);
-      const { userType } = response.data; // Ensure this is the correct property from your backend response.
 
-      // Navigate based on userType
+      const { userType } = response.data;
+
       if (userType === "driver") {
         navigation.replace("DriverPage");
       } else if (userType === "organisation") {
@@ -88,26 +100,15 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       } else if (userType === "technician") {
         navigation.replace("TechnicianPage");
       } else {
-        showModal("Unknown user type. Please contact support.", true);
+        showModal(translatedText["Unknown user type. Please contact support."] || "Unknown user type. Please contact support.", true);
       }
     } catch (error) {
-      // Handle network or timeout errors gracefully
       if (error.response) {
-        console.error("Response Data:", error.response.data);
         showModal(error.response.data.error, true);
       } else if (error.request) {
-        console.error("Request Error:", error.request);
-        showModal(
-          "Network error or server unreachable. Please try again later.",
-          true
-        );
+        showModal(translatedText["Network error or server unreachable. Please try again later."] || "Network error. Try again later.", true);
       } else {
-        console.error("Unexpected Error:", error.message);
-
-        showModal(
-          "An unexpected error occurred. Please try again later.",
-          true
-        );
+        showModal(translatedText["An unexpected error occurred. Please try again later."] || "Unexpected error. Try again later.", true);
       }
     }
   };
@@ -120,25 +121,19 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.buttonText}>Back</Text>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.buttonText}>{translatedText["Back"] || "Back"}</Text>
       </TouchableOpacity>
+      
       <View style={styles.logoContainer}>
         <Image source={logoimg} style={styles.logo} />
       </View>
+
       <Text style={styles.title}>
-        {isSignup ? `Signup as ${userType}` : `Login as ${userType}`}
+        {isSignup ? `${translatedText["Signup"] || "Signup"} as ${userType}` : `${translatedText["Login"] || "Login"} as ${userType}`}
       </Text>
 
-      <Modal
-        visible={isModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
@@ -150,40 +145,22 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <TextInput style={styles.input} placeholder={translatedText["Email"] || "Email"} value={email} onChangeText={setEmail} keyboardType="email-address" />
+      <TextInput style={styles.input} placeholder={translatedText["Password"] || "Password"} value={password} onChangeText={setPassword} secureTextEntry />
 
       {isSignup && (
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry
-        />
+        <TextInput style={styles.input} placeholder={translatedText["Confirm Password"] || "Confirm Password"} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
       )}
 
       <TouchableOpacity style={styles.button} onPress={handleAuthAction}>
-        <Text style={styles.buttonText}>{isSignup ? "Signup" : "Login"}</Text>
+        <Text style={styles.buttonText}>{isSignup ? translatedText["Signup"] || "Signup" : translatedText["Login"] || "Login"}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
         <Text style={styles.toggleText}>
           {isSignup
-            ? "Already have an account? Login"
-            : "Don't have an account? Signup"}
+            ? translatedText["Already have an account? Login"] || "Already have an account? Login"
+            : translatedText["Don't have an account? Signup"] || "Don't have an account? Signup"}
         </Text>
       </TouchableOpacity>
     </View>

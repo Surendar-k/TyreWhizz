@@ -12,14 +12,15 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
 import Icon from "react-native-vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
+
 import tyremo from "../../assets/tyremo.png";
 import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
 
-// const API_URL = process.env.API_URL;
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState({
     totalVehicles: 0,
@@ -28,8 +29,8 @@ const OrganisationPage = () => {
     resolvedIssues: [],
   });
   const [loading, setLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
-  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [profileData, setProfileData] = useState({
     organizationName: "",
     managerName: "",
@@ -37,14 +38,41 @@ const OrganisationPage = () => {
     phone: "",
   });
 
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
+  const navigation = useNavigation();
+
+   useFocusEffect(React.useCallback(() => {
+    updateTranslations([
+      
+      "Logged in as: Organization",
+      "Profile",
+      "Organization Name:",
+      "Manager Name:",
+      "Email:",
+      "Phone:",
+      "Edit",
+      "Save",
+      "Logout",
+      "Fleet Summary",
+      "Total Vehicles",
+      "Total Drivers",
+      "Active Issues",
+      "Resolved Issues (Last 24 Hrs)",
+      "Tire Monitoring",
+      "Vehicles",
+      "Drivers",
+      "Analytics Report",
+      "Logged Out",
+      "You have been logged out",
+    ]);
+  }, []));
+
   useEffect(() => {
     const storedUser = localStorage.getItem("userData");
     if (storedUser) {
       setProfileData(JSON.parse(storedUser));
     }
   }, []);
-
-  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchFleetData = async () => {
@@ -75,26 +103,16 @@ const OrganisationPage = () => {
         });
       } catch (error) {
         console.error("Error fetching fleet data:", error);
-        setFleetData({
-          totalVehicles: 0,
-          totalDrivers: 0,
-          activeIssues: 0,
-          resolvedIssues: [],
-        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchFleetData();
-    const interval = setInterval(fetchFleetData, 5000); // Fetch every 5 seconds
+    const interval = setInterval(fetchFleetData, 5000);
 
     return () => clearInterval(interval);
   }, []);
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
 
   const getResolvedIssuesLast24Hrs = () => {
     const now = Date.now();
@@ -103,7 +121,6 @@ const OrganisationPage = () => {
     ).length;
   };
 
-  // Function to handle profile data change
   const handleProfileChange = (field, value) => {
     setProfileData((prevState) => ({
       ...prevState,
@@ -111,87 +128,75 @@ const OrganisationPage = () => {
     }));
   };
 
-  // Handle Logout
   const handleLogout = () => {
-    setIsModalVisible(false); // Close the modal
-    navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
-    Alert.alert("Logged Out", "You have been logged out"); // Show logout alert
+    setIsModalVisible(false);
+    navigation.navigate("UserTypeSelectionPage");
+    Alert.alert(
+      translatedText["Logged Out"] || "Logged Out",
+      translatedText["You have been logged out"] || "You have been logged out"
+    );
   };
-
   // Render loader until data is fetched
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
-        <Text>Loading...</Text>
+        <Text>{translatedText["Loading..."] || "Loading..."}</Text>
       </View>
     );
   }
-
+  
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
-        <TouchableOpacity
-          style={styles.profileButton}
-          onPress={() => setIsModalVisible(true)}
-        >
+        <TouchableOpacity style={styles.profileButton} onPress={() => setIsModalVisible(true)}>
           <Text style={styles.profileButtonText}>☰</Text>
         </TouchableOpacity>
       </View>
+  
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>Logged in as: Organization</Text>
+        <Text style={styles.role}>{translatedText["Logged in as: Organization"] || "Logged in as: Organization"}</Text>
       </View>
-
+  
       {/* Profile Modal */}
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Profile</Text>
-
+            <Text style={styles.modalTitle}>{translatedText["Profile"] || "Profile"}</Text>
+  
             {/* Profile Content */}
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Organization Name:</Text>
+              <Text style={styles.profileLabel}>{translatedText["Organization Name:"] || "Organization Name:"}</Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
                   value={profileData.organizationName}
-                  onChangeText={(text) =>
-                    handleProfileChange("organizationName", text)
-                  }
+                  onChangeText={(text) => handleProfileChange("organizationName", text)}
                 />
               ) : (
-                <Text style={styles.profileValue}>
-                  {profileData.organizationName}
-                </Text>
+                <Text style={styles.profileValue}>{profileData.organizationName}</Text>
               )}
             </View>
-
+  
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Manager Name:</Text>
+              <Text style={styles.profileLabel}>{translatedText["Manager Name:"] || "Manager Name:"}</Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
                   value={profileData.managerName}
-                  onChangeText={(text) =>
-                    handleProfileChange("managerName", text)
-                  }
+                  onChangeText={(text) => handleProfileChange("managerName", text)}
                 />
               ) : (
-                <Text style={styles.profileValue}>
-                  {profileData.managerName}
-                </Text>
+                <Text style={styles.profileValue}>{profileData.managerName}</Text>
               )}
             </View>
-
+  
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Email:</Text>
+              <Text style={styles.profileLabel}>{translatedText["Email:"] || "Email:"}</Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
@@ -202,9 +207,9 @@ const OrganisationPage = () => {
                 <Text style={styles.profileValue}>{profileData.email}</Text>
               )}
             </View>
-
+  
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Phone:</Text>
+              <Text style={styles.profileLabel}>{translatedText["Phone:"] || "Phone:"}</Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
@@ -215,30 +220,21 @@ const OrganisationPage = () => {
                 <Text style={styles.profileValue}>{profileData.phone}</Text>
               )}
             </View>
-
+  
             {/* Edit/Save Button */}
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => setIsEditMode(!isEditMode)}
-            >
+            <TouchableOpacity style={styles.editButton} onPress={() => setIsEditMode(!isEditMode)}>
               <Icon name="pencil" size={15} color="#fff" />
               <Text style={styles.editButtonText}>
-                {isEditMode ? "Save" : "Edit"}
+                {isEditMode ? translatedText["Save"] || "Save" : translatedText["Edit"] || "Edit"}
               </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={handleLogout}
-            >
+  
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
               <Icon name="log-out" size={20} color="#fff" />
-              <Text style={styles.logoutText}>Logout</Text>
+              <Text style={styles.logoutText}>{translatedText["Logout"] || "Logout"}</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setIsModalVisible(false)}
-            >
+  
+            <TouchableOpacity style={styles.closeButton} onPress={() => setIsModalVisible(false)}>
               <Icon name="close" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
@@ -246,63 +242,73 @@ const OrganisationPage = () => {
       </Modal>
 
       {/* Fleet Data Summary */}
-      <View style={styles.summary}>
-        <Text style={styles.sectionTitle}>Fleet Summary</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.summaryCards}
-        >
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total Vehicles</Text>
-            <Text style={styles.cardValue}>{fleetData.totalVehicles}</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total Drivers</Text>
-            <Text style={styles.cardValue}>{fleetData.totalDrivers}</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Active Issues</Text>
-            <Text style={styles.cardValue}>{fleetData.activeIssues}</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resolved Issues (Last 24 Hrs)</Text>
-            <Text style={styles.cardValue}>{getResolvedIssuesLast24Hrs()}</Text>
-          </View>
-        </ScrollView>
-      </View>
+<View style={styles.summary}>
+  <Text style={styles.sectionTitle}>
+    {translatedText["Fleet Summary"] || "Fleet Summary"}
+  </Text>
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={styles.summaryCards}
+  >
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>
+        {translatedText["Total Vehicles"] || "Total Vehicles"}
+      </Text>
+      <Text style={styles.cardValue}>{fleetData.totalVehicles}</Text>
+    </View>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>
+        {translatedText["Total Drivers"] || "Total Drivers"}
+      </Text>
+      <Text style={styles.cardValue}>{fleetData.totalDrivers}</Text>
+    </View>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>
+        {translatedText["Active Issues"] || "Active Issues"}
+      </Text>
+      <Text style={styles.cardValue}>{fleetData.activeIssues}</Text>
+    </View>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>
+        {translatedText["Resolved Issues (Last 24 Hrs)"] || "Resolved Issues (Last 24 Hrs)"}
+      </Text>
+      <Text style={styles.cardValue}>{getResolvedIssuesLast24Hrs()}</Text>
+    </View>
+  </ScrollView>
+</View>
 
-      <View style={styles.navigation}>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("TireMonitoring")}
-        >
-          <Image source={tyremo} style={styles.icon} />
-          <Text style={styles.navText}>Tire Monitoring</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("OrganisationVehicleList")}
-        >
-          <Image source={carmo} style={styles.icon} />
-          <Text style={styles.navText}>Vehicles</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("OrganisationDriverList")}
-        >
-          <Image source={drivermo} style={styles.icon} />
-          <Text style={styles.navText}>Drivers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate("OrganisationAnalytics")}
-        >
-          <Image source={reportmo} style={styles.icon} />
-          <Text style={styles.navText}>Analytics Report</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+{/* Navigation Section */}
+<View style={styles.navigation}>
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("TireMonitoring")}>
+    <Image source={tyremo} style={styles.icon} />
+    <Text style={styles.navText}>
+      {translatedText["Tire Monitoring"] || "Tire Monitoring"}
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("OrganisationVehicleList")}>
+    <Image source={carmo} style={styles.icon} />
+    <Text style={styles.navText}>
+      {translatedText["Vehicles"] || "Vehicles"}
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("OrganisationDriverList")}>
+    <Image source={drivermo} style={styles.icon} />
+    <Text style={styles.navText}>
+      {translatedText["Drivers"] || "Drivers"}
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate("OrganisationAnalytics")}>
+    <Image source={reportmo} style={styles.icon} />
+    <Text style={styles.navText}>
+      {translatedText["Analytics Report"] || "Analytics Report"}
+    </Text>
+  </TouchableOpacity>
+</View>
+</ScrollView>
   );
 };
 

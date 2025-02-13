@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext";
+import { useFocusEffect } from "@react-navigation/native";
 
 const defaultImage = require("../../assets/logo.png");
 
@@ -28,7 +30,16 @@ const ProfessionalDriverPage = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectedVehicles, setConnectedVehicles] = useState([]);
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
 
+   useFocusEffect(React.useCallback(() =>{
+    updateTranslations([
+          "Please enter both Organization ID and Vehicle ID",
+          "Successfully connected to vehicle!","Please fill in all required fields","Driver details saved successfully!","Professional Driver","Edit Profile",
+          "Notifications","Connection","Messages","Connect to Vehicle","Organization ID","Vehicle ID","Connect","Connected Vehicles","Organization: ","Vehicle ID:",
+          "Connected: ","Monitor","Professional Driver Details","Upload Profile Picture","Driver Name","License Number","Save Details","Logout"
+    ]);
+  },[]));
   // Sample messages data
   const [messages] = useState([
     {
@@ -84,7 +95,7 @@ const ProfessionalDriverPage = () => {
   };
   const handleConnect = () => {
     if (!orgId || !vehicleId) {
-      alert("Please enter both Organization ID and Vehicle ID");
+      alert(translatedText["Please enter both Organization ID and Vehicle ID"]||"Please enter both Organization ID and Vehicle ID");
       return;
     }
 
@@ -102,16 +113,16 @@ const ProfessionalDriverPage = () => {
       ]);
       setOrgId("");
       setVehicleId("");
-      alert("Successfully connected to vehicle!");
+      alert(translatedText["Successfully connected to vehicle!"]||"Successfully connected to vehicle!");
     }, 2000);
   };
 
   const saveDriverDetails = () => {
     if (!driverName || !licenseNo) {
-      alert("Please fill in all required fields");
+      alert(translatedText["Please fill in all required fields"]||"Please fill in all required fields");
       return;
     }
-    alert("Driver details saved successfully!");
+    alert(translatedText["Driver details saved successfully!"]||"Driver details saved successfully!");
     toggleModal();
   };
 
@@ -125,13 +136,13 @@ const ProfessionalDriverPage = () => {
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Professional Driver</Text>
+        <Text style={styles.headerText}>{translatedText["Professional Driver"]||"Professional Driver"}</Text>
         <TouchableOpacity onPress={toggleModal} style={styles.profileSection}>
           <Image
             source={profileImage ? { uri: profileImage } : defaultImage}
             style={styles.profileImage}
           />
-          <Text style={styles.profileText}>Edit Profile</Text>
+          <Text style={styles.profileText}>{translatedText["Edit Profile"]||"Edit Profile"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -150,7 +161,7 @@ const ProfessionalDriverPage = () => {
               selectedTab === "notifications" && styles.selectedTabText,
             ]}
           >
-            Notifications
+            {translatedText["Notifications"]||"Notifications"}
           </Text>
         </TouchableOpacity>
 
@@ -167,7 +178,7 @@ const ProfessionalDriverPage = () => {
               selectedTab === "connection" && styles.selectedTabText,
             ]}
           >
-            Connection
+            {translatedText["Connection"]||"Connection"}
           </Text>
         </TouchableOpacity>
 
@@ -181,7 +192,7 @@ const ProfessionalDriverPage = () => {
               selectedTab === "messages" && styles.selectedTabText,
             ]}
           >
-            Messages
+            {translatedText["Messages"]||"Messages"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -190,16 +201,16 @@ const ProfessionalDriverPage = () => {
       {selectedTab === "connection" && (
         <View style={styles.tabContent}>
           <View style={styles.connectionForm}>
-            <Text style={styles.formTitle}>Connect to Vehicle</Text>
+            <Text style={styles.formTitle}>{translatedText["Connect to Vehicle"]||"Connect to Vehicle"}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Organization ID"
+              placeholder={translatedText["Organization ID"]||"Organization ID"}
               value={orgId}
               onChangeText={setOrgId}
             />
             <TextInput
               style={styles.input}
-              placeholder="Vehicle ID"
+              placeholder={translatedText["Vehicle ID"]||"Vehicle ID"}
               value={vehicleId}
               onChangeText={setVehicleId}
             />
@@ -211,7 +222,7 @@ const ProfessionalDriverPage = () => {
               {isConnecting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.connectButtonText}>Connect</Text>
+                <Text style={styles.connectButtonText}>{translatedText["Connect"]||"Connect"}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -219,18 +230,18 @@ const ProfessionalDriverPage = () => {
           {/* Connected Vehicles List */}
           {connectedVehicles.length > 0 && (
             <View style={styles.connectedVehicles}>
-              <Text style={styles.sectionTitle}>Connected Vehicles</Text>
+              <Text style={styles.sectionTitle}>{translatedText["Connected Vehicles"]||"Connected Vehicles"}</Text>
               {connectedVehicles.map((vehicle, index) => (
                 <View key={index} style={styles.vehicleItem}>
                   <View>
                     <Text style={styles.vehicleText}>
-                      Organization: {vehicle.orgId}
+                      {translatedText["Organization: "]||"Organization: "}{vehicle.orgId}
                     </Text>
                     <Text style={styles.vehicleText}>
-                      Vehicle ID: {vehicle.vehicleId}
+                      {translatedText["Vehicle ID:"]||"Vehicle ID:"} {vehicle.vehicleId}
                     </Text>
                     <Text style={styles.timestampText}>
-                      Connected: {vehicle.timestamp}
+                      {translatedText["Connected: "]||"Connected: "}{vehicle.timestamp}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -239,7 +250,7 @@ const ProfessionalDriverPage = () => {
                       navigation.navigate("MonitoringPage", vehicle)
                     }
                   >
-                    <Text style={styles.monitorButtonText}>Monitor</Text>
+                    <Text style={styles.monitorButtonText}>{translatedText["Monitor"]||"Monitor"}</Text>
                   </TouchableOpacity>
                 </View>
               ))}
@@ -287,22 +298,22 @@ const ProfessionalDriverPage = () => {
             <Ionicons name="close-circle" size={30} color="gray" />
           </TouchableOpacity>
 
-          <Text style={styles.modalTitle}>Professional Driver Details</Text>
+          <Text style={styles.modalTitle}>{translatedText["Professional Driver Details"]||"Professional Driver Details"}</Text>
 
           <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>Upload Profile Picture</Text>
+            <Text style={styles.uploadButtonText}>{translatedText["Upload Profile Picture"]||"Upload Profile Picture"}</Text>
           </TouchableOpacity>
 
           <TextInput
             style={styles.modalInput}
-            placeholder="Driver Name"
+            placeholder={translatedText["Driver Name"]||"Driver Name"}
             value={driverName}
             onChangeText={setDriverName}
           />
 
           <TextInput
             style={styles.modalInput}
-            placeholder="License Number"
+            placeholder={translatedText["License Number"]||"License Number"}
             value={licenseNo}
             onChangeText={setLicenseNo}
           />
@@ -311,11 +322,11 @@ const ProfessionalDriverPage = () => {
             style={styles.saveButton}
             onPress={saveDriverDetails}
           >
-            <Text style={styles.saveButtonText}>Save Details</Text>
+            <Text style={styles.saveButtonText}>{translatedText["Save Details"]||"Save Details"}</Text>
           </TouchableOpacity>
           {/* Logout Button */}
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.buttonText}>Logout</Text>
+            <Text style={styles.buttonText}>{translatedText["Logout"]||"Logout"}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

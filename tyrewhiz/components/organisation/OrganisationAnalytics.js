@@ -2,11 +2,15 @@
   import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
   import { useNavigation } from '@react-navigation/native';
   import { BarChart, PieChart } from 'react-native-chart-kit';
+  import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
+  import { useFocusEffect } from '@react-navigation/native';
   // const API_URL=process.env.API_URL;
   
   const OrganisationAnalytics = () => {
     const navigation = useNavigation();
     const screenWidth = Dimensions.get('window').width;
+    const { translatedText, updateTranslations } = useTranslation(); // ✅ Add translation support
+
   
     // State to store real-time data
     const [totalVehicles, setTotalVehicles] = useState(0);
@@ -40,29 +44,60 @@
       fetchFleetData();
     }, []);
   
-    // Dynamic vehicle data object
+     useFocusEffect(React.useCallback(() =>{
+      updateTranslations([
+        "Organisation Analytics",
+        "Logged in as: Organization",
+        "Vehicle Categories",
+        "Monthly Issue Comparison",
+        "Total Vehicles",
+        "Active Vehicles",
+        "Inactive Vehicles",
+        "Total Drivers",
+        "Issues Resolved",
+        "New Issues",
+        "Trucks",
+        "Cars",
+        "Vans",
+      ]);
+    }, []));
+  
     const vehicleData = {
-      TotalVehicles: totalVehicles,
-      ActiveVehicles: activeVehicles,
-      InactiveVehicles: inactiveVehicles,
-      TotalDrivers:totalDrivers,
-      IssuesResolved: 150,
-      NewIssues: 20,
+      [translatedText["Total Vehicles"] || "Total Vehicles"]: totalVehicles,
+      [translatedText["Active Vehicles"] || "Active Vehicles"]: activeVehicles,
+      [translatedText["Inactive Vehicles"] || "Inactive Vehicles"]: inactiveVehicles,
+      [translatedText["Total Drivers"] || "Total Drivers"]: totalDrivers,
+      [translatedText["Issues Resolved"] || "Issues Resolved"]: 150,
+      [translatedText["New Issues"] || "New Issues"]: 20,
       vehicleCategories: {
-        trucks: 20, // You can dynamically calculate these if needed
-        cars: 25,
-        vans: 5,
+        [translatedText["Trucks"] || "Trucks"]: 20,
+        [translatedText["Cars"] || "Cars"]: 25,
+        [translatedText["Vans"] || "Vans"]: 5,
       },
       monthlyComparison: [
-        { month: 'Jan', resolved: 20, new: 10 },
-        { month: 'Feb', resolved: 25, new: 15 },
-        { month: 'Mar', resolved: 30, new: 20 },
+        {
+          month: translatedText["Jan"] || "Jan",
+          resolved: 20,
+          new: 10,
+        },
+        {
+          month: translatedText["Feb"] || "Feb",
+          resolved: 25,
+          new: 15,
+        },
+        {
+          month: translatedText["Mar"] || "Mar",
+          resolved: 30,
+          new: 20,
+        },
       ],
     };
+    
+    
   
     const chartConfig = {
-      backgroundGradientFrom: '#ffffff',
-      backgroundGradientTo: '#ffffff',
+      backgroundGradientFrom: "#ffffff",
+      backgroundGradientTo: "#ffffff",
       color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
       barPercentage: 0.7,
       labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -70,24 +105,24 @@
   
     const pieData = [
       {
-        name: 'Trucks',
+        name: translatedText["Trucks"] || "Trucks",
         count: vehicleData.vehicleCategories.trucks,
-        color: '#8464a0',
-        legendFontColor: '#333',
+        color: "#8464a0",
+        legendFontColor: "#333",
         legendFontSize: 15,
       },
       {
-        name: 'Cars',
+        name: translatedText["Cars"] || "Cars",
         count: vehicleData.vehicleCategories.cars,
-        color: '#0a417a',
-        legendFontColor: '#333',
+        color: "#0a417a",
+        legendFontColor: "#333",
         legendFontSize: 15,
       },
       {
-        name: 'Vans',
+        name: translatedText["Vans"] || "Vans",
         count: vehicleData.vehicleCategories.vans,
-        color: '#cea9bc',
-        legendFontColor: '#333',
+        color: "#cea9bc",
+        legendFontColor: "#333",
         legendFontSize: 15,
       },
     ];
@@ -113,29 +148,31 @@
           </TouchableOpacity>
           <Text style={styles.title}>TyreWhizz</Text>
         </View>
-  
+    
         {/* Role Information */}
         <View style={styles.roleContainer}>
-          <Text style={styles.role}>Logged in as: Organization</Text>
+          <Text style={styles.role}>{translatedText["Logged in as: Organization"] || "Logged in as: Organization"}</Text>
         </View>
-  
+    
         {/* Analytics Section */}
         <View style={styles.contentContainer}>
-          <Text style={styles.subtitle}>Organisation Analytics</Text>
-  
+          <Text style={styles.subtitle}>{translatedText["Organisation Analytics"] || "Organisation Analytics"}</Text>
+    
           {/* Metrics */}
           <View style={styles.metricsContainer}>
             {Object.entries(vehicleData).slice(0, 5).map(([key, value], index) => (
               <View key={index} style={styles.metricCard}>
-                <Text style={styles.metricText}>{key.replace(/([A-Z])/g, ' $1')}</Text>
+                <Text style={styles.metricText}>
+                  {translatedText[key] || key.replace(/([A-Z])/g, " $1")}
+                </Text>
                 <Text style={styles.metricValue}>{value}</Text>
               </View>
             ))}
           </View>
-  
+    
           {/* Charts */}
           <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Vehicle Categories</Text>
+            <Text style={styles.chartTitle}>{translatedText["Vehicle Categories"] || "Vehicle Categories"}</Text>
             <PieChart
               data={pieData}
               width={screenWidth - 40}
@@ -146,9 +183,9 @@
               paddingLeft="15"
             />
           </View>
-  
+    
           <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Monthly Issue Comparison</Text>
+            <Text style={styles.chartTitle}>{translatedText["Monthly Issue Comparison"] || "Monthly Issue Comparison"}</Text>
             <BarChart
               data={barData}
               width={screenWidth - 40}
@@ -160,6 +197,7 @@
         </View>
       </ScrollView>
     );
+    
   };
   
 
