@@ -74,13 +74,13 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post(`${API_URL}/api/signup`, data);
+        const response = await axios.post("http://localhost:5000/api/signup", data);
         showModal(response.data.message, false);
         setIsSignup(false);
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-        setTimeout(() => navigation.replace("LoginPage", { userType }), 3000);
+       setIsSignup(false);
       } catch (error) {
         showModal(error.response?.data?.error || "Signup failed. Please try again.", true);
       }
@@ -88,7 +88,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/login`, data);
+      const response = await axios.post("http://localhost:5000/api/login", data);
       showModal(response.data.message, false);
 
       const { userType } = response.data;

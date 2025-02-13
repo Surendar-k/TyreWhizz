@@ -29,15 +29,19 @@ const DriverPage = () => {
     ]);
   }, []));
 
-  const navigateToIndividualDriver = () => {
+  const navigateToIndividualDriverDashboardPage = () => {
     setModalVisible(false);
-    navigation.navigate("IndividualDriverPage"); 
+    navigation.navigate("IndividualDriverDashboardPage");
   };
 
-  const navigateToProfessionalDriver = () => {
+  const navigateToProfessionalDriverDashboardPage = () => {
     setModalVisible(false);
-    navigation.navigate("ProfessionalDriverPage"); 
+    navigation.navigate("ProfessionalDriverDashboardPage");
   };
+
+  useEffect(() => {
+    setModalVisible(true);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -58,7 +62,7 @@ const DriverPage = () => {
 
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={navigateToIndividualDriver}
+              onPress={navigateToIndividualDriverDashboardPage}
             >
               <Text style={styles.optionButtonText}>
                 {translatedText["Individual Driver"] || "Individual Driver"}
@@ -67,7 +71,7 @@ const DriverPage = () => {
 
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={navigateToProfessionalDriver}
+              onPress={navigateToProfessionalDriverDashboardPage}
             >
               <Text style={styles.optionButtonText}>
                 {translatedText["Professional Driver"] || "Professional Driver"}

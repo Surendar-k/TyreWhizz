@@ -1,50 +1,81 @@
-  import React, { useEffect, useState } from 'react';
-  import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-  import { useNavigation } from '@react-navigation/native';
-  import { BarChart, PieChart } from 'react-native-chart-kit';
-  import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
-  import { useFocusEffect } from '@react-navigation/native';
-  // const API_URL=process.env.API_URL;
-  
-  const OrganisationAnalytics = () => {
-    const navigation = useNavigation();
-    const screenWidth = Dimensions.get('window').width;
-    const { translatedText, updateTranslations } = useTranslation(); // ✅ Add translation support
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { BarChart, PieChart } from 'react-native-chart-kit';
+import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
+import { useFocusEffect } from '@react-navigation/native';
 
-  
-    // State to store real-time data
-    const [totalVehicles, setTotalVehicles] = useState(0);
-    const [totalDrivers, setTotalDrivers] = useState(0);
-    const [activeVehicles, setActiveVehicles] = useState(0);
-    const [inactiveVehicles, setInactiveVehicles] = useState(0);
-  
-    // Fetch data from API
-    useEffect(() => {
-      const fetchFleetData = async () => {
-        try {
-          const vehicleResponse = await fetch("http://localhost:5000/api/vehicles");
-          const driverResponse = await fetch("http://localhost:5000/api/drivers");
-  
-          const vehicleData = await vehicleResponse.json();
-          const driverData = await driverResponse.json();
-  
-          // Update state with real-time values
-          setTotalVehicles(vehicleData.length);
-          setTotalDrivers(driverData.length);
-  
-          // Example logic to determine active/inactive vehicles
-          const active = vehicleData.filter(vehicle => vehicle.status === 'active').length;
-          setActiveVehicles(active);
-          setInactiveVehicles(vehicleData.length - active);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-  
-      fetchFleetData();
-    }, []);
-  
-     useFocusEffect(React.useCallback(() =>{
+const OrganisationAnalytics = () => {
+  const navigation = useNavigation();
+  const screenWidth = Dimensions.get('window').width;
+  const { translatedText, updateTranslations } = useTranslation();
+
+  // **State Definitions**
+  const [totalVehicles, setTotalVehicles] = useState(0);
+  const [totalDrivers, setTotalDrivers] = useState(0);
+  const [activeVehicles, setActiveVehicles] = useState(0);
+  const [inactiveVehicles, setInactiveVehicles] = useState(0);
+  const [vehicleCategories, setVehicleCategories] = useState({
+    trucks: 0,
+    cars: 0,
+    vans: 0,
+  });
+
+  // **Fetch Data on Component Mount**
+  useEffect(() => {
+    const fetchFleetData = async () => {
+      try {
+        const vehicleResponse = await fetch("http://localhost:5000/api/vehicles");
+        const driverResponse = await fetch("http://localhost:5000/api/drivers");
+
+        const vehicleData = await vehicleResponse.json();
+        const driverData = await driverResponse.json();
+
+        setTotalVehicles(vehicleData.length);
+        setTotalDrivers(driverData.length);
+
+        const active = vehicleData.filter(vehicle => vehicle.status === 'active').length;
+        setActiveVehicles(active);
+        setInactiveVehicles(vehicleData.length - active);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchFleetData();
+  }, []);
+
+  useEffect(() => {
+    const fetchVehicleData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/vehicles");
+        const vehicleData = await response.json();
+
+        // **Process Vehicle Category Data**
+        const categoryCounts = vehicleData.reduce((acc, vehicle) => {
+          const type = vehicle.type?.toLowerCase(); // Ensure lowercase consistency
+          acc[type] = (acc[type] || 0) + 1;
+          return acc;
+        }, {});
+
+        // **Update State**
+        setVehicleCategories({
+          trucks: categoryCounts["truck"] || 0,
+          cars: categoryCounts["car"] || 0,
+          vans: categoryCounts["van"] || 0,
+        });
+
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    };
+
+    fetchVehicleData();
+  }, []);
+
+  // **Update Translations**
+  useFocusEffect(
+    React.useCallback(() => {
       updateTranslations([
         "Organisation Analytics",
         "Logged in as: Organization",
@@ -60,119 +91,107 @@
         "Cars",
         "Vans",
       ]);
-    }, []));
-  
-    const vehicleData = {
-      [translatedText["Total Vehicles"] || "Total Vehicles"]: totalVehicles,
-      [translatedText["Active Vehicles"] || "Active Vehicles"]: activeVehicles,
-      [translatedText["Inactive Vehicles"] || "Inactive Vehicles"]: inactiveVehicles,
-      [translatedText["Total Drivers"] || "Total Drivers"]: totalDrivers,
-      [translatedText["Issues Resolved"] || "Issues Resolved"]: 150,
-      [translatedText["New Issues"] || "New Issues"]: 20,
-      vehicleCategories: {
-        [translatedText["Trucks"] || "Trucks"]: 20,
-        [translatedText["Cars"] || "Cars"]: 25,
-        [translatedText["Vans"] || "Vans"]: 5,
-      },
-      monthlyComparison: [
-        {
-          month: translatedText["Jan"] || "Jan",
-          resolved: 20,
-          new: 10,
-        },
-        {
-          month: translatedText["Feb"] || "Feb",
-          resolved: 25,
-          new: 15,
-        },
-        {
-          month: translatedText["Mar"] || "Mar",
-          resolved: 30,
-          new: 20,
-        },
-      ],
-    };
-    
-    
-  
-    const chartConfig = {
-      backgroundGradientFrom: "#ffffff",
-      backgroundGradientTo: "#ffffff",
-      color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
-      barPercentage: 0.7,
-      labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    };
-  
-    const pieData = [
+    }, [])
+  );
+
+  // **Pie Chart Data**
+  const pieData = [
+    {
+      name: translatedText["Trucks"] || "Trucks",
+      count: vehicleCategories.trucks,
+      color: "#8464a0",
+      legendFontColor: "#333",
+      legendFontSize: 15,
+    },
+    {
+      name: translatedText["Cars"] || "Cars",
+      count: vehicleCategories.cars,
+      color: "#0a417a",
+      legendFontColor: "#333",
+      legendFontSize: 15,
+    },
+    {
+      name: translatedText["Vans"] || "Vans",
+      count: vehicleCategories.vans,
+      color: "#cea9bc",
+      legendFontColor: "#333",
+      legendFontSize: 15,
+    },
+  ];
+
+  const barData = {
+    labels: ["Jan", "Feb", "Mar"],
+    datasets: [
       {
-        name: translatedText["Trucks"] || "Trucks",
-        count: vehicleData.vehicleCategories.trucks,
-        color: "#8464a0",
-        legendFontColor: "#333",
-        legendFontSize: 15,
+        data: [20, 25, 30], // Issues Resolved
       },
       {
-        name: translatedText["Cars"] || "Cars",
-        count: vehicleData.vehicleCategories.cars,
-        color: "#0a417a",
-        legendFontColor: "#333",
-        legendFontSize: 15,
+        data: [10, 15, 20], // New Issues
       },
-      {
-        name: translatedText["Vans"] || "Vans",
-        count: vehicleData.vehicleCategories.vans,
-        color: "#cea9bc",
-        legendFontColor: "#333",
-        legendFontSize: 15,
-      },
-    ];
-  
-    const barData = {
-      labels: vehicleData.monthlyComparison.map((data) => data.month),
-      datasets: [
-        {
-          data: vehicleData.monthlyComparison.map((data) => data.resolved),
-        },
-        {
-          data: vehicleData.monthlyComparison.map((data) => data.new),
-        },
-      ],
-    };
-  
-    return (
-      <ScrollView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.backButtonText}>←</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>TyreWhizz</Text>
-        </View>
-    
-        {/* Role Information */}
-        <View style={styles.roleContainer}>
-          <Text style={styles.role}>{translatedText["Logged in as: Organization"] || "Logged in as: Organization"}</Text>
-        </View>
-    
-        {/* Analytics Section */}
-        <View style={styles.contentContainer}>
-          <Text style={styles.subtitle}>{translatedText["Organisation Analytics"] || "Organisation Analytics"}</Text>
-    
-          {/* Metrics */}
-          <View style={styles.metricsContainer}>
-            {Object.entries(vehicleData).slice(0, 5).map(([key, value], index) => (
-              <View key={index} style={styles.metricCard}>
-                <Text style={styles.metricText}>
-                  {translatedText[key] || key.replace(/([A-Z])/g, " $1")}
-                </Text>
-                <Text style={styles.metricValue}>{value}</Text>
-              </View>
-            ))}
+    ],
+  };
+
+  const chartConfig = {
+    backgroundGradientFrom: "#ffffff",
+    backgroundGradientTo: "#ffffff",
+    color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
+    barPercentage: 0.7,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>TyreWhizz</Text>
+      </View>
+
+      {/* Role Information */}
+      <View style={styles.roleContainer}>
+        <Text style={styles.role}>
+          {translatedText["Logged in as: Organization"] || "Logged in as: Organization"}
+        </Text>
+      </View>
+
+      {/* Analytics Section */}
+      <View style={styles.contentContainer}>
+        <Text style={styles.subtitle}>
+          {translatedText["Organisation Analytics"] || "Organisation Analytics"}
+        </Text>
+
+        {/* Vehicle Stats */}
+        <View style={styles.metricsContainer}>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricText}>
+              {translatedText["Total Vehicles"] || "Total Vehicles"}
+            </Text>
+            <Text style={styles.metricValue}>{totalVehicles}</Text>
           </View>
-    
-          {/* Charts */}
-          <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>{translatedText["Vehicle Categories"] || "Vehicle Categories"}</Text>
+
+          <View style={styles.metricCard}>
+            <Text style={styles.metricText}>
+              {translatedText["Active Vehicles"] || "Active Vehicles"}
+            </Text>
+            <Text style={styles.metricValue}>{activeVehicles}</Text>
+          </View>
+
+          <View style={styles.metricCard}>
+            <Text style={styles.metricText}>
+              {translatedText["Inactive Vehicles"] || "Inactive Vehicles"}
+            </Text>
+            <Text style={styles.metricValue}>{inactiveVehicles}</Text>
+          </View>
+        </View>
+
+        {/* Pie Chart */}
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>
+            {translatedText["Vehicle Categories"] || "Vehicle Categories"}
+          </Text>
+          {vehicleCategories.trucks + vehicleCategories.cars + vehicleCategories.vans > 0 ? (
             <PieChart
               data={pieData}
               width={screenWidth - 40}
@@ -182,23 +201,30 @@
               backgroundColor="transparent"
               paddingLeft="15"
             />
-          </View>
-    
-          <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>{translatedText["Monthly Issue Comparison"] || "Monthly Issue Comparison"}</Text>
-            <BarChart
-              data={barData}
-              width={screenWidth - 40}
-              height={220}
-              chartConfig={chartConfig}
-              verticalLabelRotation={30}
-            />
-          </View>
+          ) : (
+            <Text>No data available</Text>
+          )}
         </View>
-      </ScrollView>
-    );
-    
-  };
+
+        {/* Bar Chart */}
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>
+            {translatedText["Monthly Issue Comparison"] || "Monthly Issue Comparison"}
+          </Text>
+          <BarChart
+            data={barData}
+            width={screenWidth - 40}
+            height={220}
+            chartConfig={chartConfig}
+            verticalLabelRotation={30}
+          />
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
+
+
   
 
 const styles = StyleSheet.create({

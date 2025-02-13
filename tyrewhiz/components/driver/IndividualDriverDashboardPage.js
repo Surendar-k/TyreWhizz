@@ -12,13 +12,14 @@ import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import IndividualDriverMessages from "./IndividualDriverMessages";
+import IndividualDriverNotifications from "./IndividualDriverNotifications";
 import { useTranslation } from "../TranslationContext";
 import { useFocusEffect } from "@react-navigation/native";
-
 const cartopimg = require("../../assets/car-top-view.png");
 const defaultImage = require("../../assets/logo.png");
 
-const IndividualDriverPage = () => {
+const IndividualDriverDashboardPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [driverName, setDriverName] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
@@ -29,8 +30,18 @@ const IndividualDriverPage = () => {
   const [recentConnections, setRecentConnections] = useState([]);
   const [vehicleType, setVehicleType] = useState("4wheeler"); // Default vehicle type
   const navigation = useNavigation();
-  const { translatedText,updateTranslations } = useTranslation(); // ✅ Import global translations
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
   
+     useFocusEffect(React.useCallback(() =>{
+      updateTranslations([
+        "Logged in as: Driver","Edit Profile","Messages","Select Vehicle Type","2-Wheeler","4-Wheeler","6-Wheeler","8-Wheeler",
+        "Add Pair Connection","Recent Paired Connections:","Pair","Delete","No recent connections.","Select Pairing Method","Manual","Auto Pair",
+        "Manual Pairing","Connect","Auto Pairing","Connection in progress...",
+        "Upload Images (License, RC, etc.)","Driver Details","Driver Name","Vehicle No","Upload Profile Picture","Save","Logout",
+         "Notifications" ,"Enter Driver Name","Enter Vehicle No" ,"Sensor ID/Vehicle ID"
+      ]);
+    },[]));
+
   const [messages] = useState([
     {
       id: 1,
@@ -103,20 +114,6 @@ const IndividualDriverPage = () => {
     rearRight: "",
   });
 
-  useFocusEffect(React.useCallback(() =>{
-    updateTranslations([
-      "Please fill all tire sensor IDs",
-      "Permissions Required",
-      "This app needs access to your gallery to pick images",
-      "Driver details saved successfully!","This app needs access to your gallery to pick images","Edit Profile",
-      "Logged in as: Driver","Notifications","Pair","Messages","No notifications available","Select Vehicle Type",
-      "2-Wheeler","4-Wheeler","6-Wheeler","8-Wheeler","Select Pairing Method","Manual","Auto","Manual Pairing","Auto Pairing",
-      "Connect","Driver Details","Driver Name","Vehicle No","Upload Profile Picture","Enter Driver Name","Enter Vehicle No",
-      "Sensor ID/Vehicle ID","Add Pair Connection","Recent Paired Connections:","Delete","No recent connections.",
-      "Connection in progress...","Upload Images(License,RC,etc.)","Save","Logout"
-    ])
-  }));
-
   // Function to handle pair button click
   const handlePairClick = (index) => {
     setSelectedConnectionIndex(index);
@@ -153,11 +150,11 @@ const IndividualDriverPage = () => {
 
   // Function to handle manual connection
   const handleManualConnect = () => {
-    // ✅ Validate all tire sensors are filled
+    // Validate all tire sensors are filled
     if (Object.values(manualTireSensors).some((value) => !value)) {
-      alert(translatedText["Please fill all tire sensor IDs"] || "Please fill all tire sensor IDs");
+      alert("Please fill all tire sensor IDs");
       return;
-    }  
+    }
 
     // Update the connection status
     const updatedConnections = [...recentConnections];
@@ -183,21 +180,6 @@ const IndividualDriverPage = () => {
   };
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
-  };
-  const requestPermissions = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: translatedText["Permissions Required"]||"Permissions Required",
-          message: translatedText["This app needs access to your gallery to pick images"]||"This app needs access to your gallery to pick images",
-        }
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
-    } catch (err) {
-      console.warn(err);
-      return false;
-    }
   };
   const pickImage = () => {
     launchImageLibrary(
@@ -239,7 +221,7 @@ const IndividualDriverPage = () => {
     );
   };
   const saveDriverDetails = () => {
-    alert(translatedText["Driver details saved successfully!"]||"Driver details saved successfully!");
+    alert("Driver details saved successfully!");
     toggleModal();
   };
   const handleLogout = () => {
@@ -277,11 +259,9 @@ const IndividualDriverPage = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.roleContainer}>
-                      <Text style={styles.role}>{translatedText["Logged in as: Driver"]||"Logged in as: Driver"}</Text>
-                    </View>
+        <Text style={styles.role}>{translatedText["Logged in as: Driver"]||"Logged in as: Driver"}</Text>
+      </View>
       <View style={styles.tabsContainer}>
-        {/*list of tabs*/}
-        {/* Notifications Tab */}
         <TouchableOpacity
           style={[
             styles.tab,
@@ -295,11 +275,10 @@ const IndividualDriverPage = () => {
               selectedTab === "notifications" && styles.selectedTabText,
             ]}
           >
-            {translatedText["Notifications"]||"Notifications"}
+           {translatedText["Notifications"]||"Notifications"}
           </Text>
         </TouchableOpacity>
 
-        {/* Pair Connection Tab */}
         <TouchableOpacity
           style={[
             styles.tab,
@@ -317,7 +296,6 @@ const IndividualDriverPage = () => {
           </Text>
         </TouchableOpacity>
 
-        {/* Messages Tab */}
         <TouchableOpacity
           style={[styles.tab, selectedTab === "messages" && styles.selectedTab]}
           onPress={() => setSelectedTab("messages")}
@@ -328,60 +306,19 @@ const IndividualDriverPage = () => {
               selectedTab === "messages" && styles.selectedTabText,
             ]}
           >
-           {translatedText["Messages"]||"Messages"}
+            {translatedText["Messages"]||"Messages"}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tab Content */}
-
       {/*message content*/}
-
       {selectedTab === "messages" && (
-        <View style={styles.tabContent}>
-          <View style={styles.contentContainer}>
-            {messages.map((message) => (
-              <View
-                key={message.id}
-                style={[styles.messageItem, message.unread && styles.unread]}
-              >
-                <View style={styles.messageHeader}>
-                  <Text style={styles.messageSender}>{message.sender}</Text>
-                  <Text style={styles.messageTime}>{message.time}</Text>
-                </View>
-                <Text style={styles.messageText}>{message.message}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
+        <IndividualDriverMessages messages={messages} />
       )}
 
-      {/* Notifications Tab Content */}
       {selectedTab === "notifications" && (
-        <View style={styles.tabContent}>
-          <Text style={styles.notificationTitle}>{translatedText["Notifications"]||"Notifications"}</Text>
-          {/* Displaying the notifications list */}
-          {notifications.length > 0 ? (
-            <View style={styles.notificationsList}>
-              {notifications.map((notification, index) => (
-                <View key={index} style={styles.notificationItem}>
-                  <Text style={styles.notificationText}>
-                    {notification.message}
-                  </Text>
-                  <Text style={styles.notificationDate}>
-                    {notification.date}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.noNotifications}>
-              {translatedText["No notifications available"]||"No notifications available"}
-            </Text>
-          )}
-        </View>
+        <IndividualDriverNotifications notifications={notifications} />
       )}
-
       {/*pairconnection tab content */}
       {selectedTab === "pairConnection" && (
         <View style={styles.tabContent}>
@@ -412,7 +349,7 @@ const IndividualDriverPage = () => {
                 vehicleType === "6wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>{translatedText["6-Wheeler"]||"6-Wheeler"}</Text>
+              <Text style={styles.vehicleButtonText}>{translatedText["6-Wheeler"]||"2-Wheeler"}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("8wheeler")}
@@ -421,7 +358,7 @@ const IndividualDriverPage = () => {
                 vehicleType === "8wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>{translatedText["8-Wheeler"]||"8-Wheeler"}</Text>
+              <Text style={styles.vehicleButtonText}>{translatedText["8-Wheeler"]||"2-Wheeler"}</Text>
             </TouchableOpacity>
           </View>
 
@@ -445,41 +382,40 @@ const IndividualDriverPage = () => {
             <View style={styles.recentConnectionsList}>
               {recentConnections.map((connection, index) => (
                 <View key={index} style={styles.recentConnectionItem}>
-                    <View>
-                      <Text>
-                        {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
+                  <View>
+                    <Text>
+                      {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
+                    </Text>
+                    <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
+                    <Text>
+                      Status:{" "}
+                      <Text style={styles.pairStatus}>
+                        {connection.paired ? "Paired" : "Not Paired"}
                       </Text>
-                      <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
-                      <Text>
-                        Status:{" "}
-                        <Text style={styles.pairStatus}>
-                          {connection.paired ? "Paired" : "Not Paired"}
-                        </Text>
-                      </Text>
-                      <View style={styles.buttonContainer}>
-                        {!connection.paired && (
-                          <TouchableOpacity
-                            onPress={() => handlePairClick(index)}
-                            style={styles.pairButton}
-                          >
-                            <Text style={styles.pairButtonText}>{translatedText["Pair"]||"Pair"}</Text>
-                          </TouchableOpacity>
-                        )}
+                    </Text>
+                    <View style={styles.buttonContainer}>
+                      {!connection.paired && (
                         <TouchableOpacity
-                          onPress={() => handleDeleteConnection(index)}
-                          style={styles.deleteButton}
+                          onPress={() => handlePairClick(index)}
+                          style={styles.pairButton}
                         >
-                          <Text style={styles.deleteButtonText}>{translatedText["Delete"]||"Delete"}</Text>
+                          <Text style={styles.pairButtonText}>{translatedText["Pair"]||"Pair"}</Text>
                         </TouchableOpacity>
-                      </View>
+                      )}
+                      <TouchableOpacity
+                        onPress={() => handleDeleteConnection(index)}
+                        style={styles.deleteButton}
+                      >
+                        <Text style={styles.deleteButtonText}>{translatedText["Delete"]||"Delete"}</Text>
+                      </TouchableOpacity>
                     </View>
+                  </View>
                 </View>
               ))}
             </View>
           ) : (
             <Text>{translatedText["No recent connections."]||"No recent connections."}</Text>
-          )
-          }
+          )}
         </View>
       )}
 
@@ -657,7 +593,7 @@ const IndividualDriverPage = () => {
 
           <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
             <Text style={styles.uploadButtonText}>
-            {translatedText["Upload Images (License, RC, etc.)"]||"Upload Images (License, RC, etc.)"}
+              {translatedText["Upload Images (License, RC, etc.)"]||"Upload Images (License, RC, etc.)"}
             </Text>
           </TouchableOpacity>
           {uploadedImages.length > 0 && (
@@ -776,8 +712,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
-  roleContainer: { padding: 10, backgroundColor: 'rgb(245, 245, 245)', alignItems: 'center' },
-  role: { fontSize: 18, color: 'rgb(42 10 62)' },
+  roleContainer: {
+    padding: 10,
+    backgroundColor: "rgb(245, 245, 245)",
+    alignItems: "center",
+  },
+  role: { fontSize: 18, color: "rgb(42 10 62)" },
   profileSection: {
     alignItems: "center",
     paddingRight: 20,
@@ -1257,9 +1197,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center", // Center the text
-    
   },
 });
 
-
-export default IndividualDriverPage;
+export default IndividualDriverDashboardPage;
