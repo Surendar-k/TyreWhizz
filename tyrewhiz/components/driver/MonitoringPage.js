@@ -11,6 +11,8 @@ import {
 import { CircularProgress } from "react-native-circular-progress";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext"; // Import global translation context
 import axios from "axios"; // Ensure you have axios installed
 // const API_URL=process.env.API_URL;
 const cartopimg = require("../../assets/car-top-view.png");
@@ -20,6 +22,20 @@ const MonitoringPage = ({ navigation }) => {
   const [sensorData, setSensorData] = useState(null);
   const [loading, setLoading] = useState(true);
   const scrollViewRef = useRef(null);
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
+
+  useFocusEffect(
+    React.useCallback(() => {
+      updateTranslations([
+        "Loading data...",
+        "Unable to fetch sensor data. Please try again later.",
+        "Rendering temperature section",
+        "Rendering pressure section",
+        "Back",
+        "Select a Feature from the Footer",
+      ]);
+    }, [])
+  );
 
   const handleNearbyShops = () => {
     navigation.navigate("TechLocation");
@@ -65,13 +81,13 @@ const MonitoringPage = ({ navigation }) => {
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
-  
+
   const renderContent = () => {
     if (loading) {
       return (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#0000ff" />
-          <Text>Loading data...</Text>
+          <Text>{translatedText["Loading data..."] || "Loading data..."}</Text>
         </View>
       );
     }
@@ -79,7 +95,11 @@ const MonitoringPage = ({ navigation }) => {
     if (!sensorData || !sensorData.data || sensorData.data.length === 0) {
       return (
         <View style={styles.centered}>
-          <Text>Unable to fetch sensor data. Please try again later.</Text>
+          <Text>
+            {translatedText[
+              "Unable to fetch sensor data. Please try again later."
+            ] || "Unable to fetch sensor data. Please try again later."}
+          </Text>
         </View>
       );
     }
@@ -93,7 +113,11 @@ const MonitoringPage = ({ navigation }) => {
 
     switch (selectedFeature) {
       case "pressure":
-        console.log("Rendering pressure section", { pressure1, pressure2 });
+        console.log(
+          translatedText["Rendering pressure section"] ||
+            "Rendering pressure section",
+          { pressure1, pressure2 }
+        );
         return (
           <View style={styles.carImageContainer}>
             <Image source={cartopimg} style={styles.carImage} />
@@ -121,10 +145,14 @@ const MonitoringPage = ({ navigation }) => {
         );
 
       case "temperature":
-        console.log("Rendering temperature section", {
-          ambientTemp,
-          objectTemp,
-        });
+        console.log(
+          translatedText["Rendering temperature section"] ||
+            "Rendering temperature section",
+          {
+            ambientTemp,
+            objectTemp,
+          }
+        );
         return (
           <View style={styles.carImageContainer}>
             <Image source={cartopimg} style={styles.carImage} />
@@ -151,7 +179,8 @@ const MonitoringPage = ({ navigation }) => {
         return (
           <View style={styles.carImageContainer}>
             <Text style={styles.headerText}>
-              Select a Feature from the Footer
+              {translatedText["Select a Feature from the Footer"] ||
+                "Select a Feature from the Footer"}
             </Text>
           </View>
         );
@@ -161,7 +190,9 @@ const MonitoringPage = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.headerText}>Back</Text>
+          <Text style={styles.headerText}>
+            {translatedText["Back"] || "Back"}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.iconContainer}

@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useEffect,useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext"; // Import translation context
 
 const TechnicianPage = () => {
   const [isMenuVisible, setMenuVisible] = useState(false);
@@ -23,63 +25,120 @@ const TechnicianPage = () => {
   const navigation = useNavigation();
   const [hasCertificate, setHasCertificate] = useState("No");
   const [certificateFile, setCertificateFile] = useState(null);
+  const { translatedText, updateTranslations } = useTranslation();
+  useFocusEffect(React.useCallback(() => {
+    updateTranslations([
+      "System Update Available",
+      "A new system update is available. Please update your app to access the latest features.",
+      "New Connection Request",
+      "John Doe has sent you a request. He had issues on tire puncture.",
+      "Customer Feedback Alert",
+      "Feedback received for your recent service: 'Great job on tire replacement!' Keep up the good work!",
+      "Tire Puncture Repair Request",
+      "Repair requested for a punctured rear-right tire in Vehicle PY33 11574. ETA for the site: 30 mins",
+      "New Tire Replacement Request",
+      "You have a new tire replacement request for Vehicle TN25 1S107. Customer prefers service on 24 Dec at 11:00 AM.",
+      "Upcoming Maintenance",
+      "Reminder: You have 3 scheduled maintenance appointments next week.",
+      "Accepted", "Rejected",
+      "Permission Required",
+    "Camera access is required to capture vehicle images",
+    "OK",
+    "When can you check my car's tyres? I noticed some unusual wear patterns.",
+    "Thanks for the quick service yesterday! The ride feels much smoother now.",
+    "Your profile verification is complete. You can now access all premium features.",
+    "Is it possible to reschedule my appointment from Tuesday to Wednesday?",
+    "Could you provide a quote for a complete tire change for my SUV?",
+    "Monthly service report is ready for your review.",
+  "Tyre Expert", "5 years", "Basic", "Certificate", "Menu", "Edit", "Save", "Logout",
+  "Success", "Image captured successfully!", "Error", "Failed to capture image", "Connect with Your Customer's", "Connect to Vehicle", 
+  "Organization ID", "Vehicle ID", "Connect", "Connected Vehicles", "Organization", "Connected", "Monitor",
+  "Enter Vehicle ID", "Pair", "Notifications", "Connect", "Messages", "Accept ", "Reject", "Accepted", "Rejected", "No content available", "Logged in as: Technician",
+  "Menu", "Current Plan", "days left" ,"Subscription  Plans", "About TyreWhizz" ,"Profile", "Name", "Email", "Phone", "Specialization", "Experience",
+  "Certificate", "Yes", "No", "Upload Certificate" ,"Save Changes", "Edit Profile", "Logout","TyreWhizz"
+    ]);
+  }, []));
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: "1",
-      title: "System Update Available",
-      time: "2 hours ago",
-      message:
-        "A new system update is available. Please update your app to access the latest features.",
-      unread: true,
-      type: "info",
-    },
-    {
-      id: "2",
-      title: "New Connection Request",
-      time: "3 hours ago",
-      message:
-        "John Doe has sent you a request. He had issues on tire puncture.",
-      unread: false,
-      type: "request",
-    },
-    {
-      id: "3",
-      title: "Customer Feedback Alert",
-      time: "5 hours ago",
-      message:
-        "Feedback received for your recent service: 'Great job on tire replacement!' Keep up the good work!",
-      unread: true,
-      type: "info",
-    },
-    {
-      id: "4",
-      title: "Tire Puncture Repair Request",
-      time: "1 day ago",
-      message:
-        "Repair requested for a punctured rear-right tire in Vehicle PY33 11574. ETA for the site: 30 mins",
-      unread: false,
-      type: "request",
-    },
-    {
-      id: "5",
-      title: "New Tire Replacement Request",
-      time: "2 days ago",
-      message:
-        "You have a new tire replacement request for Vehicle TN25 1S107. Customer prefers service on 24 Dec at 11 : 00AM .",
-      unread: false,
-      type: "request",
-    },
-    {
-      id: "6",
-      title: "Upcoming Maintenance",
-      time: "2 days ago",
-      message:
-        "Reminder: You have 3 scheduled maintenance appointments next week.",
-      unread: false,
-      type: "info",
-    },
-  ]);
+
+  const [notifications, setNotifications] = useState([]);
+
+useEffect(() => {
+  if (Object.keys(translatedText).length > 0) {
+    setNotifications([
+      {
+        id: "1",
+        title: translatedText["System Update Available"] || "System Update Available",
+        time: "2 hours ago",
+        message:
+          translatedText[
+            "A new system update is available. Please update your app to access the latest features."
+          ] ||
+          "A new system update is available. Please update your app to access the latest features.",
+        unread: true,
+        type: "info",
+      },
+      {
+        id: "2",
+        title: translatedText["New Connection Request"] || "New Connection Request",
+        time: "3 hours ago",
+        message:
+          translatedText[
+            "John Doe has sent you a request. He had issues on tire puncture."
+          ] || "John Doe has sent you a request. He had issues on tire puncture.",
+        unread: false,
+        type: "request",
+      },
+      {
+        id: "3",
+        title: translatedText["Customer Feedback Alert"] || "Customer Feedback Alert",
+        time: "5 hours ago",
+        message:
+          translatedText[
+            "Feedback received for your recent service: 'Great job on tire replacement!' Keep up the good work!"
+          ] ||
+          "Feedback received for your recent service: 'Great job on tire replacement!' Keep up the good work!",
+        unread: true,
+        type: "info",
+      },
+      {
+        id: "4",
+        title: translatedText["Tire Puncture Repair Request"] || "Tire Puncture Repair Request",
+        time: "1 day ago",
+        message:
+          translatedText[
+            "Repair requested for a punctured rear-right tire in Vehicle PY33 11574. ETA for the site: 30 mins"
+          ] ||
+          "Repair requested for a punctured rear-right tire in Vehicle PY33 11574. ETA for the site: 30 mins",
+        unread: false,
+        type: "request",
+      },
+      {
+        id: "5",
+        title: translatedText["New Tire Replacement Request"] || "New Tire Replacement Request",
+        time: "2 days ago",
+        message:
+          translatedText[
+            "You have a new tire replacement request for Vehicle TN25 1S107. Customer prefers service on 24 Dec at 11:00 AM."
+          ] ||
+          "You have a new tire replacement request for Vehicle TN25 1S107. Customer prefers service on 24 Dec at 11:00 AM.",
+        unread: false,
+        type: "request",
+      },
+      {
+        id: "6",
+        title: translatedText["Upcoming Maintenance"] || "Upcoming Maintenance",
+        time: "2 days ago",
+        message:
+          translatedText[
+            "Reminder: You have 3 scheduled maintenance appointments next week."
+          ] ||
+          "Reminder: You have 3 scheduled maintenance appointments next week.",
+        unread: false,
+        type: "info",
+      },
+    ]);
+  }
+}, [translatedText]); // Re-run when translations update
 
   // Handle Accept Request
   const handleAcceptRequest = (id) => {
@@ -87,26 +146,26 @@ const TechnicianPage = () => {
     setNotifications((prevNotifications) =>
       prevNotifications.map((notification) =>
         notification.id === id
-          ? { ...notification, status: "accepted" }
+          ? { ...notification, status: translatedText["Accepted"] || "accepted" }
           : notification
       )
     );
     console.log("After accept:", notifications); // Log the state after the update
   };
-
+  
   // Handle Reject Request
   const handleRejectRequest = (id) => {
     console.log("Before reject:", notifications);
     setNotifications((prevNotifications) =>
       prevNotifications.map((notification) =>
         notification.id === id
-          ? { ...notification, status: "rejected" }
+          ? { ...notification, status: translatedText["Rejected"] || "rejected" }
           : notification
       )
     );
     console.log("After reject:", notifications);
   };
-
+  
   // Handle Delete Notification
   const handleDeleteNotification = (id) => {
     console.log("Before delete:", notifications);
@@ -115,295 +174,333 @@ const TechnicianPage = () => {
     );
     console.log("After delete:", notifications);
   };
+  
+  
   const [vehicleId, setVehicleId] = useState("");
 
-  const requestCameraPermission = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      handleImageCapture(); // Your method to capture or select images
-    } else {
-      Alert.alert(
-        "Permission Required",
+const requestCameraPermission = async () => {
+  const { status } = await ImagePicker.requestCameraPermissionsAsync();
+  if (status === "granted") {
+    handleImageCapture(); // Your method to capture or select images
+  } else {
+    Alert.alert(
+      translatedText["Permission Required"] || "Permission Required",
+      translatedText["Camera access is required to capture vehicle images"] ||
         "Camera access is required to capture vehicle images",
-        [{ text: "OK" }]
-      );
-    }
-  };
-  const requestWebcamPermission = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // Webcam is accessible
-      console.log("Webcam stream available");
-      // Use the stream for video capture or processing
-      handleWebcamCapture(stream);
-    } catch (error) {
-      console.error("Webcam access denied or unavailable", error);
-      alert("Camera access is required to capture vehicle images");
-    }
-  };
-  const requestCameraOrWebcamPermission = async () => {
-    if (Platform.OS === "web") {
-      // For web
-      await requestWebcamPermission();
-    } else {
-      // For mobile
-      await requestCameraPermission();
-    }
-  };
+      [{ text: translatedText["OK"] || "OK" }]
+    );
+  }
+};
 
-  const [messages] = useState([
-    {
-      id: 1,
-      sender: "Michael",
-      message:
-        "When can you check my car's tyres? I noticed some unusual wear patterns.",
-      time: "10:30 AM",
-      unread: true,
-    },
-    {
-      id: 2,
-      sender: "Arjun",
-      message:
-        "Thanks for the quick service yesterday! The ride feels much smoother now.",
-      time: "Yesterday",
-      unread: false,
-    },
-    {
-      id: 3,
-      sender: "Sachin",
-      message:
-        "Your profile verification is complete. You can now access all premium features.",
-      time: "2 days ago",
-      unread: false,
-    },
-    {
-      id: 4,
-      sender: "Sakthi",
-      message:
-        "Is it possible to reschedule my appointment from Tuesday to Wednesday?",
-      time: "3 days ago",
-      unread: false,
-    },
-    {
-      id: 5,
-      sender: "Shreya",
-      message:
-        "Could you provide a quote for a complete tire change for my SUV?",
-      time: "4 days ago",
-      unread: false,
-    },
-    {
-      id: 6,
-      sender: "Charan",
-      message: "Monthly service report is ready for your review.",
-      time: "5 days ago",
-      unread: false,
-    },
-  ]);
-  const [userData, setUserData] = useState({
-    name: "Arjun",
-    email: "Arjun@example.com",
-    phone: "+91 9857852471",
-    specialization: "Tyre Expert",
-    experience: "5 years",
-    currentPlan: "Basic",
-    daysLeft: 30,
-  });
+const requestWebcamPermission = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    console.log("Webcam stream available");
+    handleWebcamCapture(stream);
+  } catch (error) {
+    console.error("Webcam access denied or unavailable", error);
+    alert(
+      translatedText["Camera access is required to capture vehicle images"] ||
+        "Camera access is required to capture vehicle images"
+    );
+  }
+};
+
+const requestCameraOrWebcamPermission = async () => {
+  if (Platform.OS === "web") {
+    await requestWebcamPermission();
+  } else {
+    await requestCameraPermission();
+  }
+};
+
+const [messages] = useState([
+  {
+    id: 1,
+    sender: "Michael",
+    message:
+      translatedText[
+        "When can you check my car's tyres? I noticed some unusual wear patterns."
+      ] ||
+      "When can you check my car's tyres? I noticed some unusual wear patterns.",
+    time: "10:30 AM",
+    unread: true,
+  },
+  {
+    id: 2,
+    sender: "Arjun",
+    message:
+      translatedText[
+        "Thanks for the quick service yesterday! The ride feels much smoother now."
+      ] ||
+      "Thanks for the quick service yesterday! The ride feels much smoother now.",
+    time: "Yesterday",
+    unread: false,
+  },
+  {
+    id: 3,
+    sender: "Sachin",
+    message:
+      translatedText[
+        "Your profile verification is complete. You can now access all premium features."
+      ] ||
+      "Your profile verification is complete. You can now access all premium features.",
+    time: "2 days ago",
+    unread: false,
+  },
+  {
+    id: 4,
+    sender: "Sakthi",
+    message:
+      translatedText[
+        "Is it possible to reschedule my appointment from Tuesday to Wednesday?"
+      ] ||
+      "Is it possible to reschedule my appointment from Tuesday to Wednesday?",
+    time: "3 days ago",
+    unread: false,
+  },
+  {
+    id: 5,
+    sender: "Shreya",
+    message:
+      translatedText[
+        "Could you provide a quote for a complete tire change for my SUV?"
+      ] ||
+      "Could you provide a quote for a complete tire change for my SUV?",
+    time: "4 days ago",
+    unread: false,
+  },
+  {
+    id: 6,
+    sender: "Charan",
+    message:
+      translatedText["Monthly service report is ready for your review."] ||
+      "Monthly service report is ready for your review.",
+    time: "5 days ago",
+    unread: false,
+  },
+]);
+
+const [userData, setUserData] = useState({
+  name: "Arjun",
+  email: "Arjun@example.com",
+  phone: "+91 9857852471",
+  specialization: translatedText["Tyre Expert"] || "Tyre Expert",
+  experience: translatedText["5 years"] || "5 years",
+  currentPlan: translatedText["Basic"] || "Basic",
+  daysLeft: 30,
+});
 
   // Existing functions remain the same...
   const toggleMenu = () => setMenuVisible(!isMenuVisible);
-  const toggleProfile = () => {
-    setProfileVisible(!isProfileVisible);
-    setIsEditing(false);
-  };
+const toggleProfile = () => {
+  setProfileVisible(!isProfileVisible);
+  setIsEditing(false);
+};
 
-  const handleEdit = () => setIsEditing(!isEditing);
-  const handleSave = () => setIsEditing(false);
+const handleEdit = () => setIsEditing(!isEditing);
+const handleSave = () => setIsEditing(false);
 
-  const pickCertificate = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "/",
-    });
+const pickCertificate = async () => {
+  const result = await DocumentPicker.getDocumentAsync({
+    type: "/",
+  });
 
-    if (result.type === "success") {
-      setCertificateFile(result.uri);
-    }
-  };
+  if (result.type === "success") {
+    setCertificateFile(result.uri);
+  }
+};
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      title: "TyreWhizz",
-      headerStyle: {
-        backgroundColor: "#FF5733",
-      },
-      headerTintColor: "#fff",
-      headerLeft: () => (
-        <TouchableOpacity onPress={toggleMenu} style={styles.headerButton}>
-          <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <TouchableOpacity onPress={toggleProfile} style={styles.headerButton}>
-          <Ionicons name="person-circle" size={24} color="#fff" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+useLayoutEffect(() => {
+  navigation.setOptions({
+    title: translatedText["TyreWhizz"]||"TyreWhizz",
+    headerStyle: {
+      backgroundColor: "#FF5733",
+    },
+    headerTintColor: "#fff",
+    headerLeft: () => (
+      <TouchableOpacity onPress={toggleMenu} style={styles.headerButton}>
+        <Ionicons name="menu" size={24} color="#fff" />
+      </TouchableOpacity>
+    ),
+    headerRight: () => (
+      <TouchableOpacity onPress={toggleProfile} style={styles.headerButton}>
+        <Ionicons name="person-circle" size={24} color="#fff" />
+      </TouchableOpacity>
+    ),
+  });
+}, [navigation]);
 
-  const EditableField = ({ label, value, field }) => (
-    <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>{label}:</Text>
-      {isEditing ? (
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={(text) => setUserData({ ...userData, [field]: text })}
-        />
-      ) : (
-        <Text style={styles.fieldValue}>{value}</Text>
-      )}
-    </View>
-  );
-
-  const handleCertificateSelection = (selection) => {
-    setHasCertificate(selection);
-  };
-  const handleLogout = () => {
-    // Close the modal
-    setProfileVisible(false);
-    navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
-  };
-
-  const handleImageCapture = async () => {
-    try {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        Alert.alert("Success", "Image captured successfully!");
-      }
-    } catch (error) {
-      Alert.alert("Error", "Failed to capture image");
-    }
-  };
-  const renderConnectContent = () => (
-    <View style={styles.contentContainer}>
-      <Text style={styles.title}>Connect with Your Customer's</Text>
-
-      {/* Connection Tab Content */}
-      {selectedTab === "connection" && (
-        <View style={styles.tabContent}>
-          <View style={styles.connectionForm}>
-            <Text style={styles.formTitle}>Connect to Vehicle</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Organization ID"
-              value={orgId}
-              onChangeText={setOrgId}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Vehicle ID"
-              value={vehicleId}
-              onChangeText={setVehicleId}
-            />
-            <TouchableOpacity
-              style={styles.connectButton}
-              onPress={handleConnect}
-              disabled={isConnecting}
-            >
-              {isConnecting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.connectButtonText}>Connect</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Connected Vehicles List */}
-          {connectedVehicles.length > 0 && (
-            <View style={styles.connectedVehicles}>
-              <Text style={styles.sectionTitle}>Connected Vehicles</Text>
-              {connectedVehicles.map((vehicle, index) => (
-                <View key={index} style={styles.vehicleItem}>
-                  <View>
-                    <Text style={styles.vehicleText}>
-                      Organization: {vehicle.orgId}
-                    </Text>
-                    <Text style={styles.vehicleText}>
-                      Vehicle ID: {vehicle.vehicleId}
-                    </Text>
-                    <Text style={styles.timestampText}>
-                      Connected: {vehicle.timestamp}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.monitorButton}
-                    onPress={() =>
-                      navigation.navigate("MonitoringPage", vehicle)
-                    }
-                  >
-                    <Text style={styles.monitorButtonText}>Monitor</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      )}
-
+const EditableField = ({ label, value, field }) => (
+  <View style={styles.fieldContainer}>
+    <Text style={styles.fieldLabel}>{translatedText[label] || label}:</Text>
+    {isEditing ? (
       <TextInput
         style={styles.input}
-        placeholder="Enter Vehicle ID"
-        value={vehicleId}
-        onChangeText={setVehicleId}
+        value={value}
+        onChangeText={(text) => setUserData({ ...userData, [field]: text })}
       />
+    ) : (
+      <Text style={styles.fieldValue}>{value}</Text>
+    )}
+  </View>
+);
 
-      <TouchableOpacity
-        style={[styles.button, styles.pair]}
-        onPress={() =>
-          navigation.navigate("MonitoringPage", { vehicleId: vehicleId })
-        }
-      >
-        <Text style={styles.buttonText}>Pair</Text>
-      </TouchableOpacity>
-    </View>
-  );
+const handleCertificateSelection = (selection) => {
+  setHasCertificate(selection);
+};
 
-  const renderTabContent = () => {
-    switch (selectedTab) {
-      case "Notifications":
-        return (
-          <View style={styles.contentContainer}>
-            {notifications.map((notification) => (
-              <View
-                key={notification.id}
-                style={[
-                  styles.notificationItem,
-                  notification.unread && styles.unread,
-                ]}
-              >
-                <View style={styles.notificationHeader}>
-                  <Text style={styles.notificationTitle}>
-                    {notification.title}
+const handleLogout = () => {
+  setProfileVisible(false);
+  navigation.navigate("UserTypeSelectionPage");
+};
+const handleImageCapture = async () => {
+  try {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      Alert.alert(
+        translatedText["Success"] || "Success",
+        translatedText["Image captured successfully!"] || "Image captured successfully!"
+      );
+    }
+  } catch (error) {
+    Alert.alert(
+      translatedText["Error"] || "Error",
+      translatedText["Failed to capture image"] || "Failed to capture image"
+    );
+  }
+};
+
+const renderConnectContent = () => (
+  <View style={styles.contentContainer}>
+    <Text style={styles.title}>
+      {translatedText["Connect with Your Customer's"] || "Connect with Your Customer's"}
+    </Text>
+
+    {/* Connection Tab Content */}
+    {selectedTab === "connection" && (
+      <View style={styles.tabContent}>
+        <View style={styles.connectionForm}>
+          <Text style={styles.formTitle}>
+            {translatedText["Connect to Vehicle"] || "Connect to Vehicle"}
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder={translatedText["Organization ID"] || "Organization ID"}
+            value={orgId}
+            onChangeText={setOrgId}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder={translatedText["Vehicle ID"] || "Vehicle ID"}
+            value={vehicleId}
+            onChangeText={setVehicleId}
+          />
+          <TouchableOpacity
+            style={styles.connectButton}
+            onPress={handleConnect}
+            disabled={isConnecting}
+          >
+            {isConnecting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.connectButtonText}>
+                {translatedText["Connect"] || "Connect"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Connected Vehicles List */}
+        {connectedVehicles.length > 0 && (
+          <View style={styles.connectedVehicles}>
+            <Text style={styles.sectionTitle}>
+              {translatedText["Connected Vehicles"] || "Connected Vehicles"}
+            </Text>
+            {connectedVehicles.map((vehicle, index) => (
+              <View key={index} style={styles.vehicleItem}>
+                <View>
+                  <Text style={styles.vehicleText}>
+                    {translatedText["Organization"] || "Organization"}: {vehicle.orgId}
                   </Text>
-                  <TouchableOpacity
-                    onPress={() => handleDeleteNotification(notification.id)}
-                    style={styles.deleteButton}
-                  >
-                    <Ionicons
-                      name="close-circle-outline"
-                      size={24}
-                      color="#FF5733"
-                    />
-                  </TouchableOpacity>
+                  <Text style={styles.vehicleText}>
+                    {translatedText["Vehicle ID"] || "Vehicle ID"}: {vehicle.vehicleId}
+                  </Text>
+                  <Text style={styles.timestampText}>
+                    {translatedText["Connected"] || "Connected"}: {vehicle.timestamp}
+                  </Text>
                 </View>
-                <Text style={styles.notificationTime}>{notification.time}</Text>
-                <Text style={styles.notificationMessage}>
-                  {notification.message}
+                <TouchableOpacity
+                  style={styles.monitorButton}
+                  onPress={() => navigation.navigate("MonitoringPage", vehicle)}
+                >
+                  <Text style={styles.monitorButtonText}>
+                    {translatedText["Monitor"] || "Monitor"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
+    )}
+      <TextInput
+  style={styles.input}
+  placeholder={translatedText["Enter Vehicle ID"] || "Enter Vehicle ID"}
+  value={vehicleId}
+  onChangeText={setVehicleId}
+/>
+
+<TouchableOpacity
+  style={[styles.button, styles.pair]}
+  onPress={() =>
+    navigation.navigate("MonitoringPage", { vehicleId: vehicleId })
+  }
+>
+  <Text style={styles.buttonText}>
+    {translatedText["Pair"] || "Pair"}
+  </Text>
+</TouchableOpacity>
+</View>
+);
+
+  
+const renderTabContent = () => {
+  switch (selectedTab) {
+    case "Notifications":
+      return (
+        <View style={styles.contentContainer}>
+          {notifications.map((notification) => (
+            <View
+              key={notification.id}
+              style={[
+                styles.notificationItem,
+                notification.unread && styles.unread,
+              ]}
+            >
+              <View style={styles.notificationHeader}>
+                <Text style={styles.notificationTitle}>
+                  {notification.title}
                 </Text>
+                <TouchableOpacity
+                  onPress={() => handleDeleteNotification(notification.id)}
+                  style={styles.deleteButton}
+                >
+                  <Ionicons
+                    name="close-circle-outline"
+                    size={24}
+                    color="#FF5733"
+                  />
+                </TouchableOpacity>
+                </View>
+              <Text style={styles.notificationTime}>{notification.time}</Text>
+              <Text style={styles.notificationMessage}>
+                {notification.message}
+              </Text>
 
                 {notification.type === "request" && !notification.status && (
                   <View style={styles.actionButtons}>
@@ -417,7 +514,7 @@ const TechnicianPage = () => {
                       style={[styles.actionButton, styles.rejectButton]}
                       onPress={() => handleRejectRequest(notification.id)}
                     >
-                      <Text style={styles.actionButtonText}>Reject</Text>
+                      <Text style={styles.actionButtonText}>{translatedText["Reject"] || "Reject"}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -432,8 +529,8 @@ const TechnicianPage = () => {
                     ]}
                   >
                     {notification.status === "accepted"
-                      ? "Accepted"
-                      : "Rejected"}
+                      ? translatedText["Accepted"] || "Accepted"
+                      : translatedText["Rejected"] || "Rejected"}
                   </Text>
                 )}
               </View>
@@ -465,7 +562,7 @@ const TechnicianPage = () => {
       default:
         return (
           <View style={styles.contentContainer}>
-            <Text style={styles.tabContent}>No content available</Text>
+            <Text style={styles.tabContent}>{translatedText["No content available"] || "No content available"}</Text>
           </View>
         );
     }
@@ -485,7 +582,7 @@ const TechnicianPage = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.roleContainer}>
-                <Text style={styles.role}>Logged in as: Technician</Text>
+                <Text style={styles.role}> {translatedText["Logged in as: Technician"] || "Logged in as: Technician"}</Text>
               </View>
 
       <ScrollView>
@@ -498,7 +595,7 @@ const TechnicianPage = () => {
             onPress={() => setSelectedTab("Notifications")}
           >
             <Ionicons name="notifications" size={24} color="#FF5733" />
-            <Text style={styles.tabButtonText}>Notifications</Text>
+            <Text style={styles.tabButtonText}> {translatedText["Notifications"] || "Notifications"}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -508,7 +605,7 @@ const TechnicianPage = () => {
             onPress={() => setSelectedTab("Connect")}
           >
             <Ionicons name="people" size={24} color="#FF5733" />
-            <Text style={styles.tabButtonText}>Connect</Text>
+            <Text style={styles.tabButtonText}>{translatedText["Connect"] || "Connect"}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -518,7 +615,7 @@ const TechnicianPage = () => {
             onPress={() => setSelectedTab("Messages")}
           >
             <Ionicons name="mail" size={24} color="#FF5733" />
-            <Text style={styles.tabButtonText}>Messages</Text>
+            <Text style={styles.tabButtonText}>{translatedText["Messages"] || "Messages"}</Text>
           </TouchableOpacity>
         </View>
 
@@ -531,149 +628,158 @@ const TechnicianPage = () => {
           onRequestClose={toggleMenu}
         >
           <View style={styles.modalBackground}>
-            <View style={styles.menuContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Menu</Text>
-                <TouchableOpacity onPress={toggleMenu}>
-                  <Ionicons name="close" size={24} color="#FF5733" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.menuSection}>
-                <Text style={styles.menuSectionTitle}>Current Plan</Text>
-                <View style={styles.planInfo}>
-                  <Text style={styles.planType}>{userData.currentPlan}</Text>
-                  <Text style={styles.daysLeft}>
-                    {userData.daysLeft} days left
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.menuItem}>
-                <Ionicons name="card-outline" size={24} color="#FF5733" />
-                <Text style={styles.menuItemText}>Subscription Plans</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem}>
-                <Ionicons
-                  name="information-circle-outline"
-                  size={24}
-                  color="#FF5733"
-                />
-                <Text style={styles.menuItemText}>About TyreWhizz</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+  <View style={styles.menuContainer}>
+    <View style={styles.modalHeader}>
+      <Text style={styles.modalTitle}>
+        {translatedText["Menu"] || "Menu"}
+      </Text>
+      <TouchableOpacity onPress={toggleMenu}>
+        <Ionicons name="close" size={24} color="#FF5733" />
+      </TouchableOpacity>
+    </View>
+    <View style={styles.menuSection}>
+      <Text style={styles.menuSectionTitle}>
+        {translatedText["Current Plan"] || "Current Plan"}
+      </Text>
+      <View style={styles.planInfo}>
+        <Text style={styles.planType}>{userData.currentPlan}</Text>
+        <Text style={styles.daysLeft}>
+          {userData.daysLeft} {translatedText["days left"] || "days left"}
+        </Text>
+      </View>
+    </View>
+    <TouchableOpacity style={styles.menuItem}>
+      <Ionicons name="card-outline" size={24} color="#FF5733" />
+      <Text style={styles.menuItemText}>
+        {translatedText["Subscription Plans"] || "Subscription Plans"}
+      </Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.menuItem}>
+      <Ionicons name="information-circle-outline" size={24} color="#FF5733" />
+      <Text style={styles.menuItemText}>
+        {translatedText["About TyreWhizz"] || "About TyreWhizz"}
+      </Text>
+    </TouchableOpacity>
+  </View>
+</View>
+</Modal>
 
-        <Modal
-          visible={isProfileVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={toggleProfile}
-        >
-          <View style={styles.modalBackground}>
-            <View style={styles.profileContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Profile</Text>
-                <TouchableOpacity onPress={toggleProfile}>
-                  <Ionicons name="close" size={24} color="#FF5733" />
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={styles.profileContent}>
-                <View style={styles.profileImageContainer}>
-                  <Ionicons name="person-circle" size={80} color="#FF5733" />
-                </View>
-                <EditableField
-                  label="Name"
-                  value={userData.name}
-                  field="name"
-                />
-                <EditableField
-                  label="Email"
-                  value={userData.email}
-                  field="email"
-                />
-                <EditableField
-                  label="Phone"
-                  value={userData.phone}
-                  field="phone"
-                />
-                <EditableField
-                  label="Specialization"
-                  value={userData.specialization}
-                  field="specialization"
-                />
-                <EditableField
-                  label="Experience"
-                  value={userData.experience}
-                  field="experience"
-                />
+<Modal
+  visible={isProfileVisible}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={toggleProfile}
+>
+  <View style={styles.modalBackground}>
+    <View style={styles.profileContainer}>
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>
+          {translatedText["Profile"] || "Profile"}
+        </Text>
+        <TouchableOpacity onPress={toggleProfile}>
+          <Ionicons name="close" size={24} color="#FF5733" />
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={styles.profileContent}>
+        <View style={styles.profileImageContainer}>
+          <Ionicons name="person-circle" size={80} color="#FF5733" />
+        </View>
+        <EditableField
+          label={translatedText["Name"] || "Name"}
+          value={userData.name}
+          field="name"
+        />
+        <EditableField
+          label={translatedText["Email"] || "Email"}
+          value={userData.email}
+          field="email"
+        />
+        <EditableField
+          label={translatedText["Phone"] || "Phone"}
+          value={userData.phone}
+          field="phone"
+        />
+        <EditableField
+          label={translatedText["Specialization"] || "Specialization"}
+          value={userData.specialization}
+          field="specialization"
+        />
+        <EditableField
+          label={translatedText["Experience"] || "Experience"}
+          value={userData.experience}
+          field="experience"
+        />
 
-                <View style={styles.fieldContainer}>
-                  <Text style={styles.fieldLabel}>Certificate:</Text>
-                  {isEditing ? (
-                    <View style={styles.certSelection}>
-                      <TouchableOpacity
-                        onPress={() => handleCertificateSelection("Yes")}
-                        style={[
-                          styles.certButton,
-                          hasCertificate === "Yes" && styles.selectedButton,
-                        ]}
-                      >
-                        <Text style={styles.certButtonText}>Yes</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() => handleCertificateSelection("No")}
-                        style={[
-                          styles.certButton,
-                          hasCertificate === "No" && styles.selectedButton,
-                        ]}
-                      >
-                        <Text style={styles.certButtonText}>No</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <Text style={styles.fieldValue}>{hasCertificate}</Text>
-                  )}
-                  {hasCertificate === "Yes" && (
-                    <View style={styles.uploadContainer}>
-                      <Button
-                        title="Upload Certificate"
-                        onPress={pickCertificate}
-                      />
-                      {certificateFile && (
-                        <Image
-                          source={{ uri: certificateFile }}
-                          style={styles.uploadedImage}
-                        />
-                      )}
-                    </View>
-                  )}
-                </View>
+<View style={styles.fieldContainer}>
+  <Text style={styles.fieldLabel}>
+    {translatedText["Certificate"] || "Certificate"}:
+  </Text>
+  {isEditing ? (
+    <View style={styles.certSelection}>
+      <TouchableOpacity
+        onPress={() => handleCertificateSelection("Yes")}
+        style={[
+          styles.certButton,
+          hasCertificate === "Yes" && styles.selectedButton,
+        ]}
+      >
+        <Text style={styles.certButtonText}>
+          {translatedText["Yes"] || "Yes"}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => handleCertificateSelection("No")}
+        style={[
+          styles.certButton,
+          hasCertificate === "No" && styles.selectedButton,
+        ]}
+      >
+        <Text style={styles.certButtonText}>
+          {translatedText["No"] || "No"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  ) : (
+    <Text style={styles.fieldValue}>
+      {translatedText[hasCertificate] || hasCertificate}
+    </Text>
+  )}
+  {hasCertificate === "Yes" && (
+    <View style={styles.uploadContainer}>
+      <Button
+        title={translatedText["Upload Certificate"] || "Upload Certificate"}
+        onPress={pickCertificate}
+      />
+      {certificateFile && (
+        <Image source={{ uri: certificateFile }} style={styles.uploadedImage} />
+      )}
+    </View>
+  )}
+</View>
 
-                <View style={styles.buttonContainer}>
-                  {isEditing ? (
-                    <TouchableOpacity
-                      style={styles.saveButton}
-                      onPress={handleSave}
-                    >
-                      <Text style={styles.buttonText}>Save Changes</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={handleEdit}
-                    >
-                      <Text style={styles.buttonText}>Edit Profile</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                <View>
-                  <TouchableOpacity
-                    style={styles.logoutButton}
-                    onPress={handleLogout}
-                  >
-                    <Text style={styles.buttonText}>Logout</Text>
-                  </TouchableOpacity>
-                </View>
+<View style={styles.buttonContainer}>
+  {isEditing ? (
+    <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+      <Text style={styles.buttonText}>
+        {translatedText["Save Changes"] || "Save Changes"}
+      </Text>
+    </TouchableOpacity>
+  ) : (
+    <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+      <Text style={styles.buttonText}>
+        {translatedText["Edit Profile"] || "Edit Profile"}
+      </Text>
+    </TouchableOpacity>
+  )}
+</View>
+<View>
+  <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+    <Text style={styles.buttonText}>
+      {translatedText["Logout"] || "Logout"}
+    </Text>
+  </TouchableOpacity>
+</View>
+
               </ScrollView>
             </View>
           </View>

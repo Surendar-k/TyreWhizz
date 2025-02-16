@@ -13,6 +13,9 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 
+import { useTranslation } from "../TranslationContext";
+import { useFocusEffect } from "@react-navigation/native";
+// const API_URL = process.env.API_URL;
 const OrganisationDriverList = ({ navigation }) => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +31,43 @@ const OrganisationDriverList = ({ navigation }) => {
   });
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
+
+   useFocusEffect(React.useCallback(() =>{
+    updateTranslations([
+      "Logged in as: Organization",
+      "Search by Driver No",
+      "Add Driver",
+      "Name",
+      "Save",
+      "Driver No:",
+      "Vehicle No:",
+      "Contact:",
+      "Experience: {exp} years",
+      "Delete",
+      "Loading...",
+      "Delete Driver",
+      "Are you sure you want to delete this driver?",
+      "Cancel",
+      "Error",
+      "Failed to delete driver",
+      "Failed to connect to the server",
+      "Failed to fetch drivers",
+      "Error fetching drivers:",
+      "All fields are required to add a driver.",
+      "Failed to add driver",
+      "No driver selected for update",
+      "Failed to update driver",
+      "No drivers available.",
+      "Update Driver Details",
+      "Update",
+      "Name",
+      "Driver No",
+      "Vehicle No",
+      "Contact",
+      "Experience (in years)",
+    ]);
+  }, []));
 
   useEffect(() => {
     fetchDrivers();
@@ -76,7 +116,7 @@ const OrganisationDriverList = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://192.168.18.19:5000/api/drivers?user_id=${userId}`, // Correct query param
+        `http://192.168.10.16:5000/api/drivers?user_id=${userId}`, // Correct query param
         {
           method: "GET",
           headers: {
@@ -94,7 +134,7 @@ const OrganisationDriverList = ({ navigation }) => {
       setDrivers(data);
       setFilteredDrivers(data);
     } catch (error) {
-      console.error("Error fetching drivers:", error);
+      console.error(`${translatedText["Error fetching drivers:"] || "Error fetching drivers:"}`, error);
     } finally {
       setLoading(false);
     }
@@ -132,17 +172,17 @@ const OrganisationDriverList = ({ navigation }) => {
     }
 
     Alert.alert(
-      "Delete Driver",
-      "Are you sure you want to delete this driver?",
+      translatedText["Delete Driver"] || "Delete Driver",
+      translatedText["Are you sure you want to delete this driver?"] || "Are you sure you want to delete this driver?",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: translatedText["Cancel"] || "Cancel", style: "cancel" },
         {
-          text: "Delete",
+          text: translatedText["Delete"] || "Delete",
           style: "destructive",
           onPress: async () => {
             try {
               const response = await fetch(
-                `http://192.168.18.19:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
+                `http://192.168.10.16:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
                 {
                   method: "DELETE",
                   headers: {
@@ -163,7 +203,7 @@ const OrganisationDriverList = ({ navigation }) => {
               }
             } catch (error) {
               console.error("Error deleting driver:", error);
-              Alert.alert("Error", "Failed to connect to the server");
+              Alert.alert(translatedText["Error"] || "Error", translatedText["Failed to connect to the server"] || "Failed to connect to the server");
             }
           },
         },
@@ -185,7 +225,7 @@ const OrganisationDriverList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://192.168.18.19:5000/api/drivers", {
+      const response = await fetch("http://192.168.10.16:5000/api/drivers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -217,14 +257,14 @@ const OrganisationDriverList = ({ navigation }) => {
 
       setShowAddDriver(false);
     } catch (error) {
-      console.error("Error adding driver:", error);
-      Alert.alert("Error", "Failed to add driver");
+      console.error("Error during API call:", error);
+      Alert.alert(translatedText["Error"] || "Error", translatedText["Failed to connect to the server"] || "Failed to connect to the server");
     }
   };
 
   const updateDriver = async () => {
     if (!selectedDriver) {
-      Alert.alert("Error", "No driver selected for update");
+      Alert.alert(translatedText["Error"] || "Error", translatedText["No driver selected for update"] || "No driver selected for update");
       return;
     }
     try {
@@ -246,7 +286,7 @@ const OrganisationDriverList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://192.168.18.19:5000/api/drivers/${selectedDriver.id}`,
+        `http://192.168.10.16:5000/api/drivers/${selectedDriver.id}`,
         {
           method: "PUT",
           headers: {
@@ -262,11 +302,11 @@ const OrganisationDriverList = ({ navigation }) => {
         fetchDrivers(); // <--- This ensures UI updates immediately
         setModalVisible(false);
       } else {
-        Alert.alert("Error", "Failed to update driver");
+        Alert.alert(translatedText["Error"] || "Error", translatedText["Failed to update driver"] || "Failed to update driver");
       }
     } catch (error) {
       console.error("Error updating driver:", error);
-      Alert.alert("Error", "Failed to connect to the server");
+      Alert.alert(translatedText["Error"] || "Error", translatedText["Failed to connect to the server"] || "Failed to connect to the server");
     }
   };
 
@@ -289,18 +329,21 @@ const OrganisationDriverList = ({ navigation }) => {
         style={{ flex: 1 }}
       >
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.driverNo}>Driver No: {item.Driver_No}</Text>
-        <Text style={styles.Vehicle_No}>Vehicle No: {item.Vehicle_No}</Text>
-        <Text style={styles.contact}>Contact: {item.contact}</Text>
+        <Text style={styles.driverNo}>
+          {translatedText["Driver No:"] || "Driver No:"} {item.Driver_No}
+        </Text>
+        <Text style={styles.vehicleNo}>
+          {translatedText["Vehicle No:"] || "Vehicle No:"} {item.Vehicle_No}
+        </Text>
+        <Text style={styles.contact}>
+          {translatedText["Contact:"] || "Contact:"} {item.contact}
+        </Text>
         <Text style={{ fontSize: 16, color: "#666" }}>
-          Experience: {item.exp} years
+          {translatedText["Experience: {exp} years"]?.replace("{exp}", item.exp) || `Experience: ${item.exp} years`}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => deleteDriver(item.id)}
-        style={styles.deleteButton}
-      >
-        <Text style={styles.deleteText}>Delete</Text>
+      <TouchableOpacity onPress={() => deleteDriver(item.id)} style={styles.deleteButton}>
+        <Text style={styles.deleteText}>{translatedText["Delete"] || "Delete"}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -309,7 +352,7 @@ const OrganisationDriverList = ({ navigation }) => {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
-        <Text>Loading...</Text>
+        <Text>{translatedText["Loading..."] || "Loading..."}</Text>
       </View>
     );
   }
@@ -325,14 +368,18 @@ const OrganisationDriverList = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
       </View>
+
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>Logged in as: Organization</Text>
+        <Text style={styles.role}>
+          {translatedText["Logged in as: Organization"] || "Logged in as: Organization"}
+        </Text>
       </View>
+
       {/* Search and Add Driver Section */}
       <View style={styles.actionRow}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by Driver No"
+          placeholder={translatedText["Search by Driver No"] || "Search by Driver No"}
           value={searchText}
           onChangeText={(text) => {
             setSearchText(text);
@@ -343,7 +390,9 @@ const OrganisationDriverList = ({ navigation }) => {
           style={styles.addButton}
           onPress={() => setShowAddDriver(!showAddDriver)}
         >
-          <Text style={styles.addText}>Add Driver</Text>
+          <Text style={styles.addText}>
+            {translatedText["Add Driver"] || "Add Driver"}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -352,7 +401,7 @@ const OrganisationDriverList = ({ navigation }) => {
         <View style={styles.add}>
           <TextInput
             style={styles.input}
-            placeholder="Name"
+            placeholder={translatedText["Name"] || "Name"}
             value={newDriver.name}
             onChangeText={(text) =>
               setNewDriver((prev) => ({ ...prev, name: text }))
@@ -360,7 +409,7 @@ const OrganisationDriverList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Driver No"
+            placeholder={translatedText["Driver No"] || "Driver No"}
             value={newDriver.Driver_No}
             onChangeText={(text) =>
               setNewDriver((prev) => ({ ...prev, Driver_No: text }))
@@ -368,7 +417,7 @@ const OrganisationDriverList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Vehicle No"
+            placeholder={translatedText["Vehicle No"] || "Vehicle No"}
             value={newDriver.Vehicle_No}
             onChangeText={(text) =>
               setNewDriver((prev) => ({ ...prev, Vehicle_No: text }))
@@ -376,7 +425,7 @@ const OrganisationDriverList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Contact"
+            placeholder={translatedText["Contact"] || "Contact"}
             value={newDriver.contact}
             onChangeText={(text) =>
               setNewDriver((prev) => ({ ...prev, contact: text }))
@@ -384,7 +433,7 @@ const OrganisationDriverList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Experience (in years)"
+            placeholder={translatedText["Experience (in years)"] || "Experience (in years)"}
             value={newDriver.exp}
             onChangeText={(text) =>
               setNewDriver((prev) => ({ ...prev, exp: text }))
@@ -392,14 +441,19 @@ const OrganisationDriverList = ({ navigation }) => {
             keyboardType="numeric"
           />
           <TouchableOpacity style={styles.saveButton} onPress={addDriver}>
-            <Text style={styles.saveText}>Save</Text>
+            <Text style={styles.saveText}>
+              {translatedText["Save"] || "Save"}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
-      {/* Render Drivers */}
-      {filteredDrivers.length === 0 ? (
-        <Text>No drivers available.</Text>
+      
+    {/* Render Drivers */}
+    {filteredDrivers.length === 0 ? (
+        <Text>
+          {translatedText["No drivers available."] || "No drivers available."}
+        </Text>
       ) : (
         <FlatList
           data={filteredDrivers}
@@ -420,14 +474,16 @@ const OrganisationDriverList = ({ navigation }) => {
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Update Driver Details</Text>
+            <Text style={styles.modalTitle}>
+              {translatedText["Update Driver Details"] || "Update Driver Details"}
+            </Text>
             <TextInput
               style={styles.input}
               value={selectedDriver?.name}
               onChangeText={(text) =>
                 setSelectedDriver((prev) => ({ ...prev, name: text }))
               }
-              placeholder="Name"
+              placeholder={translatedText["Name"] || "Name"}
             />
             <TextInput
               style={styles.input}
@@ -435,7 +491,7 @@ const OrganisationDriverList = ({ navigation }) => {
               onChangeText={(text) =>
                 setSelectedDriver((prev) => ({ ...prev, Driver_No: text }))
               }
-              placeholder="Driver No"
+              placeholder={translatedText["Driver No"] || "Driver No"}
             />
             <TextInput
               style={styles.input}
@@ -443,7 +499,7 @@ const OrganisationDriverList = ({ navigation }) => {
               onChangeText={(text) =>
                 setSelectedDriver((prev) => ({ ...prev, Vehicle_No: text }))
               }
-              placeholder="Vehicle No"
+              placeholder={translatedText["Vehicle No"] || "Vehicle No"}
             />
             <TextInput
               style={styles.input}
@@ -451,7 +507,7 @@ const OrganisationDriverList = ({ navigation }) => {
               onChangeText={(text) =>
                 setSelectedDriver((prev) => ({ ...prev, contact: text }))
               }
-              placeholder="Contact"
+              placeholder={translatedText["Contact"] || "Contact"}
             />
             <TextInput
               style={styles.input}
@@ -459,7 +515,7 @@ const OrganisationDriverList = ({ navigation }) => {
               onChangeText={(text) =>
                 setSelectedDriver((prev) => ({ ...prev, exp: text }))
               }
-              placeholder="Experience (in years)"
+              placeholder={translatedText["Experience (in years)"] || "Experience (in years)"}
               keyboardType="numeric"
             />
             <TouchableOpacity style={styles.saveButton} onPress={updateDriver}>

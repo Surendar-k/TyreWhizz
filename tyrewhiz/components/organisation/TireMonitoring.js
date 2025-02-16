@@ -9,7 +9,8 @@ import {
 } from "react-native";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
+import { useFocusEffect } from "@react-navigation/native";
 // const API_URL = process.env.API_URL;
 
 const TireMonitoring = ({ navigation }) => {
@@ -33,6 +34,29 @@ const TireMonitoring = ({ navigation }) => {
       return null;
     }
   };
+  const { translatedText, updateTranslations } = useTranslation(); 
+
+  useFocusEffect(React.useCallback(() => {
+    updateTranslations([
+    
+      "Logged in as: Organization",
+      "Tire Monitoring",
+      "Vehicle No",
+      "Tire Status",
+      "Issues",
+      "Pressure",
+      "Temperature",
+      "Good",
+      "Status",
+      "View Details",
+    ]); // ✅ Fetch translations FIRST, THEN fetch vehicle data
+  }, []));
+
+  useEffect(() => {
+    if (Object.keys(translatedText).length > 0) {
+      fetchVehicleData();
+    }
+  }, [translatedText]);
   const fetchVehicleData = async () => {
     try {
       setLoading(true);
@@ -48,7 +72,7 @@ const TireMonitoring = ({ navigation }) => {
         return;
       }
       const response = await fetch(
-        `http://192.168.18.19:5000/api/vehicles?userId=${userId}`,
+        `http://192.168.10.16:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -66,11 +90,11 @@ const TireMonitoring = ({ navigation }) => {
       if (response.ok) {
         const vehicles = await response.json();
 
-        // Assigning default tire monitoring details
+        // ✅ Ensure translations are ready before assigning values
         const updatedData = vehicles.map((vehicle) => ({
           id: vehicle.id,
           Vehicle_no: vehicle.vehicle_no,
-          tireStatus: "Good", // Default status (should be updated based on actual sensor data)
+          tireStatus: translatedText["Good"] || "Good", // ✅ Now, this will get the translated value
           issues: 0,
           pressure: "35 PSI",
           temperature: "28°C",
@@ -87,19 +111,15 @@ const TireMonitoring = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchVehicleData();
-  }, []);
 
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#6200ee" />
+        <Text>{translatedText["Loading"] || "Loading..."}</Text>
       </View>
     );
   }
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -109,11 +129,11 @@ const TireMonitoring = ({ navigation }) => {
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Tire Monitoring</Text>
+        <Text style={styles.title}>TyreWhizz</Text>
       </View>
 
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>Logged in as: Organization</Text>
+        <Text style={styles.role}>{translatedText["Logged in as: Organization"] || "Logged in as: Organization"}</Text>
       </View>
 
       <FlatList
@@ -122,16 +142,22 @@ const TireMonitoring = ({ navigation }) => {
         contentContainerStyle={styles.flatListContent}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.Vehicle_no}>Vehicle No: {item.Vehicle_no}</Text>
-            <Text style={styles.tireStatus}>Status: {item.tireStatus}</Text>
-            <Text style={styles.details}>Issues: {item.issues}</Text>
+            <Text style={styles.Vehicle_no}>
+              {translatedText["Vehicle No"] || "Vehicle No"}: {item.Vehicle_no}
+            </Text>
+            <Text style={styles.tireStatus}>
+              {translatedText["Status"] || "Status"}: {item.tireStatus}
+            </Text>
+            <Text style={styles.details}>
+              {translatedText["Issues"] || "Issues"}: {item.issues}
+            </Text>
             <TouchableOpacity
               style={styles.button}
               onPress={() =>
                 navigation.navigate("MonitoringPage", { vehicle: item })
               }
             >
-              <Text style={styles.buttonText}>View Details</Text>
+              <Text style={styles.buttonText}>{translatedText["View Details"] || "View Details"}</Text>
             </TouchableOpacity>
           </View>
         )}

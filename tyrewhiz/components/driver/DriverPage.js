@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect,useContext } from "react";
 import {
   View,
   Text,
@@ -8,10 +9,25 @@ import {
   Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext"; // ✅ Import the global translation context
 
 const DriverPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Use global translations
+
+   useFocusEffect(React.useCallback(() => {
+    setModalVisible(true);
+
+    // ✅ Fetch translations dynamically from context
+    updateTranslations([
+      "Choose Your Driver Type",
+      "Individual Driver",
+      "Professional Driver",
+      "Cancel",
+    ]);
+  }, []));
 
   const navigateToIndividualDriverDashboardPage = () => {
     setModalVisible(false);
@@ -40,30 +56,38 @@ const DriverPage = () => {
           onPress={() => setModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Choose Your Driver Type</Text>
+            <Text style={styles.modalTitle}>
+              {translatedText["Choose Your Driver Type"] || "Choose Your Driver Type"}
+            </Text>
 
             <TouchableOpacity
               style={styles.optionButton}
               onPress={navigateToIndividualDriverDashboardPage}
             >
-              <Text style={styles.optionButtonText}>Individual Driver</Text>
+              <Text style={styles.optionButtonText}>
+                {translatedText["Individual Driver"] || "Individual Driver"}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.optionButton}
               onPress={navigateToProfessionalDriverDashboardPage}
             >
-              <Text style={styles.optionButtonText}>Professional Driver</Text>
+              <Text style={styles.optionButtonText}>
+                {translatedText["Professional Driver"] || "Professional Driver"}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => {
-                setModalVisible(false); // Close the modal
-                navigation.goBack(); // Go back to the previous page
+                setModalVisible(false);
+                navigation.goBack();
               }}
             >
-              <Text style={styles.closeButtonText}>Cancel</Text>
+              <Text style={styles.closeButtonText}>
+                {translatedText["Cancel"] || "Cancel"}
+              </Text>
             </TouchableOpacity>
           </View>
         </Pressable>
