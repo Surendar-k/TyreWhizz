@@ -1,11 +1,25 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, useWindowDimensions, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 import logoimg from '../assets/selectroleimg.png';
+import { useTranslation } from "./TranslationContext"; // Import translation context
 
 const UserTypeSelectionPage = () => {
   const navigation = useNavigation();
-  const { width } = useWindowDimensions(); // Get screen width
+  const { width } = useWindowDimensions();
+  const { language, setLanguage, translatedText, updateTranslations } = useTranslation();
+
+  // Update translations when language changes
+  useFocusEffect(React.useCallback(() => {
+    updateTranslations([
+      "Welcome to TyreWhizz...",
+      "Select Your Role",
+      "Driver",
+      "Organisation",
+      "Technician",
+    ]);
+  }, [language]));
 
   const handleSelection = (userType) => {
     navigation.navigate('RoleBasedAuthPage', { userType });
@@ -15,31 +29,29 @@ const UserTypeSelectionPage = () => {
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={logoimg} style={styles.logo} />
-        <Text style={styles.title}>Welcome to TyreWhizz...</Text>
+        <Text style={styles.title}>{translatedText["Welcome to TyreWhizz..."] || "Welcome to TyreWhizz..."}</Text>
       </View>
 
-      <Text style={styles.title}>Select Your Role</Text>
+      <Text style={styles.title}>{translatedText["Select Your Role"] || "Select Your Role"}</Text>
 
-      <TouchableOpacity 
-        style={[styles.button, width > 768 && styles.webButton]} 
-        onPress={() => handleSelection('driver')}
-      >
-        <Text style={styles.buttonText}>Driver</Text>
+      <TouchableOpacity style={[styles.button, width > 768 && styles.webButton]} onPress={() => handleSelection('driver')}>
+        <Text style={styles.buttonText}>{translatedText["Driver"] || "Driver"}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={[styles.button, width > 768 && styles.webButton]} 
-        onPress={() => handleSelection('organisation')}
-      >
-        <Text style={styles.buttonText}>Organisation</Text>
+      <TouchableOpacity style={[styles.button, width > 768 && styles.webButton]} onPress={() => handleSelection('organisation')}>
+        <Text style={styles.buttonText}>{translatedText["Organisation"] || "Organisation"}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={[styles.button, width > 768 && styles.webButton]} 
-        onPress={() => handleSelection('technician')}
-      >
-        <Text style={styles.buttonText}>Technician</Text>
+      <TouchableOpacity style={[styles.button, width > 768 && styles.webButton]} onPress={() => handleSelection('technician')}>
+        <Text style={styles.buttonText}>{translatedText["Technician"] || "Technician"}</Text>
       </TouchableOpacity>
+
+      {/* Global Language Selector */}
+      <View style={styles.languageSelector}>
+        <TouchableOpacity onPress={() => setLanguage("en")}><Text>🇬🇧 EN</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => setLanguage("ta")}><Text>🇮🇳 தமிழ்</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => setLanguage("hi")}><Text>🇮🇳 हिंदी</Text></TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -85,6 +97,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  languageSelector: {
+    flexDirection: "row",
+    marginTop: 20,
+    gap: 15,
   },
 });
 

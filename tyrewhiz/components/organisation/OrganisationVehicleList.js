@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext";
 
 // const API_URL = process.env.API_URL;
 const OrganisationVehicleList = ({ navigation }) => {
@@ -31,6 +33,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
 
   useEffect(() => {
     fetchVehicles();
@@ -53,6 +56,45 @@ const OrganisationVehicleList = ({ navigation }) => {
       return null;
     }
   };
+  useFocusEffect(
+    React.useCallback(() => {
+      updateTranslations([
+        "Delete Vehicle",
+        "Are you sure you want to delete this Vehicle?",
+        "Cancel",
+        "Delete",
+        "Error",
+        "Failed to delete vehicle",
+        "Failed to connect to the server",
+        "All fields are required to add a vehicle.",
+        "Failed to add vehicle",
+        "Error",
+        "No vehicle selected for update",
+        "Failed to update vehicle",
+        "Failed to connect to the server",
+        "Failed to fetch Vehicles",
+        "Error fetching Vehicles",
+        "Loading...",
+        "No vehicles found",
+        "Vehicle No:",
+        "Driver ID:",
+        "Type:",
+        "Capacity:",
+        "Logged in as: Organization",
+        "Search by Vehicle No",
+        "Add Vehicle",
+        "Vehicle No",
+        "Driver ID",
+        "Type",
+        "Capacity",
+        "Save",
+        "Update Driver Details",
+        "Type of Vehicle",
+        "Save Changes",
+        "Cancel",
+      ]);
+    }, [])
+  );
 
   const fetchVehicles = async () => {
     try {
@@ -70,7 +112,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://192.168.18.19:5000/api/vehicles?userId=${userId}`,
+        `http://192.168.10.16:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -98,6 +140,10 @@ const OrganisationVehicleList = ({ navigation }) => {
       console.error("Error fetching vehicles:", error);
       setVehicles([]); // Ensure state is reset even on error
       setFilteredVehicles([]);
+      console.error(
+        translatedText["Error fetching Vehicles"] || "Error fetching Vehicles",
+        error
+      );
     } finally {
       setLoading(false);
     }
@@ -105,7 +151,11 @@ const OrganisationVehicleList = ({ navigation }) => {
 
   const updateVehicle = async () => {
     if (!selectedVehicle) {
-      Alert.alert("Error", "No vehicle selected for update");
+      Alert.alert(
+        translatedText["Error"] || "Error",
+        translatedText["No vehicle selected for update"] ||
+          "No vehicle selected for update"
+      );
       return;
     }
 
@@ -127,7 +177,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://192.168.18.19:5000/api/vehicles/${selectedVehicle.id}`,
+        `http://192.168.10.16:5000/api/vehicles/${selectedVehicle.id}`,
         {
           method: "PUT",
           headers: {
@@ -148,7 +198,11 @@ const OrganisationVehicleList = ({ navigation }) => {
       setModalVisible(false);
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      Alert.alert("Error", "Failed to connect to the server");
+      Alert.alert(
+        translatedText["Error"] || "Error",
+        translatedText["Failed to connect to the server"] ||
+          "Failed to connect to the server"
+      );
     }
   };
 
@@ -172,12 +226,13 @@ const OrganisationVehicleList = ({ navigation }) => {
     }
 
     Alert.alert(
-      "Delete Vehicle",
-      "Are you sure you want to delete this vehicle?",
+      translatedText["Delete Vehicle"] || "Delete Vehicle",
+      translatedText["Are you sure you want to delete this Vehicle?"] ||
+        "Are you sure you want to delete this Vehicle?",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: translatedText["Cancel"] || "Cancel", style: "cancel" },
         {
-          text: "Delete",
+          text: translatedText["Delete"] || "Delete",
           style: "destructive",
           onPress: async () => {
             // ✅ **Optimistic UI Update**
@@ -188,7 +243,7 @@ const OrganisationVehicleList = ({ navigation }) => {
             try {
               // 🔥 **API Call**
               const response = await fetch(
-                `http://192.168.18.19:5000/api/vehicles/${id}?user_id=${userId}`,
+                `http://192.168.10.16:5000/api/vehicles/${id}?user_id=${userId}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -218,7 +273,11 @@ const OrganisationVehicleList = ({ navigation }) => {
                 { id, user_id: userId },
               ]);
 
-              Alert.alert("Error", "Failed to delete vehicle");
+              Alert.alert(
+                translatedText["Error"] || "Error",
+                translatedText["Failed to connect to the server"] ||
+                  "Failed to connect to the server"
+              );
             }
           },
         },
@@ -233,7 +292,11 @@ const OrganisationVehicleList = ({ navigation }) => {
       !newVehicle.type ||
       !newVehicle.capacity
     ) {
-      Alert.alert("Error", "All fields are required.");
+      Alert.alert(
+        translatedText["Error"] || "Error",
+        translatedText["All fields are required to add a vehicle."] ||
+          "All fields are required to add a vehicle."
+      );
       return;
     }
 
@@ -245,7 +308,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://192.168.18.19:5000/api/vehicles", {
+      const response = await fetch("http://192.168.10.16:5000/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -265,11 +328,14 @@ const OrganisationVehicleList = ({ navigation }) => {
       setNewVehicle({ vehicle_no: "", driver_id: "", type: "", capacity: "" });
       setShowAddVehicle(false);
     } catch (error) {
-      console.error("Error adding vehicle:", error);
-      Alert.alert("Error", "Failed to connect to the server");
+      console.error("Error during API call:", error);
+      Alert.alert(
+        translatedText["Error"] || "Error",
+        translatedText["Failed to connect to the server"] ||
+          "Failed to connect to the server"
+      );
     }
   };
-
   const searchVehicle = (text) => {
     const query = text.trim().toLowerCase();
     setSearchText(text);
@@ -290,7 +356,7 @@ const OrganisationVehicleList = ({ navigation }) => {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
-        <Text>Loading...</Text>
+        <Text>{translatedText["Loading..."] || "Loading..."}</Text>
       </View>
     );
   }
@@ -304,17 +370,27 @@ const OrganisationVehicleList = ({ navigation }) => {
         }}
         style={{ flex: 1 }}
       >
-        <Text style={styles.vehicleNo}>Vehicle No: {item.vehicle_no}</Text>
-        <Text style={styles.driver_id}>Driver_id: {item.driver_id}</Text>
-        <Text style={styles.type}>Type: {item.type}</Text>
-        <Text style={styles.capacity}>Capacity: {item.capacity}</Text>
+        <Text style={styles.vehicleNo}>
+          {translatedText["Vehicle No:"] || "Vehicle No:"} {item.vehicle_no}
+        </Text>
+        <Text style={styles.driver_id}>
+          {translatedText["Driver ID:"] || "Driver ID:"} {item.driver_id}
+        </Text>
+        <Text style={styles.type}>
+          {translatedText["Type:"] || "Type:"} {item.type}
+        </Text>
+        <Text style={styles.capacity}>
+          {translatedText["Capacity:"] || "Capacity:"} {item.capacity}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => deleteVehicle(item.id)}
         style={styles.deleteButton}
       >
-        <Text style={styles.deleteText}>Delete</Text>
+        <Text style={styles.deleteText}>
+          {translatedText["Delete"] || "Delete"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -332,13 +408,18 @@ const OrganisationVehicleList = ({ navigation }) => {
       </View>
 
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>Logged in as: Organization</Text>
+        <Text style={styles.role}>
+          {translatedText["Logged in as: Organization"] ||
+            "Logged in as: Organization"}
+        </Text>
       </View>
 
       <View style={styles.actionRow}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by Vehicle No"
+          placeholder={
+            translatedText["Search by Vehicle No"] || "Search by Vehicle No"
+          }
           value={searchText}
           onChangeText={(text) => {
             setSearchText(text);
@@ -349,7 +430,9 @@ const OrganisationVehicleList = ({ navigation }) => {
           style={styles.addButton}
           onPress={() => setShowAddVehicle(!showAddVehicle)}
         >
-          <Text style={styles.addText}>Add Vehicle</Text>
+          <Text style={styles.addText}>
+            {translatedText["Add Vehicle"] || "Add Vehicle"}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -357,7 +440,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         <View style={styles.addVehicleForm}>
           <TextInput
             style={styles.input}
-            placeholder="Vehicle No"
+            placeholder={translatedText["Vehicle No"] || "Vehicle No"}
             value={newVehicle.vehicle_no}
             onChangeText={(text) =>
               setNewVehicle((prev) => ({ ...prev, vehicle_no: text }))
@@ -365,7 +448,7 @@ const OrganisationVehicleList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Driver_id"
+            placeholder={translatedText["Driver ID"] || "Driver ID"}
             value={newVehicle.driver_id}
             onChangeText={(text) =>
               setNewVehicle((prev) => ({ ...prev, driver_id: text }))
@@ -373,7 +456,7 @@ const OrganisationVehicleList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Type"
+            placeholder={translatedText["Type"] || "Type"}
             value={newVehicle.type}
             onChangeText={(text) =>
               setNewVehicle((prev) => ({ ...prev, type: text }))
@@ -381,14 +464,16 @@ const OrganisationVehicleList = ({ navigation }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Capacity"
+            placeholder={translatedText["Capacity"] || "Capacity"}
             value={newVehicle.capacity}
             onChangeText={(text) =>
               setNewVehicle((prev) => ({ ...prev, capacity: text }))
             }
           />
           <TouchableOpacity style={styles.saveButton} onPress={addVehicle}>
-            <Text style={styles.saveText}>Save</Text>
+            <Text style={styles.saveText}>
+              {translatedText["Save"] || "Save"}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -413,15 +498,18 @@ const OrganisationVehicleList = ({ navigation }) => {
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Update Driver Details</Text>
+            <Text style={styles.modalTitle}>
+              {translatedText["Update Driver Details"] ||
+                "Update Driver Details"}
+            </Text>
 
             <TextInput
               style={styles.input}
-              value={selectedVehicle?.vehicle_no || ""} // Ensures an empty string instead of undefined
+              value={selectedVehicle?.vehicle_no || ""}
               onChangeText={(text) =>
                 setSelectedVehicle((prev) => ({ ...prev, vehicle_no: text }))
               }
-              placeholder="Vehicle No"
+              placeholder={translatedText["Vehicle No"] || "Vehicle No"}
             />
             <TextInput
               style={styles.input}
@@ -429,11 +517,11 @@ const OrganisationVehicleList = ({ navigation }) => {
                 selectedVehicle?.driver_id
                   ? String(selectedVehicle.driver_id)
                   : ""
-              } // Convert to string
+              }
               onChangeText={(text) =>
                 setSelectedVehicle((prev) => ({ ...prev, driver_id: text }))
               }
-              placeholder="Driver ID"
+              placeholder={translatedText["Driver ID"] || "Driver ID"}
             />
             <TextInput
               style={styles.input}
@@ -441,7 +529,9 @@ const OrganisationVehicleList = ({ navigation }) => {
               onChangeText={(text) =>
                 setSelectedVehicle((prev) => ({ ...prev, type: text }))
               }
-              placeholder="Type of Vehicle"
+              placeholder={
+                translatedText["Type of Vehicle"] || "Type of Vehicle"
+              }
             />
             <TextInput
               style={styles.input}
@@ -449,21 +539,25 @@ const OrganisationVehicleList = ({ navigation }) => {
                 selectedVehicle?.capacity
                   ? String(selectedVehicle.capacity)
                   : ""
-              } // Convert to string
+              }
               onChangeText={(text) =>
                 setSelectedVehicle((prev) => ({ ...prev, capacity: text }))
               }
-              placeholder="Capacity"
+              placeholder={translatedText["Capacity"] || "Capacity"}
             />
 
             <TouchableOpacity style={styles.saveButton} onPress={updateVehicle}>
-              <Text style={styles.saveText}>Save Changes</Text>
+              <Text style={styles.saveText}>
+                {translatedText["Save Changes"] || "Save Changes"}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.cancelText}>Cancel</Text>
+              <Text style={styles.cancelText}>
+                {translatedText["Cancel"] || "Cancel"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

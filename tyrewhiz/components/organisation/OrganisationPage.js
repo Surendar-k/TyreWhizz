@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,16 +12,16 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
 import Icon from "react-native-vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
+
 import tyremo from "../../assets/tyremo.png";
 import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
-// const API_URL = process.env.API_URL;
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState({
     totalVehicles: 0,
@@ -30,8 +30,8 @@ const OrganisationPage = () => {
     resolvedIssues: [],
   });
   const [loading, setLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
-  const [isEditMode, setIsEditMode] = useState(false); // Track if in edit mode
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [profileData, setProfileData] = useState({
     organizationName: "",
     managerName: "",
@@ -39,19 +39,57 @@ const OrganisationPage = () => {
     phone: "",
   });
 
-  useEffect(async () => {
-    const storedUser =  await AsyncStorage.getItem("userData");
-    if (storedUser) {
-      setProfileData(JSON.parse(storedUser));
+  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
+  const navigation = useNavigation();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      updateTranslations([
+        "Logged in as: Organization",
+        "Profile",
+        "Organization Name:",
+        "Manager Name:",
+        "Email:",
+        "Phone:",
+        "Edit",
+        "Save",
+        "Logout",
+        "Fleet Summary",
+        "Total Vehicles",
+        "Total Drivers",
+        "Active Issues",
+        "Resolved Issues (Last 24 Hrs)",
+        "Tire Monitoring",
+        "Vehicles",
+        "Drivers",
+        "Analytics Report",
+        "Logged Out",
+        "You have been logged out",
+      ]);
+    }, [])
+  );
+
+  const fetchStoredUser = useCallback(async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem("userData");
+      if (storedUser) {
+        setProfileData(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Error fetching stored user data:", error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const navigation = useNavigation();
+  useEffect(() => {
+    fetchStoredUser();
+  }, [fetchStoredUser]);
 
   useEffect(() => {
     const fetchFleetData = async () => {
       try {
-        const token =  await AsyncStorage.getItem("token"); // Retrieve token
+        const token = await AsyncStorage.getItem("token"); // Retrieve token
 
         if (!token) {
           console.error("No token found. User might not be logged in.");
@@ -103,19 +141,13 @@ const OrganisationPage = () => {
         });
       } catch (error) {
         console.error("Error fetching fleet data:", error);
-        setFleetData({
-          totalVehicles: 0,
-          totalDrivers: 0,
-          activeIssues: 0,
-          resolvedIssues: [],
-        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchFleetData();
-    const interval = setInterval(fetchFleetData, 5000); // Fetch every 5 seconds
+    const interval = setInterval(fetchFleetData, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -131,7 +163,6 @@ const OrganisationPage = () => {
     ).length;
   };
 
-  // Function to handle profile data change
   const handleProfileChange = (field, value) => {
     setProfileData((prevState) => ({
       ...prevState,
@@ -139,19 +170,20 @@ const OrganisationPage = () => {
     }));
   };
 
-  // Handle Logout
   const handleLogout = () => {
-    setIsModalVisible(false); // Close the modal
-    navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
-    Alert.alert("Logged Out", "You have been logged out"); // Show logout alert
+    setIsModalVisible(false);
+    navigation.navigate("UserTypeSelectionPage");
+    Alert.alert(
+      translatedText["Logged Out"] || "Logged Out",
+      translatedText["You have been logged out"] || "You have been logged out"
+    );
   };
-
   // Render loader until data is fetched
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
-        <Text>Loading...</Text>
+        <Text>{translatedText["Loading..."] || "Loading..."}</Text>
       </View>
     );
   }
@@ -173,19 +205,27 @@ const OrganisationPage = () => {
           <Text style={styles.profileButtonText}>☰</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>Logged in as: Organization</Text>
+        <Text style={styles.role}>
+          {translatedText["Logged in as: Organization"] ||
+            "Logged in as: Organization"}
+        </Text>
       </View>
 
       {/* Profile Modal */}
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Profile</Text>
+            <Text style={styles.modalTitle}>
+              {translatedText["Profile"] || "Profile"}
+            </Text>
 
             {/* Profile Content */}
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Organization Name:</Text>
+              <Text style={styles.profileLabel}>
+                {translatedText["Organization Name:"] || "Organization Name:"}
+              </Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
@@ -202,7 +242,9 @@ const OrganisationPage = () => {
             </View>
 
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Manager Name:</Text>
+              <Text style={styles.profileLabel}>
+                {translatedText["Manager Name:"] || "Manager Name:"}
+              </Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
@@ -219,7 +261,9 @@ const OrganisationPage = () => {
             </View>
 
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Email:</Text>
+              <Text style={styles.profileLabel}>
+                {translatedText["Email:"] || "Email:"}
+              </Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
@@ -232,7 +276,9 @@ const OrganisationPage = () => {
             </View>
 
             <View style={styles.profileRow}>
-              <Text style={styles.profileLabel}>Phone:</Text>
+              <Text style={styles.profileLabel}>
+                {translatedText["Phone:"] || "Phone:"}
+              </Text>
               {isEditMode ? (
                 <TextInput
                   style={styles.input}
@@ -251,7 +297,9 @@ const OrganisationPage = () => {
             >
               <Icon name="pencil" size={15} color="#fff" />
               <Text style={styles.editButtonText}>
-                {isEditMode ? "Save" : "Edit"}
+                {isEditMode
+                  ? translatedText["Save"] || "Save"
+                  : translatedText["Edit"] || "Edit"}
               </Text>
             </TouchableOpacity>
 
@@ -260,7 +308,9 @@ const OrganisationPage = () => {
               onPress={handleLogout}
             >
               <Icon name="log-out" size={20} color="#fff" />
-              <Text style={styles.logoutText}>Logout</Text>
+              <Text style={styles.logoutText}>
+                {translatedText["Logout"] || "Logout"}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -275,59 +325,82 @@ const OrganisationPage = () => {
 
       {/* Fleet Data Summary */}
       <View style={styles.summary}>
-        <Text style={styles.sectionTitle}>Fleet Summary</Text>
+        <Text style={styles.sectionTitle}>
+          {translatedText["Fleet Summary"] || "Fleet Summary"}
+        </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.summaryCards}
         >
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total Vehicles</Text>
+            <Text style={styles.cardTitle}>
+              {translatedText["Total Vehicles"] || "Total Vehicles"}
+            </Text>
             <Text style={styles.cardValue}>{fleetData.totalVehicles}</Text>
           </View>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Total Drivers</Text>
+            <Text style={styles.cardTitle}>
+              {translatedText["Total Drivers"] || "Total Drivers"}
+            </Text>
             <Text style={styles.cardValue}>{fleetData.totalDrivers}</Text>
           </View>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Active Issues</Text>
+            <Text style={styles.cardTitle}>
+              {translatedText["Active Issues"] || "Active Issues"}
+            </Text>
             <Text style={styles.cardValue}>{fleetData.activeIssues}</Text>
           </View>
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resolved Issues (Last 24 Hrs)</Text>
+            <Text style={styles.cardTitle}>
+              {translatedText["Resolved Issues (Last 24 Hrs)"] ||
+                "Resolved Issues (Last 24 Hrs)"}
+            </Text>
             <Text style={styles.cardValue}>{getResolvedIssuesLast24Hrs()}</Text>
           </View>
         </ScrollView>
       </View>
 
+      {/* Navigation Section */}
       <View style={styles.navigation}>
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate("TireMonitoring")}
         >
           <Image source={tyremo} style={styles.icon} />
-          <Text style={styles.navText}>Tire Monitoring</Text>
+          <Text style={styles.navText}>
+            {translatedText["Tire Monitoring"] || "Tire Monitoring"}
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate("OrganisationVehicleList")}
         >
           <Image source={carmo} style={styles.icon} />
-          <Text style={styles.navText}>Vehicles</Text>
+          <Text style={styles.navText}>
+            {translatedText["Vehicles"] || "Vehicles"}
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate("OrganisationDriverList")}
         >
           <Image source={drivermo} style={styles.icon} />
-          <Text style={styles.navText}>Drivers</Text>
+          <Text style={styles.navText}>
+            {translatedText["Drivers"] || "Drivers"}
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate("OrganisationAnalytics")}
         >
           <Image source={reportmo} style={styles.icon} />
-          <Text style={styles.navText}>Analytics Report</Text>
+          <Text style={styles.navText}>
+            {translatedText["Analytics Report"] || "Analytics Report"}
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
