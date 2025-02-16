@@ -18,8 +18,8 @@
     useEffect(() => {
       const fetchFleetData = async () => {
         try {
-          const vehicleResponse = await fetch("http://localhost:5000/api/vehicles");
-          const driverResponse = await fetch("http://localhost:5000/api/drivers");
+          const vehicleResponse = await fetch("http://192.168.18.19:5000/api/vehicles");
+          const driverResponse = await fetch("http://192.168.18.19:5000/api/drivers");
   
           const vehicleData = await vehicleResponse.json();
           const driverData = await driverResponse.json();

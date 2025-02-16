@@ -10,7 +10,9 @@ import {
   Modal,
   ActivityIndicator,
 } from "react-native";
-// const API_URL = process.env.API_URL;
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
+
 const OrganisationDriverList = ({ navigation }) => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,16 +37,62 @@ const OrganisationDriverList = ({ navigation }) => {
     setFilteredDrivers(drivers);
   }, [drivers]);
 
+  const fetchUserId = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found.");
+        return null;
+      }
+
+      const payload = jwtDecode(token);
+
+      // Check if the token is expired
+      if (payload.exp * 1000 < Date.now()) {
+        console.error("Token expired.");
+        await AsyncStorage.removeItem("token"); // Clear expired token
+        return null;
+      }
+
+      return payload.userId || payload.userID || payload.id || null;
+    } catch (error) {
+      console.error("Error retrieving user ID:", error);
+      return null;
+    }
+  };
   const fetchDrivers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/drivers");
-      if (response.ok) {
-        const data = await response.json();
-        setDrivers(data);
-        setFilteredDrivers(data);
-      } else {
-        console.error("Failed to fetch drivers");
+      setLoading(true);
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found.");
+        return;
       }
+
+      const userId = await fetchUserId();
+      if (!userId) {
+        console.error("User ID not found.");
+        return;
+      }
+
+      const response = await fetch(
+        `http://192.168.18.19:5000/api/drivers?user_id=${userId}`, // Correct query param
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Drivers: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setDrivers(data);
+      setFilteredDrivers(data);
     } catch (error) {
       console.error("Error fetching drivers:", error);
     } finally {
@@ -53,22 +101,36 @@ const OrganisationDriverList = ({ navigation }) => {
   };
 
   const searchDriver = (text) => {
-    const query = text.trim().toLowerCase();
-
-    if (!query) {
+    setSearchText(text);
+    if (!text.trim()) {
       setFilteredDrivers(drivers);
       return;
     }
-
-    const filteredList = drivers.filter((driver) => {
-      const driverNo = driver.Driver_No ? driver.Driver_No.toString() : "";
-      return driverNo.toLowerCase().includes(query);
-    });
-
+    const filteredList = drivers.filter((driver) =>
+      driver.Driver_No.toLowerCase().includes(text.trim().toLowerCase())
+    );
     setFilteredDrivers(filteredList);
   };
-
   const deleteDriver = async (id) => {
+    let token = await AsyncStorage.getItem("token");
+    let userId = await AsyncStorage.getItem("user_id");
+
+    console.log("Retrieved Token:", token);
+    console.log("Retrieved User ID:", userId);
+
+    // If userId is missing, attempt to fetch it again
+    if (!userId) {
+      userId = await fetchUserId(); // Ensure fetchUserId() is implemented correctly
+      if (userId) {
+        await AsyncStorage.setItem("user_id", userId.toString());
+      }
+    }
+
+    if (!token || !userId) {
+      Alert.alert("Error", "Authentication required.");
+      return;
+    }
+
     Alert.alert(
       "Delete Driver",
       "Are you sure you want to delete this driver?",
@@ -79,22 +141,25 @@ const OrganisationDriverList = ({ navigation }) => {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await fetch("http://localhost:5000/api/drivers/${id}", {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              });
+              const response = await fetch(
+                `http://192.168.18.19:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              const data = await response.json();
+              console.log("Delete Response:", data);
 
               if (response.ok) {
-                setDrivers((prevDrivers) =>
-                  prevDrivers.filter((driver) => driver.id !== id)
-                );
-                setFilteredDrivers((prevFiltered) =>
-                  prevFiltered.filter((driver) => driver.id !== id)
-                );
+                setDrivers((prev) => prev.filter((driver) => driver.id !== id));
+                Alert.alert("Success", "Driver deleted successfully");
               } else {
-                Alert.alert("Error", "Failed to delete driver");
+                Alert.alert("Error", data.error || "Failed to delete driver");
               }
             } catch (error) {
               console.error("Error deleting driver:", error);
@@ -107,43 +172,53 @@ const OrganisationDriverList = ({ navigation }) => {
   };
 
   const addDriver = async () => {
-    if (
-      !newDriver.name ||
-      !newDriver.Driver_No ||
-      !newDriver.Vehicle_No ||
-      !newDriver.exp ||
-      !newDriver.contact
-    ) {
-      Alert.alert("Error", "All fields are required to add a driver.");
-      return;
-    }
-
     try {
-      const response = await fetch("http://localhost:5000/api/drivers", {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        Alert.alert("Error", "Authentication required.");
+        return;
+      }
+
+      const userId = await fetchUserId();
+      if (!userId) {
+        Alert.alert("Error", "User ID not found.");
+        return;
+      }
+
+      const response = await fetch("http://192.168.18.19:5000/api/drivers", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newDriver),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...newDriver,
+          user_id: userId, // Ensure user_id is correctly sent
+        }),
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setDrivers((prev) => [...prev, data]);
-        setFilteredDrivers((prev) => [...prev, data]);
-        setNewDriver({
-          name: "",
-          Driver_No: "",
-          Vehicle_No: "",
-          contact: "",
-          exp: "",
-        });
-        setShowAddDriver(false);
-      } else {
-        Alert.alert("Error", data.error || "Failed to add driver");
+      if (!response.ok) {
+        throw new Error("Failed to add driver");
       }
+
+      const addedDriver = await response.json();
+
+      // Update state immediately to reflect changes
+      setDrivers((prev) => [...prev, addedDriver]);
+      setFilteredDrivers((prev) => [...prev, addedDriver]);
+
+      setNewDriver({
+        name: "",
+        Driver_No: "",
+        Vehicle_No: "",
+        exp: "",
+        contact: "",
+      });
+
+      setShowAddDriver(false);
     } catch (error) {
-      console.error("Error during API call:", error);
-      Alert.alert("Error", "Failed to connect to the server");
+      console.error("Error adding driver:", error);
+      Alert.alert("Error", "Failed to add driver");
     }
   };
 
@@ -152,25 +227,39 @@ const OrganisationDriverList = ({ navigation }) => {
       Alert.alert("Error", "No driver selected for update");
       return;
     }
-
     try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        Alert.alert("Error", "Authentication required.");
+        return;
+      }
+
+      const userId = await fetchUserId();
+      if (!userId) {
+        Alert.alert("Error", "User ID is missing.");
+        return;
+      }
+
+      const updatedData = {
+        ...selectedDriver,
+        user_id: userId, // Ensure user_id is sent
+      };
+
       const response = await fetch(
-        "http://localhost:5000/api/drivers/${selectedDriver.id}",
+        `http://192.168.18.19:5000/api/drivers/${selectedDriver.id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(selectedDriver),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
         }
       );
 
-      const updatedDriver = await response.json();
-
       if (response.ok) {
-        const updatedDrivers = drivers.map((driver) =>
-          driver.id === updatedDriver.id ? updatedDriver : driver
-        );
-        setDrivers(updatedDrivers);
-        setFilteredDrivers(updatedDrivers);
+        // Fetch the latest drivers list
+        fetchDrivers(); // <--- This ensures UI updates immediately
         setModalVisible(false);
       } else {
         Alert.alert("Error", "Failed to update driver");
@@ -181,6 +270,15 @@ const OrganisationDriverList = ({ navigation }) => {
     }
   };
 
+  if (loading) {
+    // Show the loading spinner when loading state is true
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="rgb(42, 10, 62)" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
   const renderDriverItem = ({ item }) => (
     <View style={styles.card}>
       <TouchableOpacity
@@ -365,7 +463,13 @@ const OrganisationDriverList = ({ navigation }) => {
               keyboardType="numeric"
             />
             <TouchableOpacity style={styles.saveButton} onPress={updateDriver}>
-              <Text style={styles.saveText}>Update</Text>
+              <Text style={styles.saveText}>Save Changes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

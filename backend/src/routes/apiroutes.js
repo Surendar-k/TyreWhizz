@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const vehicleController = require("../controllers/vehicleController");
-
+const authMiddleWare = require("../middleware/authMiddleWare");
 const driverController = require("../controllers/driverController");
+
 // const { handleSensorData } = require("../controllers/monitoringController");
 // Auth routes
 router.post("/signup", authController.signup);
@@ -13,18 +14,18 @@ router.post("/login", authController.login);
 // app.post('/api/sensor-data', handleSensorData);
 
 // Vehicle routes
-router.get("/vehicles", vehicleController.getVehicles);
-router.post("/vehicles", vehicleController.addVehicle);
-router.delete("/vehicles/:id", vehicleController.deleteVehicle);
-router.put("/vehicles/:id", vehicleController.updateVehicle);
-router.get("/vehicle-count", vehicleController.getVehicleCount);
+router.get("/vehicles", authMiddleWare, vehicleController.getVehicles);
+router.post("/vehicles", authMiddleWare, vehicleController.addVehicle);
+router.delete("/vehicles/:id", authMiddleWare, vehicleController.deleteVehicle);
+router.put("/vehicles/:id", authMiddleWare, vehicleController.updateVehicle);
+router.get("/vehiclescount", authMiddleWare, vehicleController.getVehicleCount);
 
 // Routes for CRUD operations
-router.get("/drivers", driverController.getDrivers);
-router.post("/drivers", driverController.addDriver);
-router.put("/drivers/:id", driverController.updateDriver);
-router.delete("/drivers/:id", driverController.deleteDriver);
-router.get("/drivers/count", driverController.getDriverCount);
+router.get("/drivers", authMiddleWare, driverController.getDrivers);
+router.post("/drivers", authMiddleWare, driverController.addDriver);
+router.put("/drivers/:id", authMiddleWare, driverController.updateDriver);
+router.delete("/drivers/:id", authMiddleWare, driverController.deleteDriver);
+router.get("/driverscount", authMiddleWare, driverController.getDriverCount);
 
 const monitoringController = require("../controllers/monitoringController");
 

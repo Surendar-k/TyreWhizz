@@ -27,6 +27,7 @@
     "expo-image-picker": "^16.0.5",
     "expo-location": "~18.0.5",
     "expo-status-bar": "^2.0.1",
+    "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.469.0",
     "lucide-react-native": "^0.469.0",

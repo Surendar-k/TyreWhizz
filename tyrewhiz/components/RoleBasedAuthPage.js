@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import axios from "axios";
 import logoimg from "../assets/rolebasedauthimage.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "@env";
 // const API_URL = process.env.API_URL;
 
@@ -26,92 +27,88 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
   const handleAuthAction = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Email and password are required.");
+      showModal("Email and password are required.", true);
       return;
     }
-
+  
+    // Email validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       showModal("Invalid email format. Please enter a valid email.", true);
       return;
     }
-
+  
+    // Password validation
     if (password.length < 6) {
       showModal("Password must be at least 6 characters long.", true);
       return;
     }
-
+  
     const data = { email, password, userType };
-
+  
+    // Signup flow
     if (isSignup) {
       if (password !== confirmPassword) {
         showModal("Passwords do not match.", true);
         return;
       }
-
+  
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/signup",
-          data
-        );
+        const response = await axios.post("http://192.168.18.19:5000/api/signup", data);
         showModal(response.data.message, false);
-        setIsSignup(false);
+        
+        // Reset state
         setEmail("");
         setPassword("");
         setConfirmPassword("");
-       setIsSignup(false);
+        setIsSignup(false);
       } catch (error) {
-        showModal(
-          error.response?.data?.error || "Signup failed. Please try again.",
-          true
-        );
+        showModal(error.response?.data?.error || "Signup failed. Please try again.", true);
       }
-
       return;
     }
-
+  
+    // Login flow
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/login",
-        data
-      );
-      console.log("Response:", response.data); // Debugging
-
+      const response = await axios.post("http://192.168.18.19:5000/api/login", data);
+      const { userType, token } = response.data;
+  
+      if (!token) {
+        showModal("Login failed: No token received.", true);
+        return;
+      }
+  
+      // Store token securely
+      await AsyncStorage.setItem("token", token);
+  
       showModal(response.data.message, false);
-      const { userType } = response.data; // Ensure this is the correct property from your backend response.
-
+  
       // Navigate based on userType
-      if (userType === "driver") {
-        navigation.replace("DriverPage");
-      } else if (userType === "organisation") {
-        navigation.replace("OrganisationPage");
-      } else if (userType === "technician") {
-        navigation.replace("TechnicianPage");
-      } else {
-        showModal("Unknown user type. Please contact support.", true);
+      switch (userType) {
+        case "driver":
+          navigation.replace("DriverPage");
+          break;
+        case "organisation":
+          navigation.replace("OrganisationPage");
+          break;
+        case "technician":
+          navigation.replace("TechnicianPage");
+          break;
+        default:
+          showModal("Unknown user type. Please contact support.", true);
       }
     } catch (error) {
-      // Handle network or timeout errors gracefully
       if (error.response) {
-        console.error("Response Data:", error.response.data);
         showModal(error.response.data.error, true);
       } else if (error.request) {
-        console.error("Request Error:", error.request);
-        showModal(
-          "Network error or server unreachable. Please try again later.",
-          true
-        );
+        showModal("Network error or server unreachable. Please try again later.", true);
       } else {
-        console.error("Unexpected Error:", error.message);
-
-        showModal(
-          "An unexpected error occurred. Please try again later.",
-          true
-        );
+        showModal("An unexpected error occurred. Please try again later.", true);
       }
     }
   };
-
+  
+  // Show modal for errors and messages
   const showModal = (message, isError) => {
     setPopupMessage(message);
     setModalVisible(true);

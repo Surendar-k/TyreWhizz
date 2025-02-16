@@ -10,6 +10,8 @@ import {
   Modal,
   ActivityIndicator,
 } from "react-native";
+import { jwtDecode } from "jwt-decode";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // const API_URL = process.env.API_URL;
 const OrganisationVehicleList = ({ navigation }) => {
@@ -31,31 +33,75 @@ const OrganisationVehicleList = ({ navigation }) => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
   useEffect(() => {
-    console.log("Fetching vehicles...");
     fetchVehicles();
   }, []);
+  const fetchUserId = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found.");
+        return null;
+      }
+
+      console.log("jwtDecode function:", jwtDecode); // Debugging
+      const payload = jwtDecode(token);
+
+      console.log("Decoded Payload:", payload);
+      return payload.userId || payload.userID || payload.id || null;
+    } catch (error) {
+      console.error("Error retrieving user ID:", error);
+      return null;
+    }
+  };
 
   const fetchVehicles = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/vehicles");
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched Vehicles data:", data); // Debugging
-        setVehicles(data);
-        setFilteredVehicles(data);
-      } else {
-        console.error("Failed to fetch Vehicles");
+      setLoading(true);
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found.");
+        return;
       }
+
+      const userId = await fetchUserId();
+      if (!userId) {
+        console.error("User ID not found.");
+        return;
+      }
+
+      const response = await fetch(
+        `http://192.168.18.19:5000/api/vehicles?userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 404) {
+        console.warn("No vehicles found for this user.");
+        setVehicles([]); // Ensure it sets an empty array
+        setFilteredVehicles([]);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch vehicles: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setVehicles(Array.isArray(data) ? data : []);
+      setFilteredVehicles(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error fetching Vehicles:", error);
+      console.error("Error fetching vehicles:", error);
+      setVehicles([]); // Ensure state is reset even on error
+      setFilteredVehicles([]);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    setFilteredVehicles(vehicles);
-  }, [vehicles]); // Ensures filtered drivers are updated whenever drivers change
 
   const updateVehicle = async () => {
     if (!selectedVehicle) {
@@ -63,75 +109,116 @@ const OrganisationVehicleList = ({ navigation }) => {
       return;
     }
 
-    console.log("Updating vehicle:", selectedVehicle);
-
     try {
+      const token = await AsyncStorage.getItem("token");
+      const userId = await fetchUserId();
+
+      if (!token || !userId) {
+        Alert.alert("Error", "Authentication token or User ID is missing");
+        return;
+      }
+
+      console.log("Token being sent:", token);
+      console.log("User ID:", userId);
+
+      const updatedData = {
+        ...selectedVehicle,
+        user_id: userId, // Ensure user_id is always sent
+      };
+
       const response = await fetch(
-        `http://localhost:5000/api/vehicles/${selectedVehicle.id}`, //
+        `http://192.168.18.19:5000/api/vehicles/${selectedVehicle.id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(selectedVehicle),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
         }
       );
 
-      const updatedVehicle = await response.json();
-      console.log("Response from server:", updatedVehicle);
-
-      if (response.ok) {
-        const updatedVehicles = vehicles.map((vehicle) =>
-          vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
-        );
-        setVehicles(updatedVehicles);
-        setFilteredVehicles(updatedVehicles);
-        setModalVisible(false);
-      } else {
-        Alert.alert("Error", "Failed to update vehicle");
+      if (!response.ok) {
+        throw new Error(`Failed to update vehicle. Status: ${response.status}`);
       }
+
+      // Fetch updated vehicle list after successful update
+      await fetchVehicles();
+
+      setModalVisible(false);
     } catch (error) {
       console.error("Error updating vehicle:", error);
       Alert.alert("Error", "Failed to connect to the server");
     }
   };
 
-  useEffect(() => {
-    console.log("Updated vehicles state:", vehicles);
-  }, [vehicles]);
-
-  useEffect(() => {
-    setFilteredVehicles(vehicles);
-  }, [vehicles]);
-
   const deleteVehicle = async (id) => {
+    let token = await AsyncStorage.getItem("token");
+    let userId = await AsyncStorage.getItem("user_id");
+
+    console.log("Retrieved Token:", token);
+    console.log("Retrieved User ID:", userId);
+
+    if (!userId) {
+      userId = await fetchUserId();
+      if (userId) {
+        await AsyncStorage.setItem("user_id", userId.toString());
+      }
+    }
+
+    if (!token || !userId) {
+      Alert.alert("Error", "Authentication required.");
+      return;
+    }
+
     Alert.alert(
       "Delete Vehicle",
-      "Are you sure you want to delete this Vehicle?",
+      "Are you sure you want to delete this vehicle?",
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
+            // ✅ **Optimistic UI Update**
+            setVehicles((prevVehicles) =>
+              prevVehicles.filter((v) => v.id !== id)
+            );
+
             try {
+              // 🔥 **API Call**
               const response = await fetch(
-                `http://localhost:5000/api/vehicles/${id}`,
+                `http://192.168.18.19:5000/api/vehicles/${id}?user_id=${userId}`,
                 {
                   method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
                 }
               );
 
-              if (response.ok) {
-                const updatedVehicles = vehicles.filter(
-                  (vehicle) => vehicle.id !== id
-                );
-                setVehicles(updatedVehicles);
-                setFilteredVehicles(updatedVehicles);
-              } else {
-                Alert.alert("Error", "Failed to delete vehicle");
+              const data = await response.json();
+              console.log("Delete Response:", data);
+
+              if (!response.ok) {
+                throw new Error(data.error || "Failed to delete vehicle");
               }
+
+              // ✅ **Fetch latest vehicles to ensure UI is updated**
+              await fetchVehicles();
+
+              Alert.alert("Success", "Vehicle deleted successfully");
             } catch (error) {
               console.error("Error deleting vehicle:", error);
-              Alert.alert("Error", "Failed to connect to the server");
+
+              // ❌ **Revert UI if API fails**
+              setVehicles((prevVehicles) => [
+                ...prevVehicles,
+                { id, user_id: userId },
+              ]);
+
+              Alert.alert("Error", "Failed to delete vehicle");
             }
           },
         },
@@ -146,64 +233,58 @@ const OrganisationVehicleList = ({ navigation }) => {
       !newVehicle.type ||
       !newVehicle.capacity
     ) {
-      Alert.alert("Error", "All fields are required to add a vehicle.");
+      Alert.alert("Error", "All fields are required.");
       return;
     }
 
-    console.log("Adding vehicle:", newVehicle); // Debugging
-
     try {
-      const response = await fetch("http://localhost:5000/api/vehicles", {
+      const token = await AsyncStorage.getItem("token");
+      const user_id = await fetchUserId();
+      if (!user_id) {
+        Alert.alert("Error", "User ID missing.");
+        return;
+      }
+
+      const response = await fetch("http://192.168.18.19:5000/api/vehicles", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newVehicle),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ...newVehicle, user_id }),
       });
 
-      const data = await response.json();
-      console.log("Response from server:", data); // Debugging
-
-      if (response.ok) {
-        setVehicles((prev) => [...prev, data]); // Update state immediately
-        setFilteredVehicles((prev) => [...prev, data]);
-        setNewVehicle({
-          vehicle_no: "",
-          driver_id: "",
-          type: "",
-          capacity: "",
-        });
-        setShowAddVehicle(false);
-      } else {
-        Alert.alert("Error", data.error || "Failed to add vehicle");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to add vehicle");
       }
+
+      const data = await response.json();
+      setVehicles((prev) => [...prev, data]);
+      setFilteredVehicles((prev) => [...prev, data]);
+      setNewVehicle({ vehicle_no: "", driver_id: "", type: "", capacity: "" });
+      setShowAddVehicle(false);
     } catch (error) {
-      console.error("Error during API call:", error);
+      console.error("Error adding vehicle:", error);
       Alert.alert("Error", "Failed to connect to the server");
     }
   };
 
   const searchVehicle = (text) => {
-    // Trim input to handle leading/trailing spaces and ensure case-insensitivity
     const query = text.trim().toLowerCase();
+    setSearchText(text);
 
-    // If the query is empty, set filteredDrivers to all drivers
     if (!query) {
       setFilteredVehicles(vehicles);
       return;
     }
-    const filteredList = vehicles.filter((vehicle) => {
-      // Ensure the driver's Driver_No exists and is a string before performing the search
-      const Vehicleno = vehicle.vehicle_no ? vehicle.vehicle_no.toString() : ""; // Convert to string if it's not already
 
-      return Vehicleno.toLowerCase().includes(query);
-    });
-
-    // Debugging: Log the filtered list to ensure the logic is working
-    console.log(filteredList);
-
-    // Update state with the filtered list
-    setFilteredVehicles(filteredList);
+    setFilteredVehicles(
+      vehicles.filter((vehicle) =>
+        vehicle.vehicle_no.toLowerCase().includes(query)
+      )
+    );
   };
-
   if (loading) {
     // Show the loading spinner when loading state is true
     return (
@@ -214,9 +295,6 @@ const OrganisationVehicleList = ({ navigation }) => {
     );
   }
 
-  if (!vehicles || vehicles.length === 0) {
-    return <Text>No vehicles found</Text>;
-  }
   const renderVehicleItem = ({ item }) => (
     <View style={styles.card}>
       <TouchableOpacity
@@ -322,6 +400,9 @@ const OrganisationVehicleList = ({ navigation }) => {
           item.id ? item.id.toString() : String(item.Vehicle_No)
         }
         contentContainerStyle={{ paddingBottom: 100 }}
+        ListEmptyComponent={
+          <Text style={styles.noVehicleText}>No vehicles found</Text>
+        }
       />
 
       <Modal

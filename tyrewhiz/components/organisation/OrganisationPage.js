@@ -18,6 +18,8 @@ import tyremo from "../../assets/tyremo.png";
 import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 // const API_URL = process.env.API_URL;
 const OrganisationPage = () => {
@@ -37,8 +39,8 @@ const OrganisationPage = () => {
     phone: "",
   });
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("userData");
+  useEffect(async () => {
+    const storedUser =  await AsyncStorage.getItem("userData");
     if (storedUser) {
       setProfileData(JSON.parse(storedUser));
     }
@@ -49,13 +51,39 @@ const OrganisationPage = () => {
   useEffect(() => {
     const fetchFleetData = async () => {
       try {
+        const token =  await AsyncStorage.getItem("token"); // Retrieve token
+
+        if (!token) {
+          console.error("No token found. User might not be logged in.");
+          setLoading(false);
+          return;
+        }
         const [driversRes, vehiclesRes] = await Promise.all([
-          fetch("http://localhost:5000/api/drivers"),
-          fetch("http://localhost:5000/api/vehicles"),
+          fetch("http://192.168.18.19:5000/api/drivers", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          fetch("http://192.168.18.19:5000/api/vehicles", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }),
         ]);
 
+        console.log("Drivers Response:", driversRes);
+        console.log("Vehicles Response:", vehiclesRes);
+
         if (!driversRes.ok || !vehiclesRes.ok) {
-          throw new Error("Failed to fetch data");
+          const errorText1 = await driversRes.text(); // Read raw response text
+          const errorText2 = await vehiclesRes.text();
+          console.error("Driver API Error:", errorText1);
+          console.error("Vehicle API Error:", errorText2);
+          throw new Error(
+            `Failed to fetch data. Status: ${driversRes.status}, ${vehiclesRes.status}`
+          );
         }
 
         const [driverData, vehicleData] = await Promise.all([
@@ -66,7 +94,7 @@ const OrganisationPage = () => {
         setFleetData({
           totalVehicles: vehicleData.length,
           totalDrivers: driverData.length,
-          activeIssues: 5,
+          activeIssues: driverData.activeIssues?.length || 0, // Fix: Avoid undefined error
           resolvedIssues: [
             { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
             { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
@@ -93,7 +121,7 @@ const OrganisationPage = () => {
   }, []);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Text>Loading...</Text>;
   }
 
   const getResolvedIssuesLast24Hrs = () => {
