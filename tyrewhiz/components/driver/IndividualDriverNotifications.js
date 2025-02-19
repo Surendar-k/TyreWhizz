@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 const IndividualDriverNotifications = ({ notifications = [] }) => {
   return (
@@ -12,16 +12,12 @@ const IndividualDriverNotifications = ({ notifications = [] }) => {
               <Text style={styles.notificationText}>
                 {notification.message}
               </Text>
-              <Text style={styles.notificationDate}>
-                {notification.date}
-              </Text>
+              <Text style={styles.notificationDate}>{notification.date}</Text>
             </View>
           ))}
         </View>
       ) : (
-        <Text style={styles.noNotifications}>
-          No notifications available.
-        </Text>
+        <Text style={styles.noNotifications}>No notifications available.</Text>
       )}
     </View>
   );
@@ -42,10 +38,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   notificationItem: {
-    backgroundColor: "rgb(145 222 156)",
+    backgroundColor: "rgb(180 169 246)",
     padding: 10,
     borderRadius: 5,
     marginBottom: 8,
+    // Box shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+
+    // Elevation for Android
+    elevation: 5,
   },
   notificationText: {
     fontSize: 14,

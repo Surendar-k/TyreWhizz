@@ -34,23 +34,24 @@ const TireMonitoring = ({ navigation }) => {
       return null;
     }
   };
-  const { translatedText, updateTranslations } = useTranslation(); 
+  const { translatedText, updateTranslations } = useTranslation();
 
-  useFocusEffect(React.useCallback(() => {
-    updateTranslations([
-    
-      "Logged in as: Organization",
-      "Tire Monitoring",
-      "Vehicle No",
-      "Tire Status",
-      "Issues",
-      "Pressure",
-      "Temperature",
-      "Good",
-      "Status",
-      "View Details",
-    ]); // ✅ Fetch translations FIRST, THEN fetch vehicle data
-  }, []));
+  useFocusEffect(
+    React.useCallback(() => {
+      updateTranslations([
+        "Logged in as: Organization",
+        "Tire Monitoring",
+        "Vehicle No",
+        "Tire Status",
+        "Issues",
+        "Pressure",
+        "Temperature",
+        "Good",
+        "Status",
+        "View Details",
+      ]); // ✅ Fetch translations FIRST, THEN fetch vehicle data
+    }, [])
+  );
 
   useEffect(() => {
     if (Object.keys(translatedText).length > 0) {
@@ -72,7 +73,7 @@ const TireMonitoring = ({ navigation }) => {
         return;
       }
       const response = await fetch(
-        `http://192.168.10.16:5000/api/vehicles?userId=${userId}`,
+        `http://10.1.8.169:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -111,7 +112,6 @@ const TireMonitoring = ({ navigation }) => {
     }
   };
 
-
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -127,13 +127,16 @@ const TireMonitoring = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={styles.backButtonText}>❮</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
       </View>
 
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>{translatedText["Logged in as: Organization"] || "Logged in as: Organization"}</Text>
+        <Text style={styles.role}>
+          {translatedText["Logged in as: Organization"] ||
+            "Logged in as: Organization"}
+        </Text>
       </View>
 
       <FlatList
@@ -157,7 +160,9 @@ const TireMonitoring = ({ navigation }) => {
                 navigation.navigate("MonitoringPage", { vehicle: item })
               }
             >
-              <Text style={styles.buttonText}>{translatedText["View Details"] || "View Details"}</Text>
+              <Text style={styles.buttonText}>
+                {translatedText["View Details"] || "View Details"}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -185,12 +190,12 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+
     borderRadius: 5,
     borderWidth: 1,
   },
   backButtonText: {
-    color: "rgb(42 10 62)",
+    color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",

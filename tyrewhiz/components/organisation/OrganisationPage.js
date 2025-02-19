@@ -97,13 +97,13 @@ const OrganisationPage = () => {
           return;
         }
         const [driversRes, vehiclesRes] = await Promise.all([
-          fetch("http://192.168.18.19:5000/api/drivers", {
+          fetch("http://10.1.8.169:5000/api/drivers", {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }),
-          fetch("http://192.168.18.19:5000/api/vehicles", {
+          fetch("http://10.1.8.169:5000/api/vehicles", {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
@@ -195,7 +195,7 @@ const OrganisationPage = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={styles.backButtonText}>❮</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
         <TouchableOpacity
@@ -439,11 +439,11 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+
     borderRadius: 5,
   },
   backButtonText: {
-    color: "rgb(42 10 62)",
+    color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
@@ -461,11 +461,11 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+
     borderRadius: 5,
   },
   profileButtonText: {
-    color: "rgb(42 10 62)",
+    color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
   },

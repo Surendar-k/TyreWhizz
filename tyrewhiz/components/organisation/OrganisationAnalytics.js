@@ -190,7 +190,7 @@ const OrganisationAnalytics = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={styles.backButtonText}>❮</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
       </View>
@@ -296,12 +296,12 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+
     borderRadius: 5,
     borderWidth: 1,
   },
   backButtonText: {
-    color: "rgb(42 10 62)",
+    color: "#fff",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",

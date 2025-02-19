@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -17,17 +16,19 @@ const DriverPage = () => {
   const navigation = useNavigation();
   const { translatedText, updateTranslations } = useTranslation(); // ✅ Use global translations
 
-   useFocusEffect(React.useCallback(() => {
-    setModalVisible(true);
+  useFocusEffect(
+    React.useCallback(() => {
+      setModalVisible(true);
 
-    // ✅ Fetch translations dynamically from context
-    updateTranslations([
-      "Choose Your Driver Type",
-      "Individual Driver",
-      "Professional Driver",
-      "Cancel",
-    ]);
-  }, []));
+      // ✅ Fetch translations dynamically from context
+      updateTranslations([
+        "Choose Your Driver Type",
+        "Individual Driver",
+        "Professional Driver",
+        "Cancel",
+      ]);
+    }, [])
+  );
 
   const navigateToIndividualDriverDashboardPage = () => {
     setModalVisible(false);
@@ -57,7 +58,8 @@ const DriverPage = () => {
         >
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>
-              {translatedText["Choose Your Driver Type"] || "Choose Your Driver Type"}
+              {translatedText["Choose Your Driver Type"] ||
+                "Choose Your Driver Type"}
             </Text>
 
             <TouchableOpacity
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   optionButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "rgb(111 78 184)",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 10,

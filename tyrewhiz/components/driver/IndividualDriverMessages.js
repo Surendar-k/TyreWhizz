@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 const IndividualDriverMessages = ({ messages = [] }) => {
   return (
@@ -37,13 +37,19 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 10,
     borderRadius: 5,
+
+    // Box shadow for iOS
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+
+    // Elevation for Android
+    elevation: 5,
   },
+
   unread: {
-    backgroundColor: "rgb(166 230 163)",
+    backgroundColor: "#B4A9F6",
   },
   messageHeader: {
     flexDirection: "row",

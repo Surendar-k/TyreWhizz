@@ -29,85 +29,112 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   const { translatedText, updateTranslations } = useTranslation();
 
   // Update translations when language changes
-  useFocusEffect(React.useCallback(() => {
-    updateTranslations([
-      "Back",
-      "Signup",
-      "Login",
-      "Email",
-      "Password",
-      "Confirm Password",
-      "Already have an account? Login",
-      "Don't have an account? Signup",
-      "Email and password are required.",
-      "Invalid email format. Please enter a valid email.",
-      "Password must be at least 6 characters long.",
-      "Passwords do not match.",
-      "Unknown user type. Please contact support.",
-      "Network error or server unreachable. Please try again later.",
-      "An unexpected error occurred. Please try again later.",
-    ]);
-  }, []));
+  useFocusEffect(
+    React.useCallback(() => {
+      updateTranslations([
+        "Back",
+        "Signup",
+        "Login",
+        "Email",
+        "Password",
+        "Confirm Password",
+        "Already have an account? Login",
+        "Don't have an account? Signup",
+        "Email and password are required.",
+        "Invalid email format. Please enter a valid email.",
+        "Password must be at least 6 characters long.",
+        "Passwords do not match.",
+        "Unknown user type. Please contact support.",
+        "Network error or server unreachable. Please try again later.",
+        "An unexpected error occurred. Please try again later.",
+      ]);
+    }, [])
+  );
 
   const handleAuthAction = async () => {
     if (!email || !password) {
       showModal("Email and password are required.", true);
-      Alert.alert("Error", translatedText["Email and password are required."] || "Email and password are required.");
+      Alert.alert(
+        "Error",
+        translatedText["Email and password are required."] ||
+          "Email and password are required."
+      );
       return;
     }
-  
+
     // Email validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      showModal(translatedText["Invalid email format. Please enter a valid email."] || "Invalid email format.", true);
+      showModal(
+        translatedText["Invalid email format. Please enter a valid email."] ||
+          "Invalid email format.",
+        true
+      );
       return;
     }
-  
+
     // Password validation
     if (password.length < 6) {
-      showModal(translatedText["Password must be at least 6 characters long."] || "Password must be at least 6 characters long.", true);
+      showModal(
+        translatedText["Password must be at least 6 characters long."] ||
+          "Password must be at least 6 characters long.",
+        true
+      );
       return;
     }
-  
+
     const data = { email, password, userType };
-  
+
     // Signup flow
     if (isSignup) {
       if (password !== confirmPassword) {
-        showModal(translatedText["Passwords do not match."] || "Passwords do not match.", true);
+        showModal(
+          translatedText["Passwords do not match."] ||
+            "Passwords do not match.",
+          true
+        );
         return;
       }
-  
+
       try {
-        const response = await axios.post("http://192.168.10.16:5000/api/signup", data);
+        const response = await axios.post(
+          "http://10.1.8.169:5000/api/signup",
+          data
+        );
         showModal(response.data.message, false);
-        
+
         // Reset state
         setEmail("");
         setPassword("");
         setConfirmPassword("");
         setIsSignup(false);
       } catch (error) {
-        showModal(error.response?.data?.error || "Signup failed. Please try again.", true);
+        showModal(
+          error.response?.data?.error || "Signup failed. Please try again.",
+          true
+        );
       }
       return;
     }
-  
+
     // Login flow
     try {
-      const response = await axios.post("http://192.168.10.16:5000/api/login", data);
+      const response = await axios.post(
+        "http://10.1.8.169:5000/api/login",
+        data
+      );
       const { userType, token } = response.data;
-  
+
       if (!token) {
         showModal("Login failed: No token received.", true);
         return;
       }
-  
+
       // Store token securely
       await AsyncStorage.setItem("token", token);
-  
+
       showModal(response.data.message, false);
-  
+
       // Navigate based on userType
       switch (userType) {
         case "driver":
@@ -126,13 +153,23 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       if (error.response) {
         showModal(error.response.data.error, true);
       } else if (error.request) {
-        showModal(translatedText["Network error or server unreachable. Please try again later."] || "Network error. Try again later.", true);
+        showModal(
+          translatedText[
+            "Network error or server unreachable. Please try again later."
+          ] || "Network error. Try again later.",
+          true
+        );
       } else {
-        showModal(translatedText["An unexpected error occurred. Please try again later."] || "Unexpected error. Try again later.", true);
+        showModal(
+          translatedText[
+            "An unexpected error occurred. Please try again later."
+          ] || "Unexpected error. Try again later.",
+          true
+        );
       }
     }
   };
-  
+
   // Show modal for errors and messages
   const showModal = (message, isError) => {
     setPopupMessage(message);
@@ -142,19 +179,29 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.buttonText}>{translatedText["Back"] || "Back"}</Text>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.backButtonText}>❮</Text>
       </TouchableOpacity>
-      
+
       <View style={styles.logoContainer}>
         <Image source={logoimg} style={styles.logo} />
       </View>
 
       <Text style={styles.title}>
-        {isSignup ? `${translatedText["Signup"] || "Signup"} as ${userType}` : `${translatedText["Login"] || "Login"} as ${userType}`}
+        {isSignup
+          ? `${translatedText["Signup"] || "Signup"} as ${userType}`
+          : `${translatedText["Login"] || "Login"} as ${userType}`}
       </Text>
 
-      <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
+      <Modal
+        visible={isModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
         <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
@@ -166,22 +213,46 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <TextInput style={styles.input} placeholder={translatedText["Email"] || "Email"} value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder={translatedText["Password"] || "Password"} value={password} onChangeText={setPassword} secureTextEntry />
+      <TextInput
+        style={styles.input}
+        placeholder={translatedText["Email"] || "Email"}
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder={translatedText["Password"] || "Password"}
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
 
       {isSignup && (
-        <TextInput style={styles.input} placeholder={translatedText["Confirm Password"] || "Confirm Password"} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+        <TextInput
+          style={styles.input}
+          placeholder={translatedText["Confirm Password"] || "Confirm Password"}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
       )}
 
       <TouchableOpacity style={styles.button} onPress={handleAuthAction}>
-        <Text style={styles.buttonText}>{isSignup ? translatedText["Signup"] || "Signup" : translatedText["Login"] || "Login"}</Text>
+        <Text style={styles.buttonText}>
+          {isSignup
+            ? translatedText["Signup"] || "Signup"
+            : translatedText["Login"] || "Login"}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
         <Text style={styles.toggleText}>
           {isSignup
-            ? translatedText["Already have an account? Login"] || "Already have an account? Login"
-            : translatedText["Don't have an account? Signup"] || "Don't have an account? Signup"}
+            ? translatedText["Already have an account? Login"] ||
+              "Already have an account? Login"
+            : translatedText["Don't have an account? Signup"] ||
+              "Don't have an account? Signup"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -216,13 +287,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 40,
     left: 20,
-    backgroundColor: "#6200ee",
+
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 5,
   },
   backButtonText: {
-    color: "#fff",
+    color: "#6200ee",
     fontSize: 14,
     fontWeight: "bold",
   },

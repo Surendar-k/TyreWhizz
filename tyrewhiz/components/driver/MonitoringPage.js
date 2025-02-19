@@ -64,7 +64,7 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/data"); // Correct endpoint for sensor data
+        const response = await axios.get("http://10.1.8.169:5000/live-data"); // Correct endpoint for live sensor data
         setSensorData(response.data); // Assuming backend sends sensorData in response
         setLoading(false);
       } catch (error) {

@@ -31,16 +31,44 @@ const IndividualDriverDashboardPage = () => {
   const [vehicleType, setVehicleType] = useState("4wheeler"); // Default vehicle type
   const navigation = useNavigation();
   const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
-  
-     useFocusEffect(React.useCallback(() =>{
+
+  useFocusEffect(
+    React.useCallback(() => {
       updateTranslations([
-        "Logged in as: Driver","Edit Profile","Messages","Select Vehicle Type","2-Wheeler","4-Wheeler","6-Wheeler","8-Wheeler",
-        "Add Pair Connection","Recent Paired Connections:","Pair","Delete","No recent connections.","Select Pairing Method","Manual","Auto Pair",
-        "Manual Pairing","Connect","Auto Pairing","Connection in progress...",
-        "Upload Images (License, RC, etc.)","Driver Details","Driver Name","Vehicle No","Upload Profile Picture","Save","Logout",
-         "Notifications" ,"Enter Driver Name","Enter Vehicle No" ,"Sensor ID/Vehicle ID"
+        "Logged in as: Driver",
+        "Edit Profile",
+        "Messages",
+        "Select Vehicle Type",
+        "2-Wheeler",
+        "4-Wheeler",
+        "6-Wheeler",
+        "8-Wheeler",
+        "Add Pair Connection",
+        "Recent Paired Connections:",
+        "Pair",
+        "Delete",
+        "No recent connections.",
+        "Select Pairing Method",
+        "Manual",
+        "Auto Pair",
+        "Manual Pairing",
+        "Connect",
+        "Auto Pairing",
+        "Connection in progress...",
+        "Upload Images (License, RC, etc.)",
+        "Driver Details",
+        "Driver Name",
+        "Vehicle No",
+        "Upload Profile Picture",
+        "Save",
+        "Logout",
+        "Notifications",
+        "Enter Driver Name",
+        "Enter Vehicle No",
+        "Sensor ID/Vehicle ID",
       ]);
-    },[]));
+    }, [])
+  );
 
   const [messages] = useState([
     {
@@ -247,7 +275,7 @@ const IndividualDriverDashboardPage = () => {
           onPress={() => navigation.navigate("DriverPage")}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Text style={styles.backButtonText}>❮</Text>
         </TouchableOpacity>
         <Text style={styles.headerText}>TyreWhizz</Text>
         <TouchableOpacity onPress={toggleModal} style={styles.profileSection}>
@@ -255,11 +283,15 @@ const IndividualDriverDashboardPage = () => {
             source={profileImage ? { uri: profileImage } : defaultImage}
             style={styles.profileImage}
           />
-          <Text style={styles.profileText}>{translatedText["Edit Profile"]||"Edit Profile"}</Text>
+          <Text style={styles.profileText}>
+            {translatedText["Edit Profile"] || "Edit Profile"}
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>{translatedText["Logged in as: Driver"]||"Logged in as: Driver"}</Text>
+        <Text style={styles.role}>
+          {translatedText["Logged in as: Driver"] || "Logged in as: Driver"}
+        </Text>
       </View>
       <View style={styles.tabsContainer}>
         <TouchableOpacity
@@ -275,7 +307,7 @@ const IndividualDriverDashboardPage = () => {
               selectedTab === "notifications" && styles.selectedTabText,
             ]}
           >
-           {translatedText["Notifications"]||"Notifications"}
+            {translatedText["Notifications"] || "Notifications"}
           </Text>
         </TouchableOpacity>
 
@@ -292,7 +324,7 @@ const IndividualDriverDashboardPage = () => {
               selectedTab === "pairConnection" && styles.selectedTabText,
             ]}
           >
-            {translatedText["Pair"]||"Pair"}
+            {translatedText["Pair"] || "Pair"}
           </Text>
         </TouchableOpacity>
 
@@ -306,7 +338,7 @@ const IndividualDriverDashboardPage = () => {
               selectedTab === "messages" && styles.selectedTabText,
             ]}
           >
-            {translatedText["Messages"]||"Messages"}
+            {translatedText["Messages"] || "Messages"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -322,7 +354,9 @@ const IndividualDriverDashboardPage = () => {
       {/*pairconnection tab content */}
       {selectedTab === "pairConnection" && (
         <View style={styles.tabContent}>
-          <Text style={styles.vehicleTypeText}>{translatedText["Select Vehicle Type"]||"Select Vehicle Type"}</Text>
+          <Text style={styles.vehicleTypeText}>
+            {translatedText["Select Vehicle Type"] || "Select Vehicle Type"}
+          </Text>
           <View style={styles.vehicleTypeGrid}>
             <TouchableOpacity
               onPress={() => setVehicleType("2wheeler")}
@@ -331,7 +365,9 @@ const IndividualDriverDashboardPage = () => {
                 vehicleType === "2wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>{translatedText["2-Wheeler"]||"2-Wheeler"}</Text>
+              <Text style={styles.vehicleButtonText}>
+                {translatedText["2-Wheeler"] || "2-Wheeler"}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("4wheeler")}
@@ -340,7 +376,9 @@ const IndividualDriverDashboardPage = () => {
                 vehicleType === "4wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>{translatedText["4-Wheeler"]||"4-Wheeler"}</Text>
+              <Text style={styles.vehicleButtonText}>
+                {translatedText["4-Wheeler"] || "4-Wheeler"}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("6wheeler")}
@@ -349,7 +387,9 @@ const IndividualDriverDashboardPage = () => {
                 vehicleType === "6wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>{translatedText["6-Wheeler"]||"2-Wheeler"}</Text>
+              <Text style={styles.vehicleButtonText}>
+                {translatedText["6-Wheeler"] || "2-Wheeler"}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setVehicleType("8wheeler")}
@@ -358,12 +398,16 @@ const IndividualDriverDashboardPage = () => {
                 vehicleType === "8wheeler" && styles.selectedVehicleButton,
               ]}
             >
-              <Text style={styles.vehicleButtonText}>{translatedText["8-Wheeler"]||"2-Wheeler"}</Text>
+              <Text style={styles.vehicleButtonText}>
+                {translatedText["8-Wheeler"] || "2-Wheeler"}
+              </Text>
             </TouchableOpacity>
           </View>
 
           <TextInput
-            placeholder={translatedText["Sensor ID/Vehicle ID"]||"Sensor ID/Vehicle ID"}
+            placeholder={
+              translatedText["Sensor ID/Vehicle ID"] || "Sensor ID/Vehicle ID"
+            }
             value={sensorId}
             onChangeText={setSensorId}
             style={styles.inputField}
@@ -372,11 +416,14 @@ const IndividualDriverDashboardPage = () => {
             onPress={handleSensorIdSubmit}
             style={styles.addPairButton}
           >
-            <Text style={styles.addPairButtonText}>{translatedText["Add Pair Connection"]||"Add Pair Connection"}</Text>
+            <Text style={styles.addPairButtonText}>
+              {translatedText["Add Pair Connection"] || "Add Pair Connection"}
+            </Text>
           </TouchableOpacity>
 
           <Text style={styles.recentConnectionsText}>
-            {translatedText["Recent Paired Connections:"]||"Recent Paired Connections:"}
+            {translatedText["Recent Paired Connections:"] ||
+              "Recent Paired Connections:"}
           </Text>
           {recentConnections.length > 0 ? (
             <View style={styles.recentConnectionsList}>
@@ -399,14 +446,18 @@ const IndividualDriverDashboardPage = () => {
                           onPress={() => handlePairClick(index)}
                           style={styles.pairButton}
                         >
-                          <Text style={styles.pairButtonText}>{translatedText["Pair"]||"Pair"}</Text>
+                          <Text style={styles.pairButtonText}>
+                            {translatedText["Pair"] || "Pair"}
+                          </Text>
                         </TouchableOpacity>
                       )}
                       <TouchableOpacity
                         onPress={() => handleDeleteConnection(index)}
                         style={styles.deleteButton}
                       >
-                        <Text style={styles.deleteButtonText}>{translatedText["Delete"]||"Delete"}</Text>
+                        <Text style={styles.deleteButtonText}>
+                          {translatedText["Delete"] || "Delete"}
+                        </Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -414,7 +465,10 @@ const IndividualDriverDashboardPage = () => {
               ))}
             </View>
           ) : (
-            <Text>{translatedText["No recent connections."]||"No recent connections."}</Text>
+            <Text>
+              {translatedText["No recent connections."] ||
+                "No recent connections."}
+            </Text>
           )}
         </View>
       )}
@@ -426,23 +480,32 @@ const IndividualDriverDashboardPage = () => {
         <View style={styles.pairModalContainer}>
           {!selectedPairType ? (
             <>
-              <Text style={styles.modalTitle}>{translatedText["Select Pairing Method"]||"Select Pairing Method"}</Text>
+              <Text style={styles.modalTitle}>
+                {translatedText["Select Pairing Method"] ||
+                  "Select Pairing Method"}
+              </Text>
               <TouchableOpacity
                 style={styles.methodButton}
                 onPress={handleManualPair}
               >
-                <Text style={styles.methodButtonText}>{translatedText["Manual"]||"Manual"}</Text>
+                <Text style={styles.methodButtonText}>
+                  {translatedText["Manual"] || "Manual"}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.methodButton}
                 onPress={handleAutoPair}
               >
-                <Text style={styles.methodButtonText}>{translatedText["Auto Pair"]||"Auto Pair"}</Text>
+                <Text style={styles.methodButtonText}>
+                  {translatedText["Auto Pair"] || "Auto Pair"}
+                </Text>
               </TouchableOpacity>
             </>
           ) : selectedPairType === "manual" ? (
             <View style={styles.manualPairingContainer}>
-              <Text style={styles.modalTitle}>{translatedText["Manual Pairing"]||"Manual Pairing"}</Text>
+              <Text style={styles.modalTitle}>
+                {translatedText["Manual Pairing"] || "Manual Pairing"}
+              </Text>
 
               <View style={styles.carContainer}>
                 {/* Left side tire inputs */}
@@ -517,15 +580,20 @@ const IndividualDriverDashboardPage = () => {
                 style={styles.connectButton}
                 onPress={handleManualConnect}
               >
-                <Text style={styles.connectButtonText}>{translatedText["Connect"]||"Connect"}</Text>
+                <Text style={styles.connectButtonText}>
+                  {translatedText["Connect"] || "Connect"}
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
             <View style={styles.autoPairingContainer}>
-              <Text style={styles.modalTitle}>{translatedText["Auto Pairing"]||"Auto Pairing"}</Text>
+              <Text style={styles.modalTitle}>
+                {translatedText["Auto Pairing"] || "Auto Pairing"}
+              </Text>
               <ActivityIndicator size="large" color="#4CAF50" />
               <Text style={styles.autoPairingText}>
-                {translatedText["Connection in progress..."]||"Connection in progress..."}
+                {translatedText["Connection in progress..."] ||
+                  "Connection in progress..."}
               </Text>
             </View>
           )}
@@ -536,7 +604,8 @@ const IndividualDriverDashboardPage = () => {
         <View style={styles.tabContent}>
           <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
             <Text style={styles.uploadButtonText}>
-              {translatedText["Upload Images (License, RC, etc.)"]||"Upload Images (License, RC, etc.)"}
+              {translatedText["Upload Images (License, RC, etc.)"] ||
+                "Upload Images (License, RC, etc.)"}
             </Text>
           </TouchableOpacity>
           {uploadedImages.length > 0 && (
@@ -559,12 +628,18 @@ const IndividualDriverDashboardPage = () => {
             <Ionicons name="close-circle" size={30} color="gray" />
           </TouchableOpacity>
 
-          <Text style={styles.modalTitle}>{translatedText["Driver Details"]||"Driver Details"}</Text>
+          <Text style={styles.modalTitle}>
+            {translatedText["Driver Details"] || "Driver Details"}
+          </Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>{translatedText["Driver Name"]||"Driver Name"}</Text>
+            <Text style={styles.inputLabel}>
+              {translatedText["Driver Name"] || "Driver Name"}
+            </Text>
             <TextInput
-              placeholder={translatedText["Enter Driver Name"]||"Enter Driver Name"}
+              placeholder={
+                translatedText["Enter Driver Name"] || "Enter Driver Name"
+              }
               value={driverName}
               onChangeText={setDriverName}
               style={styles.inputField}
@@ -572,9 +647,13 @@ const IndividualDriverDashboardPage = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>{translatedText["Vehicle No"]||"Vehicle No"}</Text>
+            <Text style={styles.inputLabel}>
+              {translatedText["Vehicle No"] || "Vehicle No"}
+            </Text>
             <TextInput
-              placeholder={translatedText["Enter Vehicle No"]||"Enter Vehicle No"}
+              placeholder={
+                translatedText["Enter Vehicle No"] || "Enter Vehicle No"
+              }
               value={vehicleNo}
               onChangeText={setVehicleNo}
               style={styles.inputField}
@@ -582,7 +661,10 @@ const IndividualDriverDashboardPage = () => {
           </View>
 
           <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>{translatedText["Upload Profile Picture"]||"Upload Profile Picture"}</Text>
+            <Text style={styles.uploadButtonText}>
+              {translatedText["Upload Profile Picture"] ||
+                "Upload Profile Picture"}
+            </Text>
           </TouchableOpacity>
           {profileImage && (
             <Image
@@ -593,7 +675,8 @@ const IndividualDriverDashboardPage = () => {
 
           <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
             <Text style={styles.uploadButtonText}>
-              {translatedText["Upload Images (License, RC, etc.)"]||"Upload Images (License, RC, etc.)"}
+              {translatedText["Upload Images (License, RC, etc.)"] ||
+                "Upload Images (License, RC, etc.)"}
             </Text>
           </TouchableOpacity>
           {uploadedImages.length > 0 && (
@@ -612,11 +695,15 @@ const IndividualDriverDashboardPage = () => {
             style={styles.saveButton}
             onPress={saveDriverDetails}
           >
-            <Text style={styles.saveButtonText}>{translatedText["Save"]||"Save"}</Text>
+            <Text style={styles.saveButtonText}>
+              {translatedText["Save"] || "Save"}
+            </Text>
           </TouchableOpacity>
           {/* Logout Button */}
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.buttonText}>{translatedText["Logout"]||"Logout"}</Text>
+            <Text style={styles.buttonText}>
+              {translatedText["Logout"] || "Logout"}
+            </Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -685,25 +772,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   backButton: {
-    flexDirection: "row",
+    width: 50,
+    height: 50,
+    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
 
-    marginRight: 10,
+    borderRadius: 5,
   },
   backButtonText: {
-    fontSize: 16,
+    color: "#fff",
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#ffff",
+    textAlign: "center",
   },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#4CAF50",
+    backgroundColor: "rgb(28 10 62)",
     padding: 15,
     elevation: 4,
   },
@@ -714,7 +800,7 @@ const styles = StyleSheet.create({
   },
   roleContainer: {
     padding: 10,
-    backgroundColor: "rgb(245, 245, 245)",
+    backgroundColor: "#a296ba49",
     alignItems: "center",
   },
   role: { fontSize: 18, color: "rgb(42 10 62)" },
@@ -744,7 +830,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flexDirection: "row",
     padding: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "#C6C6C649",
     elevation: 2,
   },
   tab: {
@@ -753,22 +839,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 5,
     marginHorizontal: 5,
+    borderRadius: 10,
   },
   selectedTab: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "rgb(90 50 177)",
   },
   tabText: {
-    color: "#666",
+    color: "#333",
   },
   selectedTabText: {
     color: "#fff",
   },
   tabContent: {
     padding: 20,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "rgb(201 201 201)", // Updated background color
     borderRadius: 10,
-    elevation: 3,
+
+    // Box shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+
+    // Elevation for Android
+    elevation: 5,
   },
+
   vehicleTypeText: {
     fontSize: 20,
     fontWeight: "bold",
@@ -785,21 +881,31 @@ const styles = StyleSheet.create({
     width: "48%",
     marginBottom: 15,
     paddingVertical: 15,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: "#321CD289",
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#D0D0D0",
+
+    // Box shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+
+    // Elevation for Android
+    elevation: 5,
   },
+
   selectedVehicleButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "rgb(110 89 149)",
     borderColor: "#388E3C",
   },
   vehicleButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "#fff",
   },
   inputField: {
     backgroundColor: "#FFFFFF",
@@ -811,27 +917,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addPairButton: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#4CAF50",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 20,
   },
   addPairButtonText: {
-    color: "#FFFFFF",
+    color: "#4CAF50",
     fontSize: 16,
     fontWeight: "bold",
   },
   recentConnectionsText: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
+    marginTop: 20,
     color: "#333",
   },
   recentConnectionsList: {
-    backgroundColor: "#FFF",
+    backgroundColor: "rgba(50, 28, 210, 0.54)",
     borderRadius: 10,
-    padding: 15,
+    padding: 10,
     elevation: 5,
   },
   recentConnectionItem: {
@@ -990,14 +1097,14 @@ const styles = StyleSheet.create({
   },
 
   addPairButton: {
-    backgroundColor: "#2196F3", // Blue background for the button
+    backgroundColor: "rgb(88 217 108)", // Blue background for the button
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
     elevation: 4, // Add shadow for depth
-    shadowColor: "#000",
+    shadowColor: "rgb(88 217 108)",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,

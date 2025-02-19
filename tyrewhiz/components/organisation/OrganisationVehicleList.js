@@ -112,7 +112,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://192.168.10.16:5000/api/vehicles?userId=${userId}`,
+        `http://10.1.8.169:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -177,7 +177,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://192.168.10.16:5000/api/vehicles/${selectedVehicle.id}`,
+        `http://10.1.8.169:5000/api/vehicles/${selectedVehicle.id}`,
         {
           method: "PUT",
           headers: {
@@ -243,7 +243,7 @@ const OrganisationVehicleList = ({ navigation }) => {
             try {
               // 🔥 **API Call**
               const response = await fetch(
-                `http://192.168.10.16:5000/api/vehicles/${id}?user_id=${userId}`,
+                `http://10.1.8.169:5000/api/vehicles/${id}?user_id=${userId}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -308,7 +308,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://192.168.10.16:5000/api/vehicles", {
+      const response = await fetch("http://10.1.8.169:5000/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -402,7 +402,7 @@ const OrganisationVehicleList = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={styles.backButtonText}>❮</Text>
         </TouchableOpacity>
         <Text style={styles.title}>TyreWhizz</Text>
       </View>
@@ -584,12 +584,12 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    
     borderRadius: 5,
     borderWidth: 1,
   },
   backButtonText: {
-    color: "rgb(42 10 62)",
+    color: "#ffff",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",

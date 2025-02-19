@@ -28,13 +28,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   messageItem: {
-    backgroundColor: "rgb(163 163 163)",
+    backgroundColor: "#B0B0B0",
     padding: 15,
     marginBottom: 10,
     borderRadius: 5,
   },
   unread: {
-    backgroundColor: "rgb(166 230 163)",
+    backgroundColor: "#B4A9F6",
   },
   messageHeader: {
     flexDirection: "row",
@@ -43,9 +43,20 @@ const styles = StyleSheet.create({
   messageSender: {
     fontWeight: "bold",
   },
-  messageTime: {
-    fontSize: 12,
-    color: "gray",
+  messageItem: {
+    backgroundColor: "rgb(163 163 163)",
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 5,
+
+    // Box shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+
+    // Elevation for Android
+    elevation: 5,
   },
   messageText: {
     marginTop: 5,
