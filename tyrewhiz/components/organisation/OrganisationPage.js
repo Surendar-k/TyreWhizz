@@ -20,7 +20,7 @@ import tyremo from "../../assets/tyremo.png";
 import carmo from "../../assets/carmo.png";
 import drivermo from "../../assets/drivermo.png";
 import reportmo from "../../assets/reportmo.png";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OrganisationPage = () => {
   const [fleetData, setFleetData] = useState({
@@ -69,88 +69,114 @@ const OrganisationPage = () => {
     }, [])
   );
 
+  
+
+
+
+
   const fetchStoredUser = useCallback(async () => {
     try {
-      const storedUser = await AsyncStorage.getItem("userData");
-      if (storedUser) {
-        setProfileData(JSON.parse(storedUser));
+      const userId = await AsyncStorage.getItem('userId');
+      const token = await AsyncStorage.getItem('token');
+      
+      if (!userId || !token) {
+        console.error('❌ User ID or Token missing');
+        return;
       }
+  
+      console.log('✅ Retrieved User ID:', userId);
+      setProfileData({ userId, token });
     } catch (error) {
-      console.error("Error fetching stored user data:", error);
+      console.error('❌ Error fetching stored user data:', error);
     } finally {
       setLoading(false);
     }
   }, []);
+  
 
-  useEffect(() => {
-    fetchStoredUser();
-  }, [fetchStoredUser]);
 
-  useEffect(() => {
-    const fetchFleetData = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token"); // Retrieve token
 
-        if (!token) {
-          console.error("No token found. User might not be logged in.");
-          setLoading(false);
-          return;
-        }
-        const [driversRes, vehiclesRes] = await Promise.all([
-          fetch("http://10.1.8.169:5000/api/drivers", {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          fetch("http://10.1.8.169:5000/api/vehicles", {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ]);
+const checkStoredData = async () => {
+  try {
+    const storedUser = await AsyncStorage.getItem("userData");
+    const storedToken = await AsyncStorage.getItem("token");
+    const storedUserId = await AsyncStorage.getItem("userId");
 
-        console.log("Drivers Response:", driversRes);
-        console.log("Vehicles Response:", vehiclesRes);
+    console.log("Stored User Data:", storedUser);
+    console.log("Stored Token:", storedToken);
+    console.log("Stored User ID:", storedUserId);
+  } catch (error) {
+    console.error("Error checking stored data:", error);
+  }
+};
 
-        if (!driversRes.ok || !vehiclesRes.ok) {
-          const errorText1 = await driversRes.text(); // Read raw response text
-          const errorText2 = await vehiclesRes.text();
-          console.error("Driver API Error:", errorText1);
-          console.error("Vehicle API Error:", errorText2);
-          throw new Error(
-            `Failed to fetch data. Status: ${driversRes.status}, ${vehiclesRes.status}`
-          );
-        }
+// Run this function once when the app starts
+useEffect(() => {
+  checkStoredData();
+}, []);
 
-        const [driverData, vehicleData] = await Promise.all([
-          driversRes.json(),
-          vehiclesRes.json(),
-        ]);
 
-        setFleetData({
-          totalVehicles: vehicleData.length,
-          totalDrivers: driverData.length,
-          activeIssues: driverData.activeIssues?.length || 0, // Fix: Avoid undefined error
-          resolvedIssues: [
-            { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
-            { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
-            { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
-          ],
-        });
-      } catch (error) {
-        console.error("Error fetching fleet data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchFleetData();
-    const interval = setInterval(fetchFleetData, 5000);
+const fetchFleetData = async () => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const userId = await AsyncStorage.getItem("userId");
 
-    return () => clearInterval(interval);
-  }, []);
+    if (!token || !userId) {
+      console.error("❌ No token or userId found. User might not be logged in.");
+      setLoading(false);
+      return;
+    }
+
+    console.log("✅ Fetching Fleet Data with User ID:", userId);
+
+    const [driversRes, vehiclesRes] = await Promise.all([
+      fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      fetch("http://localhost:5000/api/vehicles", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    ]);
+
+    if (!driversRes.ok || !vehiclesRes.ok) {
+      console.error("❌ Error fetching data:", driversRes.status, vehiclesRes.status);
+      return;
+    }
+
+    const [driverData, vehicleData] = await Promise.all([driversRes.json(), vehiclesRes.json()]);
+
+    setFleetData({
+      totalVehicles: Array.isArray(vehicleData) ? vehicleData.length : 0,
+      totalDrivers: Array.isArray(driverData) ? driverData.length : 0,
+      activeIssues: driverData.activeIssues?.length || 0,
+      resolvedIssues: [
+        { id: 1, timestamp: Date.now() - 1000 * 60 * 60 },
+        { id: 2, timestamp: Date.now() - 1000 * 60 * 60 * 2 },
+        { id: 3, timestamp: Date.now() - 1000 * 60 * 60 * 25 },
+      ],
+    });
+  } catch (error) {
+    console.error("❌ Error fetching fleet data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchFleetData();
+  const interval = setInterval(fetchFleetData, 5000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
 
   if (loading) {
     return <Text>Loading...</Text>;

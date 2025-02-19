@@ -12,109 +12,129 @@ import { BarChart, PieChart } from "react-native-chart-kit";
 import { useTranslation } from "../TranslationContext"; // ✅ Import translation context
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
+
+
+
 const OrganisationAnalytics = () => {
   const navigation = useNavigation();
   const screenWidth = Dimensions.get("window").width;
   const { translatedText, updateTranslations } = useTranslation();
 
   // **State Definitions**
-  const [totalVehicles, setTotalVehicles] = useState(0);
-  const [totalDrivers, setTotalDrivers] = useState(0);
-  const [activeVehicles, setActiveVehicles] = useState(0);
-  const [inactiveVehicles, setInactiveVehicles] = useState(0);
-  const [vehicleCategories, setVehicleCategories] = useState({
-    trucks: 0,
-    cars: 0,
-    vans: 0,
-  });
+const [totalVehicles, setTotalVehicles] = useState(0);
+const [totalDrivers, setTotalDrivers] = useState(0);
+const [activeVehicles, setActiveVehicles] = useState(0);
+const [inactiveVehicles, setInactiveVehicles] = useState(0);
+const [vehicleCategories, setVehicleCategories] = useState({
+  trucks: 0,
+  cars: 0,
+  vans: 0,
+});
+const[loading,setLoading]=useState(0);
+const [activeCount, setActiveCount] = useState(0); // Define the active count
+const [inactiveCount,setInactiveCount]=useState(0);
 
-  useEffect(() => {
-    const fetchFleetData = async () => {
-      try {
-        const token = await AsyncStorage.getItem("token"); // Replace with actual token from storage or context
-        const decoded = jwtDecode(token);
-        console.log("Token Expiration:", decoded.exp);
-        const vehicleResponse = await fetch(
-          "http://192.168.10.16:5000/api/vehicles",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // Add the token to the request
-              "Content-Type": "application/json",
-            },
-          }
-        );
+useEffect(() => {
+  const fetchFleetData = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-        const driverResponse = await fetch(
-          "http://192.168.10.16:5000/api/drivers",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      if (!token) {
+        throw new Error("No token found");
+      }
 
-        if (!vehicleResponse.ok || !driverResponse.ok) {
-          throw new Error(
-            `HTTP error! Vehicle: ${vehicleResponse.status}, Driver: ${driverResponse.status}`
-          );
+      // Decode JWT to inspect its content
+      const decoded = jwtDecode(token);
+      console.log("Decoded Token:", decoded); // Log the decoded token to see if userId exists
+
+      const userId = decoded?.userId; // Assuming the userId is in the decoded payload
+
+      if (!userId) {
+        throw new Error("User ID is not found in token");
+      }
+
+
+      // Proceed to fetch the data
+      
+      const [vehicleResponse, driverResponse] = await Promise.all([
+        fetch("http://localhost:5000/api/vehicles", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }),
+        fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }),
+      ]);
+
+      
+
+      if (!vehicleResponse.ok) {
+        throw new Error(`HTTP error! Vehicle: ${vehicleResponse.status}`);
+      }
+      const vehicleData = await vehicleResponse.json();
+      console.log("Fetched Vehicle Data:", vehicleData);
+
+      if (!driverResponse.ok) {
+        const errorData = await driverResponse.json();
+        console.error("Driver API Error:", errorData); // Log the full error details from the response
+      }
+      const driverData = await driverResponse.json(); // Assign response to driverData
+      console.log("Fetched Driver Data:", driverData);
+
+      
+      console.log("Fetched Vehicle Data:", vehicleData);
+
+      let categoryCounts = {
+        trucks: 0,
+        cars: 0,
+        vans: 0,
+      };
+      
+      // Iterate through each vehicle
+      vehicleData.forEach((vehicle) => {
+        console.log("Vehicle:", vehicle);
+      
+        // Check the vehicle type instead of category
+        if (vehicle.type.toLowerCase() === "truck") {
+          categoryCounts.trucks += 1;
+        } else if (vehicle.type.toLowerCase() === "car") {
+          categoryCounts.cars += 1;
+        } else if (vehicle.type.toLowerCase() === "van") {
+          categoryCounts.vans += 1;
         }
+      });
+      
+      
+      console.log("Category Counts:", categoryCounts);
+      
+      // Update your state with the correct category counts
+      setVehicleCategories(categoryCounts);
+      
+      
 
-        const vehicleData = await vehicleResponse.json();
-        const driverData = await driverResponse.json();
+      setTotalVehicles(vehicleData.length);
+      setTotalDrivers(driverData.length);
+     
+        setActiveVehicles(activeCount);
+        setInactiveVehicles(inactiveCount);
+    } catch (error) {
+      console.error("Error decoding the token or fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        console.log("Fetched Vehicle Data:", vehicleData);
-        console.log("Fetched Driver Data:", driverData);
+  fetchFleetData();
+}, []);
 
-        const validVehicleData = Array.isArray(vehicleData)
-          ? vehicleData
-          : vehicleData.vehicles
-          ? vehicleData.vehicles
-          : [];
 
-        setTotalVehicles(validVehicleData.length);
-        setTotalDrivers(Array.isArray(driverData) ? driverData.length : 0);
 
-        const active = validVehicleData.filter(
-          (vehicle) => vehicle.status === "active"
-        ).length;
-        setActiveVehicles(active);
-        setInactiveVehicles(validVehicleData.length - active);
-      } catch (error) {
-        console.error("Error fetching fleet data:", error.message);
-      }
-    };
-
-    fetchFleetData();
-  }, []);
-
-  useEffect(() => {
-    const fetchVehicleData = async () => {
-      try {
-        const response = await fetch("http://192.168.10.16:5000/api/vehicles");
-        const vehicleData = await response.json();
-
-        // **Process Vehicle Category Data**
-        const categoryCounts = vehicleData.reduce((acc, vehicle) => {
-          const type = vehicle.type?.toLowerCase(); // Ensure lowercase consistency
-          acc[type] = (acc[type] || 0) + 1;
-          return acc;
-        }, {});
-
-        // **Update State**
-        setVehicleCategories({
-          trucks: categoryCounts["truck"] || 0,
-          cars: categoryCounts["car"] || 0,
-          vans: categoryCounts["van"] || 0,
-        });
-      } catch (error) {
-        console.error("Error fetching vehicle data:", error);
-      }
-    };
-
-    fetchVehicleData();
-  }, []);
 
   // **Update Translations**
   useFocusEffect(
@@ -161,7 +181,7 @@ const OrganisationAnalytics = () => {
       legendFontSize: 15,
     },
   ];
-
+  
   const barData = {
     labels: ["Jan", "Feb", "Mar"],
     datasets: [
@@ -217,6 +237,13 @@ const OrganisationAnalytics = () => {
             </Text>
             <Text style={styles.metricValue}>{totalVehicles}</Text>
           </View>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricText}>
+              {translatedText["Total Drivers"] || "Total Drivers"}
+            </Text>
+            <Text style={styles.metricValue}>{totalDrivers}</Text>
+          </View>
+          
 
           <View style={styles.metricCard}>
             <Text style={styles.metricText}>
@@ -238,19 +265,16 @@ const OrganisationAnalytics = () => {
           <Text style={styles.chartTitle}>
             {translatedText["Vehicle Categories"] || "Vehicle Categories"}
           </Text>
-          {vehicleCategories.trucks +
-            vehicleCategories.cars +
-            vehicleCategories.vans >
-          0 ? (
-            <PieChart
-              data={pieData}
-              width={screenWidth - 40}
-              height={220}
-              chartConfig={chartConfig}
-              accessor="count"
-              backgroundColor="transparent"
-              paddingLeft="15"
-            />
+          {vehicleCategories.trucks + vehicleCategories.cars + vehicleCategories.vans > 0 ? (
+    <PieChart
+      data={pieData}
+      width={screenWidth - 40}
+      height={220}
+      chartConfig={chartConfig}
+      accessor="count"
+      backgroundColor="transparent"
+      paddingLeft="15"
+    />
           ) : (
             <Text>No data available</Text>
           )}
