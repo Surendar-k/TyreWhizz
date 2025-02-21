@@ -1,60 +1,44 @@
-const axios = require("axios");
+// const handleSensorData = (req, res) => {
+//   const { pressure1, pressure2, ambientTemp, objectTemp } = req.body;
+//   console.log('Received Data:');
+//   console.log(`Pressure 1: ${pressure1} PSI`);
+//   console.log(`Pressure 2: ${pressure2} PSI`);
+//   console.log(`Ambient Temp: ${ambientTemp} °C`);
+//   console.log(`Object Temp: ${objectTemp} °C`);
+//   res.status(200).send('Data received successfully');
+// };
+
+// module.exports = {
+//   handleSensorData,
+// };
+
+
+// monitoringController.js
 
 let sensorData = {};
 
-const fetchSensorDataFromCloud = async () => {
-  try {
-    const response = await axios.get(
-      "https://us-central1-tyrewhizz.cloudfunctions.net/sensordata"
-    );
-    // console.log("Raw API Response:", response.data);
+// Function to handle receiving data from ESP32
+const receiveSensorData = (req, res) => {
+    console.log("Received request:", req.query);
+    const { pressure1, pressure2, ambientTemp, objectTemp } = req.query;
 
-    // Now directly access sensor data from the response body
-    if (response.data && response.data.body) {
-      const sensor = response.data.body; // Directly accessing body
-      // console.log("Sensor Data in body:", sensor);
+    if (pressure1 && pressure2 && ambientTemp && objectTemp) {
+        sensorData = { pressure1, pressure2, ambientTemp, objectTemp };
+        console.log('Received sensor data:', sensorData);
 
-      const { pressure, temp_contact, temp_amb, accX, accY, accZ, data_count } =
-        sensor;
-      console.log("Fetched Sensor Data:", {
-        pressure,
-        temp_contact,
-        temp_amb,
-        accX,
-        accY,
-        accZ,
-        data_count,
-      });
-
-      sensorData = {
-        pressure1: pressure,
-        pressure2: pressure, // Assuming both pressures are the same
-        ambientTemp: temp_amb,
-        objectTemp: temp_contact,
-        accX,
-        accY,
-        accZ,
-        data_count,
-      };
-
-      // console.log("Updated sensor data:", sensorData);
+        // Respond to ESP32
+        res.status(200).send('Data received');
     } else {
-      // console.log("Sensor data not found in the response body");
+        res.status(400).send('Invalid data');
     }
-  } catch (error) {
-    // console.error("Error fetching sensor data:", error);
-  }
 };
 
-// Fetch the sensor data every 1 second
-setInterval(fetchSensorDataFromCloud, 1000); // every 1 second
-
-// Function to get the current sensor data
+// Function to handle retrieving the latest sensor data
 const getSensorData = (req, res) => {
-  res.json(sensorData);
+    res.json(sensorData);
 };
 
 module.exports = {
-  fetchSensorDataFromCloud,
-  getSensorData,
+    receiveSensorData,
+    getSensorData,
 };
