@@ -31,7 +31,7 @@ const monitoringController = require("../controllers/monitoringController");
 
 // Fetch sensor data from cloud
 router.get("/data", monitoringController.receiveSensorData);
-
+router.post("/data", monitoringController.receiveSensorData);
 // Get the current sensor data
 router.get("/sensor", monitoringController.getSensorData);
 module.exports = router;
