@@ -108,8 +108,8 @@ const MonitoringPage = ({ navigation }) => {
     const firstData = sensorData.data[0];
     const pressure = firstData.pressure || 0;
 
-    const temperature_ambient = firstData.temperature_ambient || 0;
-    const temperature_object = firstData.temperature_object || 0;
+    const incontact_temp = firstData.incontact_temp || 0;
+    const ambient_temp = firstData.ambient_temp || 0;
 
     switch (selectedFeature) {
       case "pressure":
@@ -148,8 +148,8 @@ const MonitoringPage = ({ navigation }) => {
           translatedText["Rendering temperature section"] ||
             "Rendering temperature section",
           {
-            temperature_ambient,
-            temperature_object,
+            incontact_temp,
+            ambient_temp,
           }
         );
         return (
@@ -159,19 +159,17 @@ const MonitoringPage = ({ navigation }) => {
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(sensorData.temperature_ambient)}
+                color={getProgressColor(sensorData.incontact_temp)}
               />
-              <Text style={styles.percentageText}>
-                {temperature_ambient} °C
-              </Text>
+              <Text style={styles.percentageText}>{incontact_temp} °C</Text>
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(sensorData.temperature_object)}
+                color={getProgressColor(sensorData.ambient_temp)}
               />
-              <Text style={styles.percentageText}>{temperature_object} °C</Text>
+              <Text style={styles.percentageText}>{ambient_temp} °C</Text>
             </View>
           </View>
         );

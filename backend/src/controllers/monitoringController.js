@@ -7,8 +7,8 @@ const receiveSensorData = (req, res) => {
   // Extract sensor values from query parameters
   const {
     pressure,
-    temperature_object,
-    temperature_ambient,
+    incontact_temp,
+    ambient_temp,
     acc_x,
     acc_y,
     acc_z,
@@ -16,13 +16,13 @@ const receiveSensorData = (req, res) => {
 
   if (
     pressure !== undefined &&
-    temperature_object !== undefined &&
-    temperature_ambient !== undefined
+    incontact_temp !== undefined &&
+    ambient_temp !== undefined
   ) {
     sensorData = {
       pressure: parseFloat(pressure), // Convert string to float
-      temperature_object: parseFloat(temperature_object),
-      temperature_ambient: parseFloat(temperature_ambient),
+      incontact_temp: parseFloat(incontact_temp),
+      ambient_temp: parseFloat(ambient_temp),
       acc_x: parseInt(acc_x) || 0, // Convert to integer
       acc_y: parseInt(acc_y) || 0,
       acc_z: parseInt(acc_z) || 0,
