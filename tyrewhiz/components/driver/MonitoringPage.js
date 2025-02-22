@@ -64,7 +64,7 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://10.1.8.169:5000/live-data"); // Correct endpoint for live sensor data
+        const response = await axios.get("http://localhost:5000/api/data"); // Correct endpoint for live sensor data
         setSensorData(response.data); // Assuming backend sends sensorData in response
         setLoading(false);
       } catch (error) {
@@ -106,17 +106,17 @@ const MonitoringPage = ({ navigation }) => {
 
     // Extract the first data entry
     const firstData = sensorData.data[0];
-    const pressure1 = firstData.pressure1 || 0;
-    const pressure2 = firstData.pressure2 || 0;
-    const ambientTemp = firstData.ambientTemp || 0;
-    const objectTemp = firstData.objectTemp || 0;
+    const pressure = firstData.pressure || 0;
+
+    const temperature_ambient = firstData.temperature_ambient || 0;
+    const temperature_object = firstData.temperature_object || 0;
 
     switch (selectedFeature) {
       case "pressure":
         console.log(
           translatedText["Rendering pressure section"] ||
             "Rendering pressure section",
-          { pressure1, pressure2 }
+          { pressure }
         );
         return (
           <View style={styles.carImageContainer}>
@@ -125,21 +125,20 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={sensorData.pressure1}
-                tintColor={getProgressColor(sensorData.pressure1)}
+                fill={sensorData.pressure}
+                tintColor={getProgressColor(sensorData.pressure)}
                 backgroundColor="#e0e0e0"
               />
-              <Text style={styles.percentageText}>{pressure1} PSI</Text>
+              <Text style={styles.percentageText}>{pressure} PSI</Text>
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <CircularProgress
                 size={70}
                 width={10}
-                fill={sensorData.pressure2}
-                tintColor={getProgressColor(sensorData.pressure2)}
+                tintColor={getProgressColor()}
                 backgroundColor="#e0e0e0"
               />
-              <Text style={styles.percentageText}>{pressure2} PSI</Text>
+              <Text style={styles.percentageText}>{} PSI</Text>
             </View>
           </View>
         );
@@ -149,8 +148,8 @@ const MonitoringPage = ({ navigation }) => {
           translatedText["Rendering temperature section"] ||
             "Rendering temperature section",
           {
-            ambientTemp,
-            objectTemp,
+            temperature_ambient,
+            temperature_object,
           }
         );
         return (
@@ -160,17 +159,19 @@ const MonitoringPage = ({ navigation }) => {
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(sensorData.ambientTemp)}
+                color={getProgressColor(sensorData.temperature_ambient)}
               />
-              <Text style={styles.percentageText}>{ambientTemp} °C</Text>
+              <Text style={styles.percentageText}>
+                {temperature_ambient} °C
+              </Text>
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(sensorData.objectTemp)}
+                color={getProgressColor(sensorData.temperature_object)}
               />
-              <Text style={styles.percentageText}>{objectTemp} °C</Text>
+              <Text style={styles.percentageText}>{temperature_object} °C</Text>
             </View>
           </View>
         );
