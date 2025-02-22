@@ -1,14 +1,12 @@
 let sensorData = {};
 
-// Function to handle receiving data from ESP32 via query parameters or body
+// Function to handle receiving data from ESP32 via query parameters
 const receiveSensorData = (req, res) => {
-  console.log("Received request:", req.method, req.url);
-  console.log("Query Params:", req.query);
-  console.log("Body:", req.body);
+  console.log("Received request with query params:", req.query);
 
-  // Extract sensor values from query parameters (GET) or request body (POST)
+  // Extract sensor values from query parameters
   const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } =
-    req.query.pressure !== undefined ? req.query : req.body; // Prioritize query first, then body
+    req.query;
 
   if (
     pressure !== undefined &&
@@ -16,19 +14,24 @@ const receiveSensorData = (req, res) => {
     ambient_temp !== undefined
   ) {
     sensorData = {
-      pressure: parseFloat(pressure), // Convert string to float
+      pressure: parseFloat(pressure),
       incontact_temp: parseFloat(incontact_temp),
       ambient_temp: parseFloat(ambient_temp),
-      acc_x: parseFloat(acc_x), // Convert to float
-      acc_y: parseFloat(acc_y),
-      acc_z: parseFloat(acc_z),
+      acc_x: acc_x !== undefined ? parseFloat(acc_x) : null, // Handle missing data
+      acc_y: acc_y !== undefined ? parseFloat(acc_y) : null,
+      acc_z: acc_z !== undefined ? parseFloat(acc_z) : null,
     };
+
     console.log("Received sensor data:", sensorData);
 
     // Respond to ESP32
-    res.status(200).json({ message: "Data received successfully" });
+    res.status(200).json({ message: "Data received", data: sensorData });
   } else {
-    res.status(400).json({ error: "Invalid or missing sensor data" });
+    res
+      .status(400)
+      .json({
+        error: "Missing required data (pressure, incontact_temp, ambient_temp)",
+      });
   }
 };
 
