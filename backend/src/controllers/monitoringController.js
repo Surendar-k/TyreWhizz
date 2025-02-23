@@ -2,23 +2,20 @@ let sensorData = {};
 
 // Function to handle receiving data from ESP32
 const receiveSensorData = (req, res) => {
-  console.log("Incoming request:", req.method, req.url);
-  console.log("Headers:", req.headers);
+  console.log("🚀 Incoming Request:");
+  console.log("➡️ Method:", req.method);
+  console.log("➡️ URL:", req.url);
+  console.log("➡️ Headers:", req.headers);
 
   if (req.method === "POST") {
-    console.log("Body:", req.body);
+    console.log("📥 Body Received:", req.body);
   } else {
-    console.log("Query Params:", req.query);
+    console.log("📥 Query Params:", req.query);
   }
 
-  const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } =
-    req.body;
+  const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } = req.body;
 
-  if (
-    pressure !== undefined &&
-    incontact_temp !== undefined &&
-    ambient_temp !== undefined
-  ) {
+  if (pressure !== undefined && incontact_temp !== undefined && ambient_temp !== undefined) {
     sensorData = {
       pressure: parseFloat(pressure) || 0,
       incontact_temp: parseFloat(incontact_temp) || 0,
@@ -28,10 +25,10 @@ const receiveSensorData = (req, res) => {
       acc_z: acc_z !== undefined ? parseFloat(acc_z) : 0,
     };
 
-    console.log("Updated sensor data:", sensorData);
+    console.log("✅ Updated sensor data:", sensorData);
     return res.status(200).json({ message: "Data received", data: sensorData });
   } else {
-    console.error("Error: Missing required fields", req.body);
+    console.error("❌ Error: Missing required fields", req.body);
     return res.status(400).json({
       error: "Missing required data (pressure, incontact_temp, ambient_temp)",
     });
