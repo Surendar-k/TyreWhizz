@@ -64,44 +64,32 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://147.93.108.7:5000/api/data")
-          .then((response) => response.json())
-          .then((data) => console.log(data))
-          .catch((error) => console.error("Error fetching data:", error));
+        const response = await axios.get("http://147.93.108.7:5000/api/sensor");
+        console.log("API Response Data:", response.data);
 
-        // Try accessing response.data.data if response.data doesn't work
-        const apiData = response.data.data || response.data;
-
-        console.log("API Response Data:", apiData);
-
+        // Ensure response contains expected fields
         if (
-          !apiData.pressure ||
-          !apiData.incontact_temp ||
-          !apiData.ambient_temp
+          !response.data ||
+          response.data.pressure === undefined ||
+          response.data.incontact_temp === undefined ||
+          response.data.ambient_temp === undefined
         ) {
-          throw new Error(
-            "Missing required data (pressure, incontact_temp, ambient_temp)"
-          );
+          throw new Error("Missing required sensor data.");
         }
 
-        setSensorData({
-          pressure: apiData.pressure,
-          incontact_temp: apiData.incontact_temp,
-          ambient_temp: apiData.ambient_temp,
-        });
-
+        setSensorData(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error.message);
+        setLoading(false);
       }
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 1000);
+    const intervalId = setInterval(fetchData, 5000);
 
     return () => clearInterval(intervalId);
   }, []);
-
   const renderContent = () => {
     if (loading) {
       return (
@@ -112,7 +100,7 @@ const MonitoringPage = ({ navigation }) => {
       );
     }
 
-    if (!sensorData || !sensorData.data || sensorData.data.length === 0) {
+    if (!sensorData) {
       return (
         <View style={styles.centered}>
           <Text>
@@ -125,11 +113,7 @@ const MonitoringPage = ({ navigation }) => {
     }
 
     // Extract the first data entry
-    const firstData = sensorData.data[0];
-    const pressure = firstData.pressure || 0;
-
-    const incontact_temp = firstData.incontact_temp || 0;
-    const ambient_temp = firstData.ambient_temp || 0;
+    const { pressure, incontact_temp, ambient_temp, acc_x, acc_y } = sensorData;
 
     switch (selectedFeature) {
       case "pressure":
@@ -145,21 +129,21 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={sensorData.pressure}
-                tintColor={getProgressColor(sensorData.pressure)}
+                fill={pressure}
+                tintColor={getProgressColor(pressure, "pressure")}
                 backgroundColor="#e0e0e0"
               />
+
               <Text style={styles.percentageText}>{pressure} PSI</Text>
             </View>
-            <View style={[styles.progressCircleContainer, styles.topRight]}>
-              <CircularProgress
-                size={70}
-                width={10}
-                tintColor={getProgressColor()}
-                backgroundColor="#e0e0e0"
-              />
-              <Text style={styles.percentageText}>{} PSI</Text>
-            </View>
+            <CircularProgress
+              size={70}
+              width={10}
+              fill={pressure}
+              tintColor={getProgressColor(pressure, "pressure")}
+              backgroundColor="#e0e0e0"
+            />
+            <Text style={styles.percentageText}>{pressure} PSI</Text>
           </View>
         );
 
