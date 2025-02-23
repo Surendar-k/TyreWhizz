@@ -2,22 +2,23 @@ let sensorData = {};
 
 // Function to handle receiving data from ESP32
 const receiveSensorData = (req, res) => {
-  let data;
+  console.log("Incoming request:", req.method, req.url);
+  console.log("Headers:", req.headers);
 
   if (req.method === "POST") {
-    // Handle JSON body for POST requests
-    data = req.body;
-    console.log("Received POST request with body:", data);
+    console.log("Body:", req.body);
   } else {
-    // Handle GET request with query parameters
-    data = req.query;
-    console.log("Received GET request with query params:", data);
+    console.log("Query Params:", req.query);
   }
 
-  // Extract sensor values
-  const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } = data;
+  const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } =
+    req.body;
 
-  if (pressure !== undefined && incontact_temp !== undefined && ambient_temp !== undefined) {
+  if (
+    pressure !== undefined &&
+    incontact_temp !== undefined &&
+    ambient_temp !== undefined
+  ) {
     sensorData = {
       pressure: parseFloat(pressure) || 0,
       incontact_temp: parseFloat(incontact_temp) || 0,
@@ -30,6 +31,7 @@ const receiveSensorData = (req, res) => {
     console.log("Updated sensor data:", sensorData);
     return res.status(200).json({ message: "Data received", data: sensorData });
   } else {
+    console.error("Error: Missing required fields", req.body);
     return res.status(400).json({
       error: "Missing required data (pressure, incontact_temp, ambient_temp)",
     });
@@ -45,4 +47,3 @@ module.exports = {
   receiveSensorData,
   getSensorData,
 };
-    

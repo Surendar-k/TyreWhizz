@@ -64,21 +64,41 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/data"); // Correct endpoint for live sensor data
-        setSensorData(response.data); // Assuming backend sends sensorData in response
+        const response = await fetch("http://147.93.108.7:5000/api/data")
+          .then((response) => response.json())
+          .then((data) => console.log(data))
+          .catch((error) => console.error("Error fetching data:", error));
+
+        // Try accessing response.data.data if response.data doesn't work
+        const apiData = response.data.data || response.data;
+
+        console.log("API Response Data:", apiData);
+
+        if (
+          !apiData.pressure ||
+          !apiData.incontact_temp ||
+          !apiData.ambient_temp
+        ) {
+          throw new Error(
+            "Missing required data (pressure, incontact_temp, ambient_temp)"
+          );
+        }
+
+        setSensorData({
+          pressure: apiData.pressure,
+          incontact_temp: apiData.incontact_temp,
+          ambient_temp: apiData.ambient_temp,
+        });
+
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error.message);
       }
     };
 
-    // Fetch data initially
     fetchData();
+    const intervalId = setInterval(fetchData, 1000);
 
-    // Set up polling
-    const intervalId = setInterval(fetchData, 1000); // Fetch every 1 second
-
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
