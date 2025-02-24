@@ -18,6 +18,7 @@ import { useTranslation } from "../TranslationContext";
 import { useFocusEffect } from "@react-navigation/native";
 const cartopimg = require("../../assets/car-top-view.png");
 const defaultImage = require("../../assets/logo.png");
+import { ActivityIndicator } from "react-native";
 
 const IndividualDriverDashboardPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);

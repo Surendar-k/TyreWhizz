@@ -64,24 +64,32 @@ const MonitoringPage = ({ navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://10.1.8.169:5000/live-data"); // Correct endpoint for live sensor data
-        setSensorData(response.data); // Assuming backend sends sensorData in response
+        const response = await axios.get("http://147.93.108.7:5000/api/sensor");
+        console.log("API Response Data:", response.data);
+
+        // Ensure response contains expected fields
+        if (
+          !response.data ||
+          response.data.pressure === undefined ||
+          response.data.incontact_temp === undefined ||
+          response.data.ambient_temp === undefined
+        ) {
+          throw new Error("Missing required sensor data.");
+        }
+
+        setSensorData(response.data);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error.message);
+        setLoading(false);
       }
     };
 
-    // Fetch data initially
     fetchData();
+    const intervalId = setInterval(fetchData, 5000);
 
-    // Set up polling
-    const intervalId = setInterval(fetchData, 1000); // Fetch every 1 second
-
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
-
   const renderContent = () => {
     if (loading) {
       return (
@@ -92,7 +100,7 @@ const MonitoringPage = ({ navigation }) => {
       );
     }
 
-    if (!sensorData || !sensorData.data || sensorData.data.length === 0) {
+    if (!sensorData) {
       return (
         <View style={styles.centered}>
           <Text>
@@ -105,18 +113,14 @@ const MonitoringPage = ({ navigation }) => {
     }
 
     // Extract the first data entry
-    const firstData = sensorData.data[0];
-    const pressure1 = firstData.pressure1 || 0;
-    const pressure2 = firstData.pressure2 || 0;
-    const ambientTemp = firstData.ambientTemp || 0;
-    const objectTemp = firstData.objectTemp || 0;
+    const { pressure, incontact_temp, ambient_temp, acc_x, acc_y } = sensorData;
 
     switch (selectedFeature) {
       case "pressure":
         console.log(
           translatedText["Rendering pressure section"] ||
             "Rendering pressure section",
-          { pressure1, pressure2 }
+          { pressure }
         );
         return (
           <View style={styles.carImageContainer}>
@@ -125,22 +129,21 @@ const MonitoringPage = ({ navigation }) => {
               <CircularProgress
                 size={70}
                 width={10}
-                fill={sensorData.pressure1}
-                tintColor={getProgressColor(sensorData.pressure1)}
+                fill={pressure}
+                tintColor={getProgressColor(pressure, "pressure")}
                 backgroundColor="#e0e0e0"
               />
-              <Text style={styles.percentageText}>{pressure1} PSI</Text>
+
+              <Text style={styles.percentageText}>{pressure} PSI</Text>
             </View>
-            <View style={[styles.progressCircleContainer, styles.topRight]}>
-              <CircularProgress
-                size={70}
-                width={10}
-                fill={sensorData.pressure2}
-                tintColor={getProgressColor(sensorData.pressure2)}
-                backgroundColor="#e0e0e0"
-              />
-              <Text style={styles.percentageText}>{pressure2} PSI</Text>
-            </View>
+            <CircularProgress
+              size={70}
+              width={10}
+              fill={pressure}
+              tintColor={getProgressColor(pressure, "pressure")}
+              backgroundColor="#e0e0e0"
+            />
+            <Text style={styles.percentageText}>{pressure} PSI</Text>
           </View>
         );
 
@@ -149,8 +152,8 @@ const MonitoringPage = ({ navigation }) => {
           translatedText["Rendering temperature section"] ||
             "Rendering temperature section",
           {
-            ambientTemp,
-            objectTemp,
+            incontact_temp,
+            ambient_temp,
           }
         );
         return (
@@ -160,17 +163,17 @@ const MonitoringPage = ({ navigation }) => {
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(sensorData.ambientTemp)}
+                color={getProgressColor(sensorData.incontact_temp)}
               />
-              <Text style={styles.percentageText}>{ambientTemp} °C</Text>
+              <Text style={styles.percentageText}>{incontact_temp} °C</Text>
             </View>
             <View style={[styles.progressCircleContainer, styles.topRight]}>
               <FontAwesome
                 name="thermometer-half"
                 size={50}
-                color={getProgressColor(sensorData.objectTemp)}
+                color={getProgressColor(sensorData.ambient_temp)}
               />
-              <Text style={styles.percentageText}>{objectTemp} °C</Text>
+              <Text style={styles.percentageText}>{ambient_temp} °C</Text>
             </View>
           </View>
         );

@@ -30,8 +30,8 @@ router.get("/driverscount", authMiddleWare, driverController.getDriverCount);
 const monitoringController = require("../controllers/monitoringController");
 
 // Fetch sensor data from cloud
-router.get("/data", monitoringController.fetchSensorDataFromCloud);
-
+router.get("/data", monitoringController.getSensorData);
+router.post("/data", monitoringController.receiveSensorData);
 // Get the current sensor data
 router.get("/sensor", monitoringController.getSensorData);
 module.exports = router;
