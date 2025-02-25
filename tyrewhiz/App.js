@@ -1,7 +1,7 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { TranslationProvider } from "./components/TranslationContext"; // Import global translation provider
+import { TranslationProvider } from "./components/TranslationContext"; 
 
 import WelcomePage from "./components/WelcomePage";
 import UserTypeSelectionPage from "./components/UserTypeSelectionPage";
