@@ -213,8 +213,8 @@ const IndividualDriverDashboardPage = () => {
   const pickImage = () => {
     launchImageLibrary(
       {
-        mediaType: "photo", // Pick photos
-        quality: 1, // High quality
+        mediaType: "photo",
+        quality: 1,
         selectionLimit: 1, // Limit to 1 image
       },
       (response) => {
@@ -222,33 +222,42 @@ const IndividualDriverDashboardPage = () => {
           console.log("User cancelled image picker");
         } else if (response.errorCode) {
           console.error("Image Picker Error: ", response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          console.log("Image selected: ", response.assets[0]);
-          setProfileImage(response.assets[0].uri); // Set the selected image URI
+          Alert.alert("Error", response.errorMessage);
+        } else if (response.assets?.length > 0) {
+          console.log("Profile Image selected: ", response.assets[0]);
+          setProfileImage(response.assets[0].uri); // Set only 1 profile image
         }
       }
     );
   };
 
+  // Function to pick multiple images (up to 5)
   const pickImages = () => {
     launchImageLibrary(
       {
         mediaType: "photo",
         quality: 1,
-        selectionLimit: 5, // Allow multiple selections
+        selectionLimit: 5, // Allow up to 5 images at a time
       },
       (response) => {
         if (response.didCancel) {
           console.log("User cancelled image picker");
         } else if (response.errorCode) {
           console.error("Image Picker Error: ", response.errorMessage);
-        } else if (response.assets && response.assets.length > 0) {
-          console.log("Images selected: ", response.assets);
-          setUploadedImages(response.assets); // Set multiple selected images
+          Alert.alert("Error", response.errorMessage);
+        } else if (response.assets?.length > 0) {
+          console.log("New Images selected: ", response.assets);
+
+          // Append new images while ensuring total count does not exceed 5
+          setUploadedImages((prevImages) => {
+            const totalImages = [...prevImages, ...response.assets].slice(0, 5);
+            return totalImages;
+          });
         }
       }
     );
   };
+
   const saveDriverDetails = () => {
     alert("Driver details saved successfully!");
     toggleModal();
