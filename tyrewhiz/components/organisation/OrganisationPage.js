@@ -131,13 +131,13 @@ const fetchFleetData = async () => {
     console.log("✅ Fetching Fleet Data with User ID:", userId);
 
     const [driversRes, vehiclesRes] = await Promise.all([
-      fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
+      fetch(`http://10.1.10.51:5000/api/drivers?user_id=${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://localhost:5000/api/vehicles", {
+      fetch("http://10.1.10.51:5000/api/vehicles", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

@@ -58,13 +58,13 @@ useEffect(() => {
       // Proceed to fetch the data
       
       const [vehicleResponse, driverResponse] = await Promise.all([
-        fetch("http://localhost:5000/api/vehicles", {
+        fetch("http://10.1.10.51:5000/api/vehicles", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }),
-        fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
+        fetch(`http://10.1.10.51:5000/api/drivers?user_id=${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

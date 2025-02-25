@@ -112,7 +112,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/vehicles?userId=${userId}`,
+        `http://10.1.10.51:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -177,7 +177,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://localhost:5000/api/vehicles/${selectedVehicle.id}`,
+        `http://10.1.10.51:5000/api/vehicles/${selectedVehicle.id}`,
         {
           method: "PUT",
           headers: {
@@ -243,7 +243,7 @@ const OrganisationVehicleList = ({ navigation }) => {
             try {
               // 🔥 **API Call**
               const response = await fetch(
-                `http://localhost:5000/api/vehicles/${id}?user_id=${userId}`,
+                `http://10.1.10.51:5000/api/vehicles/${id}?user_id=${userId}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -308,7 +308,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/vehicles", {
+      const response = await fetch("http://10.1.10.51:5000/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

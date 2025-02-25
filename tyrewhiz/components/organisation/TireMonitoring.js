@@ -73,7 +73,7 @@ const TireMonitoring = ({ navigation }) => {
         return;
       }
       const response = await fetch(
-        `http://localhost:5000/api/vehicles?userId=${userId}`,
+        `http://10.1.10.51:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {

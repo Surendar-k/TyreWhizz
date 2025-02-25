@@ -190,7 +190,7 @@ const OrganisationDriverList = ({ navigation }) => {
           onPress: async () => {
             try {
               const response = await fetch(
-                `http://localhost:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
+                `http://10.1.10.51:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
                 {
                   method: "DELETE",
                   headers: {
@@ -237,7 +237,7 @@ const OrganisationDriverList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/drivers", {
+      const response = await fetch("http://10.1.10.51:5000/api/drivers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -306,7 +306,7 @@ const OrganisationDriverList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://localhost:5000/api/drivers/${selectedDriver.id}`,
+        `http://10.1.10.51:5000/api/drivers/${selectedDriver.id}`,
         {
           method: "PUT",
           headers: {
