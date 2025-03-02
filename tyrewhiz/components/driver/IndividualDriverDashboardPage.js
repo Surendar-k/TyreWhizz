@@ -19,7 +19,7 @@ import IndividualDriverNotifications from "./IndividualDriverNotifications";
 import { useTranslation } from "../TranslationContext";
 import { useFocusEffect } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-
+import * as ImagePicker from "expo-image-picker";
 const cartopimg = require("../../assets/car-top-view.png");
 const defaultImage = require("../../assets/logo.png");
 
@@ -216,25 +216,22 @@ const IndividualDriverDashboardPage = () => {
     setModalVisible(!isModalVisible);
   };
 
-  const pickImage = () => {
-    launchImageLibrary(
-      {
-        mediaType: "photo",
-        quality: 1,
-        selectionLimit: 1, // Limit to 1 image
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log("User cancelled image picker");
-        } else if (response.errorCode) {
-          console.error("Image Picker Error: ", response.errorMessage);
-          Alert.alert("Error", response.errorMessage);
-        } else if (response.assets?.length > 0) {
-          console.log("Profile Image selected: ", response.assets[0]);
-          setProfileImage(response.assets[0].uri); // Set only 1 profile image
-        }
-      }
-    );
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "Please allow access to photos.");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
   };
 
   // Function to pick multiple images (up to 5)

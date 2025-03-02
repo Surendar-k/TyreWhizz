@@ -12,6 +12,8 @@ import {
   StatusBar,
 } from "react-native";
 import Modal from "react-native-modal";
+import * as ImagePicker from "expo-image-picker";
+
 import { launchImageLibrary } from "react-native-image-picker";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -103,19 +105,22 @@ const ProfessionalDriverDashboardPage = () => {
     setModalVisible(!isModalVisible);
   };
 
-  const pickImage = () => {
-    launchImageLibrary(
-      {
-        mediaType: "photo",
-        quality: 1,
-        selectionLimit: 1,
-      },
-      (response) => {
-        if (response.assets && response.assets.length > 0) {
-          setProfileImage(response.assets[0].uri);
-        }
-      }
-    );
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "Please allow access to photos.");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
   };
 
   const handleLogout = () => {
