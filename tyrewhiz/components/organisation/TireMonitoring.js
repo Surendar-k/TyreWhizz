@@ -20,17 +20,13 @@ const TireMonitoring = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("No token found.");
         return null;
       }
 
-      console.log("jwtDecode function:", jwtDecode); // Debugging
       const payload = jwtDecode(token);
 
-      console.log("Decoded Payload:", payload);
       return payload.userId || payload.userID || payload.id || null;
     } catch (error) {
-      console.error("Error retrieving user ID:", error);
       return null;
     }
   };
@@ -73,7 +69,7 @@ const TireMonitoring = ({ navigation }) => {
         return;
       }
       const response = await fetch(
-        `http://localhost:5000/api/vehicles?userId=${userId}`,
+        `http://192.168.61.69:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {

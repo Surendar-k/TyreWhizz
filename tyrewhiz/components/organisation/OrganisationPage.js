@@ -80,14 +80,14 @@ const OrganisationPage = () => {
       const token = await AsyncStorage.getItem('token');
       
       if (!userId || !token) {
-        console.error('❌ User ID or Token missing');
+       
         return;
       }
   
-      console.log('✅ Retrieved User ID:', userId);
+   
       setProfileData({ userId, token });
     } catch (error) {
-      console.error('❌ Error fetching stored user data:', error);
+     
     } finally {
       setLoading(false);
     }
@@ -102,9 +102,6 @@ const checkStoredData = async () => {
     const storedToken = await AsyncStorage.getItem("token");
     const storedUserId = await AsyncStorage.getItem("userId");
 
-    console.log("Stored User Data:", storedUser);
-    console.log("Stored Token:", storedToken);
-    console.log("Stored User ID:", storedUserId);
   } catch (error) {
     console.error("Error checking stored data:", error);
   }
@@ -123,21 +120,21 @@ const fetchFleetData = async () => {
     const userId = await AsyncStorage.getItem("userId");
 
     if (!token || !userId) {
-      console.error("❌ No token or userId found. User might not be logged in.");
+    
       setLoading(false);
       return;
     }
 
-    console.log("✅ Fetching Fleet Data with User ID:", userId);
+  
 
     const [driversRes, vehiclesRes] = await Promise.all([
-      fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
+      fetch(`http://192.168.61.69:5000/api/drivers?user_id=${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://localhost:5000/api/vehicles", {
+      fetch("http://192.168.61.69:5000/api/vehicles", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -660,3 +657,4 @@ const styles = StyleSheet.create({
 });
 
 export default OrganisationPage;
+ 

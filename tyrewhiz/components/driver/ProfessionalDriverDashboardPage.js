@@ -8,16 +8,19 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "../TranslationContext";
 import { useFocusEffect } from "@react-navigation/native";
-
+import { drivertype } from "../../assets/drivertype.png";
 import ProfessionalDriverMessages from "./ProfessionalDriverMessages";
 import ProfessionalDriverNotifications from "./ProfessionalDriverNotifications";
+import novehicles from "../../assets/novehicles.png";
 const defaultImage = require("../../assets/logo.png");
 
 const ProfessionalDriverDashboardPage = () => {
@@ -29,10 +32,9 @@ const ProfessionalDriverDashboardPage = () => {
   const [licenseNo, setLicenseNo] = useState("");
   const [orgId, setOrgId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
-  const [uploadedImages, setUploadedImages] = useState([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectedVehicles, setConnectedVehicles] = useState([]);
-  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
+  const { translatedText, updateTranslations } = useTranslation();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -64,6 +66,7 @@ const ProfessionalDriverDashboardPage = () => {
       ]);
     }, [])
   );
+
   // Sample messages data
   const [messages] = useState([
     {
@@ -114,9 +117,11 @@ const ProfessionalDriverDashboardPage = () => {
       }
     );
   };
+
   const handleLogout = () => {
-    navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
+    navigation.navigate("UserTypeSelectionPage");
   };
+
   const handleConnect = () => {
     if (!orgId || !vehicleId) {
       alert(
@@ -162,253 +167,401 @@ const ProfessionalDriverDashboardPage = () => {
     toggleModal();
   };
 
+  const handleRemoveVehicle = (index) => {
+    const updatedVehicles = connectedVehicles.filter((_, i) => i !== index);
+    setConnectedVehicles(updatedVehicles);
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("DriverPage")}
-          style={styles.backButton}
-        >
-          <Text style={styles.backButtonText}>❮</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerText}>
-          {translatedText["Professional Driver"] || "Professional Driver"}
-        </Text>
-        <TouchableOpacity onPress={toggleModal} style={styles.profileSection}>
-          <Image
-            source={profileImage ? { uri: profileImage } : defaultImage}
-            style={styles.profileImage}
-          />
-          <Text style={styles.profileText}>
-            {translatedText["Edit Profile"] || "Edit Profile"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.roleContainer}>
-        <Text style={styles.role}>
-          {translatedText["Logged in as: Driver"] || "Logged in as: Driver"}
-        </Text>
-      </View>
-
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            selectedTab === "notifications" && styles.selectedTab,
-          ]}
-          onPress={() => setSelectedTab("notifications")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              selectedTab === "notifications" && styles.selectedTabText,
-            ]}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#3b1a78" />
+      <View style={styles.container}>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("DriverPage")}
+            style={styles.backButton}
           >
-            {translatedText["Notifications"] || "Notifications"}
+            <Ionicons name="chevron-back" size={26} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>
+            {translatedText["Professional Driver"] || "Professional Driver"}
           </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            selectedTab === "connection" && styles.selectedTab,
-          ]}
-          onPress={() => setSelectedTab("connection")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              selectedTab === "connection" && styles.selectedTabText,
-            ]}
-          >
-            {translatedText["Connection"] || "Connection"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, selectedTab === "messages" && styles.selectedTab]}
-          onPress={() => setSelectedTab("messages")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              selectedTab === "messages" && styles.selectedTabText,
-            ]}
-          >
-            {translatedText["Messages"] || "Messages"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Connection Tab Content */}
-      {selectedTab === "connection" && (
-        <View style={styles.tabContent}>
-          <View style={styles.connectionForm}>
-            <Text style={styles.formTitle}>
-              {translatedText["Connect to Vehicle"] || "Connect to Vehicle"}
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder={
-                translatedText["Organization ID"] || "Organization ID"
-              }
-              value={orgId}
-              onChangeText={setOrgId}
+          <TouchableOpacity onPress={toggleModal} style={styles.profileSection}>
+            <Image
+              source={profileImage ? { uri: profileImage } : defaultImage}
+              style={styles.profileImage}
             />
-            <TextInput
-              style={styles.input}
-              placeholder={translatedText["Vehicle ID"] || "Vehicle ID"}
-              value={vehicleId}
-              onChangeText={setVehicleId}
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.roleContainer}>
+          <Text style={styles.role}>
+            {translatedText["Logged in as: Driver"] || "Logged in as: Driver"}
+          </Text>
+        </View>
+
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              selectedTab === "notifications" && styles.selectedTab,
+            ]}
+            onPress={() => setSelectedTab("notifications")}
+          >
+            <Ionicons
+              name="notifications"
+              size={22}
+              color={selectedTab === "notifications" ? "#fff" : "#555"}
             />
-            <TouchableOpacity
-              style={styles.connectButton}
-              onPress={handleConnect}
-              disabled={isConnecting}
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === "notifications" && styles.selectedTabText,
+              ]}
             >
-              {isConnecting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.connectButtonText}>
-                  {translatedText["Connect"] || "Connect"}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+              {translatedText["Notifications"] || "Notifications"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              selectedTab === "connection" && styles.selectedTab,
+            ]}
+            onPress={() => setSelectedTab("connection")}
+          >
+            <Ionicons
+              name="link"
+              size={22}
+              color={selectedTab === "connection" ? "#fff" : "#555"}
+            />
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === "connection" && styles.selectedTabText,
+              ]}
+            >
+              {translatedText["Connection"] || "Connection"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              selectedTab === "messages" && styles.selectedTab,
+            ]}
+            onPress={() => setSelectedTab("messages")}
+          >
+            <Ionicons
+              name="chatbubble-ellipses"
+              size={22}
+              color={selectedTab === "messages" ? "#fff" : "#555"}
+            />
+            <Text
+              style={[
+                styles.tabText,
+                selectedTab === "messages" && styles.selectedTabText,
+              ]}
+            >
+              {translatedText["Messages"] || "Messages"}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-          {/* Connected Vehicles List */}
-          {connectedVehicles.length > 0 && (
-            <View style={styles.connectedVehicles}>
-              <Text style={styles.sectionTitle}>
-                {translatedText["Connected Vehicles"] || "Connected Vehicles"}
-              </Text>
-              {connectedVehicles.map((vehicle, index) => (
-                <View key={index} style={styles.vehicleItem}>
-                  <View>
-                    <Text style={styles.vehicleText}>
-                      {translatedText["Organization: "] || "Organization: "}
-                      {vehicle.orgId}
-                    </Text>
-                    <Text style={styles.vehicleText}>
-                      {translatedText["Vehicle ID:"] || "Vehicle ID:"}{" "}
-                      {vehicle.vehicleId}
-                    </Text>
-                    <Text style={styles.timestampText}>
-                      {translatedText["Connected: "] || "Connected: "}
-                      {vehicle.timestamp}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.monitorButton}
-                    onPress={() =>
-                      navigation.navigate("MonitoringPage", vehicle)
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Connection Tab Content */}
+          {selectedTab === "connection" && (
+            <View style={styles.tabContent}>
+              <View style={styles.connectionForm}>
+                <Text style={styles.formTitle}>
+                  {translatedText["Connect to Vehicle"] || "Connect to Vehicle"}
+                </Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons
+                    name="business"
+                    size={22}
+                    color="#666"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder={
+                      translatedText["Organization ID"] || "Organization ID"
                     }
-                  >
-                    <Text style={styles.monitorButtonText}>
-                      {translatedText["Monitor"] || "Monitor"}
-                    </Text>
-                  </TouchableOpacity>
+                    value={orgId}
+                    onChangeText={setOrgId}
+                    placeholderTextColor="#999"
+                  />
                 </View>
-              ))}
+                <View style={styles.inputContainer}>
+                  <Ionicons
+                    name="car"
+                    size={22}
+                    color="#666"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder={translatedText["Vehicle ID"] || "Vehicle ID"}
+                    value={vehicleId}
+                    onChangeText={setVehicleId}
+                    placeholderTextColor="#999"
+                  />
+                </View>
+                <TouchableOpacity
+                  style={styles.connectButton}
+                  onPress={handleConnect}
+                  disabled={isConnecting}
+                >
+                  {isConnecting ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons
+                        name="link"
+                        size={20}
+                        color="#fff"
+                        style={styles.buttonIcon}
+                      />
+                      <Text style={styles.connectButtonText}>
+                        {translatedText["Connect"] || "Connect"}
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {/* Connected Vehicles List */}
+              {connectedVehicles.length === 0 ? (
+                <View style={styles.noVehiclesContainer}>
+                  <Image source={novehicles} style={styles.noVehiclesImage} />
+                  <Text style={styles.noVehiclesText}>
+                    {translatedText["No connected vehicles"] ||
+                      "No connected vehicles"}
+                  </Text>
+                  <Text style={styles.noVehiclesSubText}>
+                    Connect to a vehicle to start monitoring
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.connectedVehicles}>
+                  <Text style={styles.sectionTitle}>
+                    {translatedText["Connected Vehicles"] ||
+                      "Connected Vehicles"}
+                  </Text>
+                  {connectedVehicles.map((vehicle, index) => (
+                    <View key={index} style={styles.vehicleItem}>
+                      <View style={styles.vehicleIcon}>
+                        <MaterialIcons
+                          name="local-shipping"
+                          size={28}
+                          color="#3b1a78"
+                        />
+                      </View>
+                      <View style={styles.vehicleInfo}>
+                        <Text style={styles.vehicleText}>
+                          <Text style={styles.vehicleLabel}>
+                            {translatedText["Organization: "] ||
+                              "Organization: "}
+                          </Text>
+                          {vehicle.orgId}
+                        </Text>
+                        <Text style={styles.vehicleText}>
+                          <Text style={styles.vehicleLabel}>
+                            {translatedText["Vehicle ID:"] || "Vehicle ID:"}
+                          </Text>{" "}
+                          {vehicle.vehicleId}
+                        </Text>
+                        <Text style={styles.timestampText}>
+                          <Ionicons
+                            name="time-outline"
+                            size={14}
+                            color="#666"
+                          />{" "}
+                          {vehicle.timestamp}
+                        </Text>
+                      </View>
+                      <View style={styles.vehicleActions}>
+                        <TouchableOpacity
+                          style={styles.monitorButton}
+                          onPress={() =>
+                            navigation.navigate("MonitoringPage", vehicle)
+                          }
+                        >
+                          <FontAwesome5
+                            name="chart-line"
+                            size={14}
+                            color="#fff"
+                          />
+                          <Text style={styles.monitorButtonText}>
+                            {translatedText["Monitor"] || "Monitor"}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.removeButton}
+                          onPress={() => handleRemoveVehicle(index)}
+                        >
+                          <Ionicons name="close" size={16} color="#fff" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
           )}
-        </View>
-      )}
-      {/* Tab Content */}
-      {selectedTab === "messages" && (
-        <ProfessionalDriverMessages messages={messages} />
-      )}
-      {selectedTab === "notifications" && (
-        <ProfessionalDriverNotifications notifications={notifications} />
-      )}
 
-      {/* Profile Modal */}
-      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-        <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
-            <Ionicons name="close-circle" size={30} color="gray" />
-          </TouchableOpacity>
+          {/* Tab Content */}
+          {selectedTab === "messages" && (
+            <ProfessionalDriverMessages messages={messages} />
+          )}
+          {selectedTab === "notifications" && (
+            <ProfessionalDriverNotifications notifications={notifications} />
+          )}
+        </ScrollView>
 
-          <Text style={styles.modalTitle}>
-            {translatedText["Professional Driver Details"] ||
-              "Professional Driver Details"}
-          </Text>
+        {/* Profile Modal */}
+        <Modal
+          isVisible={isModalVisible}
+          onBackdropPress={toggleModal}
+          animationIn="slideInUp"
+          animationOut="slideOutDown"
+          backdropTransitionOutTiming={0}
+          style={styles.modalStyle}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {translatedText["Professional Driver Details"] ||
+                  "Professional Driver Details"}
+              </Text>
+              <TouchableOpacity
+                onPress={toggleModal}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close-circle" size={30} color="#666" />
+              </TouchableOpacity>
+            </View>
 
-          <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>
-              {translatedText["Upload Profile Picture"] ||
-                "Upload Profile Picture"}
-            </Text>
-          </TouchableOpacity>
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={profileImage ? { uri: profileImage } : defaultImage}
+                style={styles.modalProfileImage}
+              />
+              <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
+                <Ionicons
+                  name="camera"
+                  size={22}
+                  color="#fff"
+                  style={styles.buttonIcon}
+                />
+                <Text style={styles.uploadButtonText}>
+                  {translatedText["Change Photo"] || "Change Photo"}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          <TextInput
-            style={styles.modalInput}
-            placeholder={translatedText["Driver Name"] || "Driver Name"}
-            value={driverName}
-            onChangeText={setDriverName}
-          />
+            <View style={styles.formSection}>
+              <Text style={styles.formSectionTitle}>Personal Information</Text>
 
-          <TextInput
-            style={styles.modalInput}
-            placeholder={translatedText["License Number"] || "License Number"}
-            value={licenseNo}
-            onChangeText={setLicenseNo}
-          />
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="person"
+                  size={22}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder={translatedText["Driver Name"] || "Driver Name"}
+                  value={driverName}
+                  onChangeText={setDriverName}
+                  placeholderTextColor="#999"
+                />
+              </View>
 
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={saveDriverDetails}
-          >
-            <Text style={styles.saveButtonText}>
-              {translatedText["Save Details"] || "Save Details"}
-            </Text>
-          </TouchableOpacity>
-          {/* Logout Button */}
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.buttonText}>
-              {translatedText["Logout"] || "Logout"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </ScrollView>
+              <View style={styles.inputContainer}>
+                <Ionicons
+                  name="card"
+                  size={22}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder={
+                    translatedText["License Number"] || "License Number"
+                  }
+                  value={licenseNo}
+                  onChangeText={setLicenseNo}
+                  placeholderTextColor="#999"
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={saveDriverDetails}
+            >
+              <Ionicons
+                name="save"
+                size={20}
+                color="#fff"
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.saveButtonText}>
+                {translatedText["Save Details"] || "Save Details"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Ionicons
+                name="log-out"
+                size={20}
+                color="#fff"
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.logoutButtonText}>
+                {translatedText["Logout"] || "Logout"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#3b1a78", // Primary color for status bar area
+  },
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#f7f7f7",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgb(28 10 62)",
-    padding: 15,
+    backgroundColor: "#3b1a78", // Deeper purple for better contrast
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     elevation: 4,
   },
-  roleContainer: {
-    padding: 10,
-    backgroundColor: "#a296ba49",
-    alignItems: "center",
-  },
-  role: { fontSize: 18, color: "rgb(42 10 62)" },
   backButton: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     justifyContent: "center",
     alignItems: "center",
-
-    borderRadius: 5,
-  },
-  backButtonText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
+    borderRadius: 20,
   },
   headerText: {
     fontSize: 20,
@@ -416,220 +569,320 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   profileSection: {
-    alignItems: "center",
+    padding: 4,
+    borderRadius: 25,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: "#fff",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
   },
-  profileText: {
-    fontSize: 12,
-    color: "#fff",
-    marginTop: 4,
+  roleContainer: {
+    padding: 10,
+    backgroundColor: "#e8e6f2", // Lighter purple background
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  role: {
+    fontSize: 14,
+    color: "#3b1a78",
+    fontWeight: "500",
+    textAlign: "center",
   },
   tabsContainer: {
     flexDirection: "row",
-    padding: 10,
-    backgroundColor: "#C6C6C649",
+    backgroundColor: "#ffffff",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
     elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    overflow: "hidden",
+    top: 10,
   },
   tab: {
     flex: 1,
-    padding: 10,
+    paddingVertical: 14,
     alignItems: "center",
-    borderRadius: 5,
-    marginHorizontal: 5,
+    flexDirection: "row",
+    justifyContent: "center",
   },
   selectedTab: {
-    backgroundColor: "rgb(90 50 177)",
+    backgroundColor: "#5c2ec9", // Lighter purple for selected tab
+    borderBottomWidth: 3,
+    borderBottomColor: "#3b1a78",
   },
   tabText: {
-    color: "#333",
+    color: "#555",
+    fontWeight: "500",
+    marginLeft: 6,
   },
   selectedTabText: {
     color: "#fff",
+    fontWeight: "bold",
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
   tabContent: {
-    padding: 20,
-    backgroundColor: "rgb(201 201 201)", // Updated background color
-    borderRadius: 10,
-
-    // Box shadow for iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-
-    // Elevation for Android
-    elevation: 5,
+    padding: 16,
   },
   connectionForm: {
     backgroundColor: "#fff",
-    padding: 15,
+    padding: 16,
     borderRadius: 10,
     elevation: 2,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   formTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 16,
     color: "#333",
   },
-  input: {
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 5,
-    marginBottom: 10,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#e0e0e0",
+    marginBottom: 12,
+  },
+  inputIcon: {
+    padding: 10,
+  },
+  input: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
   },
   connectButton: {
-    backgroundColor: "#4CAF50",
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: "#3b1a78",
+    paddingVertical: 14,
+    borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
   connectButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 16,
+  },
+  noVehiclesContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 30,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  noVehiclesImage: {
+    width: 150,
+    height: 150,
+    resizeMode: "contain",
+    opacity: 0.8,
+  },
+  noVehiclesText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#555",
+    marginTop: 16,
+  },
+  noVehiclesSubText: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 8,
+    textAlign: "center",
   },
   connectedVehicles: {
-    marginTop: 20,
+    marginTop: 8,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 12,
     color: "#333",
+    paddingHorizontal: 4,
   },
   vehicleItem: {
     backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 10,
-    elevation: 1,
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 12,
+    elevation: 2,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  vehicleIcon: {
+    backgroundColor: "#e8e6f2",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  vehicleInfo: {
+    flex: 1,
+  },
+  vehicleLabel: {
+    fontWeight: "bold",
+    color: "#555",
   },
   vehicleText: {
     fontSize: 14,
-    marginBottom: 2,
+    marginBottom: 4,
+    color: "#333",
   },
   timestampText: {
     fontSize: 12,
     color: "#666",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  vehicleActions: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   monitorButton: {
-    backgroundColor: "#2196F3",
-    padding: 8,
-    borderRadius: 5,
+    backgroundColor: "#4CAF50",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginRight: 8,
+    flexDirection: "row",
+    alignItems: "center",
   },
   monitorButtonText: {
     color: "#fff",
-    fontSize: 12,
-  },
-  notificationItem: {
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 10,
-    elevation: 1,
-  },
-  notificationMessage: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  notificationDate: {
-    fontSize: 12,
-    color: "#666",
-  },
-
-  unread: {
-    backgroundColor: "#E8F5E9",
-  },
-  messageHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 5,
-  },
-  messageSender: {
     fontWeight: "bold",
-  },
-  messageTime: {
     fontSize: 12,
-    color: "#666",
+    marginLeft: 4,
   },
-  messageText: {
-    fontSize: 14,
+  removeButton: {
+    backgroundColor: "#ff4d4d",
+    padding: 8,
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalStyle: {
+    margin: 0,
+    justifyContent: "flex-end",
   },
   modalContainer: {
     backgroundColor: "#fff",
     padding: 20,
-    borderRadius: 10,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
-  closeButton: {
-    alignSelf: "flex-end",
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    color: "#333",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  profileImageContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  modalProfileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
+    borderWidth: 3,
+    borderColor: "#e8e6f2",
+  },
+  formSection: {
     marginBottom: 20,
-    textAlign: "center",
+  },
+  formSectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#555",
+    marginBottom: 12,
   },
   modalInput: {
-    backgroundColor: "#f9f9f9",
+    flex: 1,
     padding: 12,
-    borderRadius: 5,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    fontSize: 16,
   },
   uploadButton: {
-    backgroundColor: "#2196F3",
-    padding: 12,
-    borderRadius: 5,
+    backgroundColor: "#5c2ec9",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 25,
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
   },
   uploadButtonText: {
     color: "#fff",
+    fontWeight: "500",
   },
   saveButton: {
     backgroundColor: "#4CAF50",
-    padding: 15,
-    borderRadius: 5,
+    paddingVertical: 14,
+    borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "center",
   },
   saveButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 16,
   },
   logoutButton: {
-    backgroundColor: "#FF4C4C", // Red color for logout
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    backgroundColor: "#ff4d4d",
+    paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
+    marginTop: 12,
+    flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20, // Space from other elements
-    width: "100%", // Adjust width to fit nicely
-    alignSelf: "center", // Center horizontally
-    shadowColor: "#000", // Shadow for depth
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
   },
   logoutButtonText: {
-    color: "#FFFFFF", // White text color
-    fontSize: 16,
+    color: "#fff",
     fontWeight: "bold",
-    textAlign: "center", // Center the text
+    fontSize: 16,
   },
 });
 

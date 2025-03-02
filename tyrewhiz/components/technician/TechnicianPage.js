@@ -223,11 +223,11 @@ const TechnicianPage = () => {
 
   // Handle Delete Notification
   const handleDeleteNotification = (id) => {
-    console.log("Before delete:", notifications);
+    
     setNotifications((prevNotifications) =>
       prevNotifications.filter((notification) => notification.id !== id)
     );
-    console.log("After delete:", notifications);
+   
   };
 
   const [vehicleId, setVehicleId] = useState("");
@@ -249,10 +249,10 @@ const TechnicianPage = () => {
   const requestWebcamPermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      console.log("Webcam stream available");
+      
       handleWebcamCapture(stream);
     } catch (error) {
-      console.error("Webcam access denied or unavailable", error);
+      
       alert(
         translatedText["Camera access is required to capture vehicle images"] ||
           "Camera access is required to capture vehicle images"

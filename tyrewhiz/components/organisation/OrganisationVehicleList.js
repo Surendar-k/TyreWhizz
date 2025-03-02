@@ -42,17 +42,17 @@ const OrganisationVehicleList = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("No token found.");
+       
         return null;
       }
 
-      console.log("jwtDecode function:", jwtDecode); // Debugging
+     
       const payload = jwtDecode(token);
 
-      console.log("Decoded Payload:", payload);
+     
       return payload.userId || payload.userID || payload.id || null;
     } catch (error) {
-      console.error("Error retrieving user ID:", error);
+     
       return null;
     }
   };
@@ -101,18 +101,18 @@ const OrganisationVehicleList = ({ navigation }) => {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("No token found.");
+        
         return;
       }
 
       const userId = await fetchUserId();
       if (!userId) {
-        console.error("User ID not found.");
+       
         return;
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/vehicles?userId=${userId}`,
+        `http://192.168.61.69:5000/api/vehicles?userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -123,7 +123,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       );
 
       if (response.status === 404) {
-        console.warn("No vehicles found for this user.");
+       
         setVehicles([]); // Ensure it sets an empty array
         setFilteredVehicles([]);
         return;
@@ -137,7 +137,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       setVehicles(Array.isArray(data) ? data : []);
       setFilteredVehicles(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      
       setVehicles([]); // Ensure state is reset even on error
       setFilteredVehicles([]);
       console.error(
@@ -168,8 +168,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         return;
       }
 
-      console.log("Token being sent:", token);
-      console.log("User ID:", userId);
+   
 
       const updatedData = {
         ...selectedVehicle,
@@ -177,7 +176,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://localhost:5000/api/vehicles/${selectedVehicle.id}`,
+        `http://192.168.61.69:5000/api/vehicles/${selectedVehicle.id}`,
         {
           method: "PUT",
           headers: {
@@ -197,7 +196,7 @@ const OrganisationVehicleList = ({ navigation }) => {
 
       setModalVisible(false);
     } catch (error) {
-      console.error("Error updating vehicle:", error);
+    
       Alert.alert(
         translatedText["Error"] || "Error",
         translatedText["Failed to connect to the server"] ||
@@ -210,9 +209,7 @@ const OrganisationVehicleList = ({ navigation }) => {
     let token = await AsyncStorage.getItem("token");
     let userId = await AsyncStorage.getItem("user_id");
 
-    console.log("Retrieved Token:", token);
-    console.log("Retrieved User ID:", userId);
-
+   
     if (!userId) {
       userId = await fetchUserId();
       if (userId) {
@@ -243,7 +240,7 @@ const OrganisationVehicleList = ({ navigation }) => {
             try {
               // 🔥 **API Call**
               const response = await fetch(
-                `http://localhost:5000/api/vehicles/${id}?user_id=${userId}`,
+                `http://192.168.61.69:5000/api/vehicles/${id}?user_id=${userId}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -254,8 +251,7 @@ const OrganisationVehicleList = ({ navigation }) => {
               );
 
               const data = await response.json();
-              console.log("Delete Response:", data);
-
+            
               if (!response.ok) {
                 throw new Error(data.error || "Failed to delete vehicle");
               }
@@ -308,7 +304,7 @@ const OrganisationVehicleList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/vehicles", {
+      const response = await fetch("http://192.168.61.69:5000/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -328,7 +324,7 @@ const OrganisationVehicleList = ({ navigation }) => {
       setNewVehicle({ vehicle_no: "", driver_id: "", type: "", capacity: "" });
       setShowAddVehicle(false);
     } catch (error) {
-      console.error("Error during API call:", error);
+     
       Alert.alert(
         translatedText["Error"] || "Error",
         translatedText["Failed to connect to the server"] ||

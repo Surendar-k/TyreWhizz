@@ -46,8 +46,7 @@ useEffect(() => {
 
       // Decode JWT to inspect its content
       const decoded = jwtDecode(token);
-      console.log("Decoded Token:", decoded); // Log the decoded token to see if userId exists
-
+     
       const userId = decoded?.userId; // Assuming the userId is in the decoded payload
 
       if (!userId) {
@@ -58,13 +57,13 @@ useEffect(() => {
       // Proceed to fetch the data
       
       const [vehicleResponse, driverResponse] = await Promise.all([
-        fetch("http://localhost:5000/api/vehicles", {
+        fetch("http://192.168.61.69:5000/api/vehicles", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }),
-        fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
+        fetch(`http://192.168.61.69:5000/api/drivers?user_id=${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -78,17 +77,15 @@ useEffect(() => {
         throw new Error(`HTTP error! Vehicle: ${vehicleResponse.status}`);
       }
       const vehicleData = await vehicleResponse.json();
-      console.log("Fetched Vehicle Data:", vehicleData);
+    
 
       if (!driverResponse.ok) {
         const errorData = await driverResponse.json();
-        console.error("Driver API Error:", errorData); // Log the full error details from the response
+       
       }
       const driverData = await driverResponse.json(); // Assign response to driverData
-      console.log("Fetched Driver Data:", driverData);
-
-      
-      console.log("Fetched Vehicle Data:", vehicleData);
+    
+    
 
       let categoryCounts = {
         trucks: 0,
@@ -98,7 +95,7 @@ useEffect(() => {
       
       // Iterate through each vehicle
       vehicleData.forEach((vehicle) => {
-        console.log("Vehicle:", vehicle);
+      
       
         // Check the vehicle type instead of category
         if (vehicle.type.toLowerCase() === "truck") {
@@ -111,7 +108,7 @@ useEffect(() => {
       });
       
       
-      console.log("Category Counts:", categoryCounts);
+    
       
       // Update your state with the correct category counts
       setVehicleCategories(categoryCounts);

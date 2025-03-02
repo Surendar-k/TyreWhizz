@@ -83,7 +83,7 @@ const OrganisationDriverList = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("No token found.");
+       
         return null;
       }
 
@@ -91,14 +91,14 @@ const OrganisationDriverList = ({ navigation }) => {
 
       // Check if the token is expired
       if (payload.exp * 1000 < Date.now()) {
-        console.error("Token expired.");
+        
         await AsyncStorage.removeItem("token"); // Clear expired token
         return null;
       }
 
       return payload.userId || payload.userID || payload.id || null;
     } catch (error) {
-      console.error("Error retrieving user ID:", error);
+    
       return null;
     }
   };
@@ -107,18 +107,18 @@ const OrganisationDriverList = ({ navigation }) => {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("No token found.");
+    
         return;
       }
 
       const userId = await fetchUserId();
       if (!userId) {
-        console.error("User ID not found.");
+       
         return;
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/drivers?user_id=${userId}`, // Correct query param
+        `http://192.168.61.69:5000/api/drivers?user_id=${userId}`, // Correct query param
         {
           method: "GET",
           headers: {
@@ -162,8 +162,7 @@ const OrganisationDriverList = ({ navigation }) => {
     let token = await AsyncStorage.getItem("token");
     let userId = await AsyncStorage.getItem("user_id");
 
-    console.log("Retrieved Token:", token);
-    console.log("Retrieved User ID:", userId);
+ 
 
     // If userId is missing, attempt to fetch it again
     if (!userId) {
@@ -190,7 +189,7 @@ const OrganisationDriverList = ({ navigation }) => {
           onPress: async () => {
             try {
               const response = await fetch(
-                `http://localhost:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
+                `http://192.168.61.69:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
                 {
                   method: "DELETE",
                   headers: {
@@ -201,7 +200,7 @@ const OrganisationDriverList = ({ navigation }) => {
               );
 
               const data = await response.json();
-              console.log("Delete Response:", data);
+            
 
               if (response.ok) {
                 setDrivers((prev) => prev.filter((driver) => driver.id !== id));
@@ -210,7 +209,7 @@ const OrganisationDriverList = ({ navigation }) => {
                 Alert.alert("Error", data.error || "Failed to delete driver");
               }
             } catch (error) {
-              console.error("Error deleting driver:", error);
+             
               Alert.alert(
                 translatedText["Error"] || "Error",
                 translatedText["Failed to connect to the server"] ||
@@ -237,7 +236,7 @@ const OrganisationDriverList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/drivers", {
+      const response = await fetch("http://192.168.61.69:5000/api/drivers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -269,7 +268,7 @@ const OrganisationDriverList = ({ navigation }) => {
 
       setShowAddDriver(false);
     } catch (error) {
-      console.error("Error during API call:", error);
+     
       Alert.alert(
         translatedText["Error"] || "Error",
         translatedText["Failed to connect to the server"] ||
@@ -306,7 +305,7 @@ const OrganisationDriverList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://localhost:5000/api/drivers/${selectedDriver.id}`,
+        `http://192.168.61.69:5000/api/drivers/${selectedDriver.id}`,
         {
           method: "PUT",
           headers: {
@@ -328,7 +327,7 @@ const OrganisationDriverList = ({ navigation }) => {
         );
       }
     } catch (error) {
-      console.error("Error updating driver:", error);
+     
       Alert.alert(
         translatedText["Error"] || "Error",
         translatedText["Failed to connect to the server"] ||

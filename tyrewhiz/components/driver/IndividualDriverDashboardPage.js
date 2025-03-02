@@ -7,6 +7,8 @@ import {
   Image,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import Modal from "react-native-modal";
 import { launchImageLibrary } from "react-native-image-picker";
@@ -16,9 +18,10 @@ import IndividualDriverMessages from "./IndividualDriverMessages";
 import IndividualDriverNotifications from "./IndividualDriverNotifications";
 import { useTranslation } from "../TranslationContext";
 import { useFocusEffect } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+
 const cartopimg = require("../../assets/car-top-view.png");
 const defaultImage = require("../../assets/logo.png");
-import { ActivityIndicator } from "react-native";
 
 const IndividualDriverDashboardPage = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -31,7 +34,7 @@ const IndividualDriverDashboardPage = () => {
   const [recentConnections, setRecentConnections] = useState([]);
   const [vehicleType, setVehicleType] = useState("4wheeler"); // Default vehicle type
   const navigation = useNavigation();
-  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
+  const { translatedText, updateTranslations } = useTranslation();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -120,6 +123,7 @@ const IndividualDriverDashboardPage = () => {
       unread: false,
     },
   ]);
+
   const [notifications, setNotifications] = useState([
     {
       message: "Your vehicle has been paired successfully.",
@@ -181,7 +185,7 @@ const IndividualDriverDashboardPage = () => {
   const handleManualConnect = () => {
     // Validate all tire sensors are filled
     if (Object.values(manualTireSensors).some((value) => !value)) {
-      alert("Please fill all tire sensor IDs");
+      Alert.alert("Error", "Please fill all tire sensor IDs");
       return;
     }
 
@@ -207,9 +211,11 @@ const IndividualDriverDashboardPage = () => {
     // Navigate to MonitoringPage after manual connection
     navigation.navigate("MonitoringPage");
   };
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+
   const pickImage = () => {
     launchImageLibrary(
       {
@@ -259,14 +265,19 @@ const IndividualDriverDashboardPage = () => {
   };
 
   const saveDriverDetails = () => {
-    alert("Driver details saved successfully!");
+    Alert.alert("Success", "Driver details saved successfully!");
     toggleModal();
   };
+
   const handleLogout = () => {
     navigation.navigate("UserTypeSelectionPage"); // Navigate to the User Type Selection Page
   };
+
   const handleSensorIdSubmit = () => {
-    if (!sensorId) return; // Prevent adding empty sensor IDs
+    if (!sensorId) {
+      Alert.alert("Error", "Please enter a Sensor ID");
+      return;
+    } // Prevent adding empty sensor IDs
     setRecentConnections([...recentConnections, { sensorId, vehicleType }]);
     setSensorId("");
   };
@@ -285,7 +296,7 @@ const IndividualDriverDashboardPage = () => {
           onPress={() => navigation.navigate("DriverPage")}
           style={styles.backButton}
         >
-          <Text style={styles.backButtonText}>❮</Text>
+          <Ionicons name="chevron-back" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerText}>TyreWhizz</Text>
         <TouchableOpacity onPress={toggleModal} style={styles.profileSection}>
@@ -298,11 +309,13 @@ const IndividualDriverDashboardPage = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.roleContainer}>
         <Text style={styles.role}>
           {translatedText["Logged in as: Driver"] || "Logged in as: Driver"}
         </Text>
       </View>
+
       <View style={styles.tabsContainer}>
         <TouchableOpacity
           style={[
@@ -311,6 +324,11 @@ const IndividualDriverDashboardPage = () => {
           ]}
           onPress={() => setSelectedTab("notifications")}
         >
+          <Ionicons
+            name="notifications"
+            size={22}
+            color={selectedTab === "notifications" ? "#fff" : "#444"}
+          />
           <Text
             style={[
               styles.tabText,
@@ -328,6 +346,11 @@ const IndividualDriverDashboardPage = () => {
           ]}
           onPress={() => setSelectedTab("pairConnection")}
         >
+          <Ionicons
+            name="link"
+            size={22}
+            color={selectedTab === "pairConnection" ? "#fff" : "#444"}
+          />
           <Text
             style={[
               styles.tabText,
@@ -342,6 +365,11 @@ const IndividualDriverDashboardPage = () => {
           style={[styles.tab, selectedTab === "messages" && styles.selectedTab]}
           onPress={() => setSelectedTab("messages")}
         >
+          <Ionicons
+            name="chatbubble-ellipses"
+            size={22}
+            color={selectedTab === "messages" ? "#fff" : "#444"}
+          />
           <Text
             style={[
               styles.tabText,
@@ -361,101 +389,178 @@ const IndividualDriverDashboardPage = () => {
       {selectedTab === "notifications" && (
         <IndividualDriverNotifications notifications={notifications} />
       )}
+
       {/*pairconnection tab content */}
       {selectedTab === "pairConnection" && (
         <View style={styles.tabContent}>
-          <Text style={styles.vehicleTypeText}>
+          <Text style={styles.sectionTitle}>
             {translatedText["Select Vehicle Type"] || "Select Vehicle Type"}
           </Text>
-          <View style={styles.vehicleTypeGrid}>
+
+          <View style={styles.vehicleTypeContainer}>
+            <View style={styles.vehicleTypeGrid}>
+              <TouchableOpacity
+                onPress={() => setVehicleType("2wheeler")}
+                style={[
+                  styles.vehicleButton,
+                  vehicleType === "2wheeler" && styles.selectedVehicleButton,
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="motorbike"
+                  size={36}
+                  color={vehicleType === "2wheeler" ? "#fff" : "#333"}
+                />
+                <Text
+                  style={[
+                    styles.vehicleButtonText,
+                    vehicleType === "2wheeler" && styles.selectedVehicleText,
+                  ]}
+                >
+                  {translatedText["2-Wheeler"] || "2-Wheeler"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setVehicleType("4wheeler")}
+                style={[
+                  styles.vehicleButton,
+                  vehicleType === "4wheeler" && styles.selectedVehicleButton,
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="car"
+                  size={36}
+                  color={vehicleType === "4wheeler" ? "#fff" : "#333"}
+                />
+                <Text
+                  style={[
+                    styles.vehicleButtonText,
+                    vehicleType === "4wheeler" && styles.selectedVehicleText,
+                  ]}
+                >
+                  {translatedText["4-Wheeler"] || "4-Wheeler"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setVehicleType("6wheeler")}
+                style={[
+                  styles.vehicleButton,
+                  vehicleType === "6wheeler" && styles.selectedVehicleButton,
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="truck"
+                  size={36}
+                  color={vehicleType === "6wheeler" ? "#fff" : "#333"}
+                />
+                <Text
+                  style={[
+                    styles.vehicleButtonText,
+                    vehicleType === "6wheeler" && styles.selectedVehicleText,
+                  ]}
+                >
+                  {translatedText["6-Wheeler"] || "6-Wheeler"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setVehicleType("8wheeler")}
+                style={[
+                  styles.vehicleButton,
+                  vehicleType === "8wheeler" && styles.selectedVehicleButton,
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="truck-fast"
+                  size={36}
+                  color={vehicleType === "8wheeler" ? "#fff" : "#333"}
+                />
+                <Text
+                  style={[
+                    styles.vehicleButtonText,
+                    vehicleType === "8wheeler" && styles.selectedVehicleText,
+                  ]}
+                >
+                  {translatedText["8-Wheeler"] || "8-Wheeler"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.pairingSection}>
+            <TextInput
+              placeholder={
+                translatedText["Sensor ID/Vehicle ID"] || "Sensor ID/Vehicle ID"
+              }
+              value={sensorId}
+              onChangeText={setSensorId}
+              style={styles.inputField}
+            />
             <TouchableOpacity
-              onPress={() => setVehicleType("2wheeler")}
-              style={[
-                styles.vehicleButton,
-                vehicleType === "2wheeler" && styles.selectedVehicleButton,
-              ]}
+              onPress={handleSensorIdSubmit}
+              style={styles.addPairButton}
             >
-              <Text style={styles.vehicleButtonText}>
-                {translatedText["2-Wheeler"] || "2-Wheeler"}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setVehicleType("4wheeler")}
-              style={[
-                styles.vehicleButton,
-                vehicleType === "4wheeler" && styles.selectedVehicleButton,
-              ]}
-            >
-              <Text style={styles.vehicleButtonText}>
-                {translatedText["4-Wheeler"] || "4-Wheeler"}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setVehicleType("6wheeler")}
-              style={[
-                styles.vehicleButton,
-                vehicleType === "6wheeler" && styles.selectedVehicleButton,
-              ]}
-            >
-              <Text style={styles.vehicleButtonText}>
-                {translatedText["6-Wheeler"] || "2-Wheeler"}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setVehicleType("8wheeler")}
-              style={[
-                styles.vehicleButton,
-                vehicleType === "8wheeler" && styles.selectedVehicleButton,
-              ]}
-            >
-              <Text style={styles.vehicleButtonText}>
-                {translatedText["8-Wheeler"] || "2-Wheeler"}
+              <Text style={styles.addPairButtonText}>
+                {translatedText["Add Pair Connection"] || "Add Pair Connection"}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <TextInput
-            placeholder={
-              translatedText["Sensor ID/Vehicle ID"] || "Sensor ID/Vehicle ID"
-            }
-            value={sensorId}
-            onChangeText={setSensorId}
-            style={styles.inputField}
-          />
-          <TouchableOpacity
-            onPress={handleSensorIdSubmit}
-            style={styles.addPairButton}
-          >
-            <Text style={styles.addPairButtonText}>
-              {translatedText["Add Pair Connection"] || "Add Pair Connection"}
-            </Text>
-          </TouchableOpacity>
-
-          <Text style={styles.recentConnectionsText}>
+          <Text style={styles.sectionTitle}>
             {translatedText["Recent Paired Connections:"] ||
               "Recent Paired Connections:"}
           </Text>
+
           {recentConnections.length > 0 ? (
             <View style={styles.recentConnectionsList}>
               {recentConnections.map((connection, index) => (
-                <View key={index} style={styles.recentConnectionItem}>
-                  <View>
-                    <Text>
-                      {`Sensor ID/Vehicle ID: ${connection.sensorId}`}{" "}
-                    </Text>
-                    <Text>{`Vehicle: ${connection.vehicleType}`}</Text>
-                    <Text>
-                      Status:{" "}
-                      <Text style={styles.pairStatus}>
-                        {connection.paired ? "Paired" : "Not Paired"}
+                <View key={index} style={styles.connectionCard}>
+                  <View style={styles.connectionDetails}>
+                    <View style={styles.connectionHeader}>
+                      <Text style={styles.connectionId}>
+                        {`ID: ${connection.sensorId}`}
                       </Text>
-                    </Text>
+                      <View
+                        style={[
+                          styles.statusBadge,
+                          connection.paired
+                            ? styles.pairedBadge
+                            : styles.unpairedBadge,
+                        ]}
+                      >
+                        <Text style={styles.statusText}>
+                          {connection.paired ? "Paired" : "Not Paired"}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.vehicleInfo}>
+                      <MaterialCommunityIcons
+                        name={
+                          connection.vehicleType === "2wheeler"
+                            ? "motorbike"
+                            : connection.vehicleType === "6wheeler" ||
+                              connection.vehicleType === "8wheeler"
+                            ? "truck"
+                            : "car"
+                        }
+                        size={20}
+                        color="#555"
+                      />
+                      <Text style={styles.vehicleTypeText}>
+                        {`${connection.vehicleType}`}
+                      </Text>
+                    </View>
+
                     <View style={styles.buttonContainer}>
                       {!connection.paired && (
                         <TouchableOpacity
                           onPress={() => handlePairClick(index)}
                           style={styles.pairButton}
                         >
+                          <Ionicons name="link" size={16} color="#fff" />
                           <Text style={styles.pairButtonText}>
                             {translatedText["Pair"] || "Pair"}
                           </Text>
@@ -465,6 +570,7 @@ const IndividualDriverDashboardPage = () => {
                         onPress={() => handleDeleteConnection(index)}
                         style={styles.deleteButton}
                       >
+                        <Ionicons name="trash-outline" size={16} color="#fff" />
                         <Text style={styles.deleteButtonText}>
                           {translatedText["Delete"] || "Delete"}
                         </Text>
@@ -475,17 +581,25 @@ const IndividualDriverDashboardPage = () => {
               ))}
             </View>
           ) : (
-            <Text>
-              {translatedText["No recent connections."] ||
-                "No recent connections."}
-            </Text>
+            <View style={styles.emptyContainer}>
+              <Ionicons name="link-outline" size={50} color="#ccc" />
+              <Text style={styles.emptyText}>
+                {translatedText["No recent connections."] ||
+                  "No recent connections."}
+              </Text>
+            </View>
           )}
         </View>
       )}
 
+      {/* Pairing Modal */}
       <Modal
         isVisible={isPairModalVisible}
         onBackdropPress={() => !isAutoPairing && setPairModalVisible(false)}
+        backdropOpacity={0.5}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        style={styles.modal}
       >
         <View style={styles.pairModalContainer}>
           {!selectedPairType ? (
@@ -498,6 +612,12 @@ const IndividualDriverDashboardPage = () => {
                 style={styles.methodButton}
                 onPress={handleManualPair}
               >
+                <Ionicons
+                  name="create-outline"
+                  size={24}
+                  color="#fff"
+                  style={styles.methodIcon}
+                />
                 <Text style={styles.methodButtonText}>
                   {translatedText["Manual"] || "Manual"}
                 </Text>
@@ -506,6 +626,12 @@ const IndividualDriverDashboardPage = () => {
                 style={styles.methodButton}
                 onPress={handleAutoPair}
               >
+                <Ionicons
+                  name="flash-outline"
+                  size={24}
+                  color="#fff"
+                  style={styles.methodIcon}
+                />
                 <Text style={styles.methodButtonText}>
                   {translatedText["Auto Pair"] || "Auto Pair"}
                 </Text>
@@ -530,7 +656,7 @@ const IndividualDriverDashboardPage = () => {
                           frontLeft: text,
                         })
                       }
-                      style={[styles.tireInput, styles.frontLeftInput]}
+                      style={styles.tireInput}
                     />
                   </View>
                   <View style={styles.tireInputContainer}>
@@ -543,7 +669,7 @@ const IndividualDriverDashboardPage = () => {
                           rearLeft: text,
                         })
                       }
-                      style={[styles.tireInput, styles.rearLeftInput]}
+                      style={styles.tireInput}
                     />
                   </View>
                 </View>
@@ -567,7 +693,7 @@ const IndividualDriverDashboardPage = () => {
                           frontRight: text,
                         })
                       }
-                      style={[styles.tireInput, styles.frontRightInput]}
+                      style={styles.tireInput}
                     />
                   </View>
                   <View style={styles.tireInputContainer}>
@@ -580,7 +706,7 @@ const IndividualDriverDashboardPage = () => {
                           rearRight: text,
                         })
                       }
-                      style={[styles.tireInput, styles.rearRightInput]}
+                      style={styles.tireInput}
                     />
                   </View>
                 </View>
@@ -600,7 +726,11 @@ const IndividualDriverDashboardPage = () => {
               <Text style={styles.modalTitle}>
                 {translatedText["Auto Pairing"] || "Auto Pairing"}
               </Text>
-              <ActivityIndicator size="large" color="#4CAF50" />
+              <ActivityIndicator
+                size="large"
+                color="#4CAF50"
+                style={styles.pairingIndicator}
+              />
               <Text style={styles.autoPairingText}>
                 {translatedText["Connection in progress..."] ||
                   "Connection in progress..."}
@@ -610,32 +740,18 @@ const IndividualDriverDashboardPage = () => {
         </View>
       </Modal>
 
-      {selectedTab === "uploadedImages" && (
-        <View style={styles.tabContent}>
-          <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>
-              {translatedText["Upload Images (License, RC, etc.)"] ||
-                "Upload Images (License, RC, etc.)"}
-            </Text>
-          </TouchableOpacity>
-          {uploadedImages.length > 0 && (
-            <View style={styles.imageList}>
-              {uploadedImages.map((img, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: img.uri }}
-                  style={styles.uploadedImage}
-                />
-              ))}
-            </View>
-          )}
-        </View>
-      )}
-      {/*profile model*/}
-      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+      {/* Profile Modal */}
+      <Modal
+        isVisible={isModalVisible}
+        onBackdropPress={toggleModal}
+        backdropOpacity={0.5}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        style={styles.modal}
+      >
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
-            <Ionicons name="close-circle" size={30} color="gray" />
+            <Ionicons name="close-circle" size={28} color="#777" />
           </TouchableOpacity>
 
           <Text style={styles.modalTitle}>
@@ -652,7 +768,7 @@ const IndividualDriverDashboardPage = () => {
               }
               value={driverName}
               onChangeText={setDriverName}
-              style={styles.inputField}
+              style={styles.modalInput}
             />
           </View>
 
@@ -666,655 +782,614 @@ const IndividualDriverDashboardPage = () => {
               }
               value={vehicleNo}
               onChangeText={setVehicleNo}
-              style={styles.inputField}
+              style={styles.modalInput}
             />
           </View>
 
-          <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>
-              {translatedText["Upload Profile Picture"] ||
-                "Upload Profile Picture"}
+          <View style={styles.profileImageSection}>
+            <Text style={styles.inputLabel}>
+              {translatedText["Profile Picture"] || "Profile Picture"}
             </Text>
-          </TouchableOpacity>
-          {profileImage && (
-            <Image
-              source={{ uri: profileImage }}
-              style={styles.uploadedImage}
-            />
-          )}
 
-          <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
-            <Text style={styles.uploadButtonText}>
-              {translatedText["Upload Images (License, RC, etc.)"] ||
-                "Upload Images (License, RC, etc.)"}
-            </Text>
-          </TouchableOpacity>
-          {uploadedImages.length > 0 && (
-            <View style={styles.imageList}>
-              {uploadedImages.map((img, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: img.uri }}
-                  style={styles.uploadedImage}
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={profileImage ? { uri: profileImage } : defaultImage}
+                style={styles.modalProfileImage}
+              />
+
+              <TouchableOpacity onPress={pickImage} style={styles.uploadButton}>
+                <Ionicons
+                  name="camera"
+                  size={20}
+                  color="#fff"
+                  style={{ marginRight: 8 }}
                 />
-              ))}
+                <Text style={styles.uploadButtonText}>
+                  {translatedText["Upload Profile Picture"] ||
+                    "Upload Profile Picture"}
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
+          </View>
 
-          <TouchableOpacity
-            style={styles.saveButton}
-            onPress={saveDriverDetails}
-          >
-            <Text style={styles.saveButtonText}>
-              {translatedText["Save"] || "Save"}
+          <View style={styles.documentSection}>
+            <Text style={styles.inputLabel}>
+              {translatedText["Documents"] || "Documents"}
             </Text>
-          </TouchableOpacity>
-          {/* Logout Button */}
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.buttonText}>
-              {translatedText["Logout"] || "Logout"}
-            </Text>
-          </TouchableOpacity>
+
+            <TouchableOpacity onPress={pickImages} style={styles.uploadButton}>
+              <Ionicons
+                name="document"
+                size={20}
+                color="#fff"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.uploadButtonText}>
+                {translatedText["Upload Images (License, RC, etc.)"] ||
+                  "Upload Images (License, RC, etc.)"}
+              </Text>
+            </TouchableOpacity>
+
+            {uploadedImages.length > 0 && (
+              <View style={styles.imageList}>
+                {uploadedImages.map((img, index) => (
+                  <View key={index} style={styles.documentImageContainer}>
+                    <Image
+                      source={{ uri: img.uri }}
+                      style={styles.documentImage}
+                    />
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={saveDriverDetails}
+            >
+              <Text style={styles.saveButtonText}>
+                {translatedText["Save"] || "Save"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Text style={styles.logoutButtonText}>
+                {translatedText["Logout"] || "Logout"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </ScrollView>
   );
 };
-
 const styles = StyleSheet.create({
+  // Main container
   container: {
     flex: 1,
-    backgroundColor: "#F9F9F9",
+    backgroundColor: "#f5f7fa",
   },
-  messageItem: {
-    backgroundColor: "rgb(163 163 163)",
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  unread: {
-    backgroundColor: "rgb(166 230 163)",
-  },
-  messageHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  messageSender: {
-    fontWeight: "bold",
-  },
-  messageTime: {
-    fontSize: 12,
-    color: "gray",
-  },
-  messageText: {
-    marginTop: 5,
-    fontSize: 14,
-  },
-  notificationTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  notificationsList: {
-    marginTop: 10,
-  },
-  notificationItem: {
-    backgroundColor: "rgb(145 222 156)",
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 8,
-  },
-  notificationText: {
-    fontSize: 14,
-    color: "#ffff",
-  },
-  notificationDate: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 4,
-  },
-  noNotifications: {
-    fontSize: 14,
-    color: "#999",
-    marginTop: 20,
-  },
-  backButton: {
-    width: 50,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
 
-    borderRadius: 5,
-  },
-  backButtonText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
+  // Header styles
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgb(28 10 62)",
-    padding: 15,
+    justifyContent: "space-between",
+    backgroundColor: "#3b1a78",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  backButton: {
+    padding: 8,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#ffffff",
   },
-  roleContainer: {
-    padding: 10,
-    backgroundColor: "#a296ba49",
-    alignItems: "center",
-  },
-  role: { fontSize: 18, color: "rgb(42 10 62)" },
   profileSection: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingRight: 20,
   },
   profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 8,
     borderWidth: 2,
-    borderColor: "#FFFFFF",
-  },
-  profileImagePlaceholder: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 30,
+    borderColor: "#ffffff",
   },
   profileText: {
-    marginTop: 5,
-    fontSize: 12,
+    fontSize: 14,
+    color: "#ffffff",
     fontWeight: "500",
-    color: "#FFFFFF",
   },
+
+  // Role container
+  roleContainer: {
+    backgroundColor: "#e8e6f2",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  role: {
+    fontSize: 14,
+    color: "#475569",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+
+  // Tab navigation
   tabsContainer: {
     flexDirection: "row",
-    padding: 10,
-    backgroundColor: "#C6C6C649",
+    backgroundColor: "#ffffff",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
     elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    overflow: "hidden",
   },
   tab: {
     flex: 1,
-    padding: 10,
+    flexDirection: "row",
     alignItems: "center",
-    borderRadius: 5,
-    marginHorizontal: 5,
-    borderRadius: 10,
+    justifyContent: "center",
+    paddingVertical: 14,
   },
   selectedTab: {
-    backgroundColor: "rgb(90 50 177)",
+    backgroundColor: "rgb(135, 85, 255)", // Lighter purple for selected tab
+    borderBottomWidth: 3,
+    borderBottomColor: "#3b1a78",
   },
   tabText: {
-    color: "#333",
+    fontSize: 14,
+    color: "#444",
+    marginLeft: 6,
+    fontWeight: "500",
   },
   selectedTabText: {
     color: "#fff",
-  },
-  tabContent: {
-    padding: 20,
-    backgroundColor: "rgb(201 201 201)", // Updated background color
-    borderRadius: 10,
-
-    // Box shadow for iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-
-    // Elevation for Android
-    elevation: 5,
-  },
-
-  vehicleTypeText: {
-    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 15,
-    color: "#333",
+  },
+
+  // Tab content
+  tabContent: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+
+  // Section titles
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1E293B",
+    marginBottom: 16,
+  },
+
+  // Vehicle type selection
+  vehicleTypeContainer: {
+    marginBottom: 24,
   },
   vehicleTypeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 20,
   },
   vehicleButton: {
     width: "48%",
-    marginBottom: 15,
-    paddingVertical: 15,
-    backgroundColor: "#321CD289",
-    borderRadius: 10,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#D0D0D0",
-
-    // Box shadow for iOS
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-
-    // Elevation for Android
-    elevation: 5,
+    borderColor: "#E2E8F0",
   },
-
   selectedVehicleButton: {
-    backgroundColor: "rgb(110 89 149)",
-    borderColor: "#388E3C",
+    backgroundColor: "#4E1980",
+    borderColor: "#2954CC",
   },
   vehicleButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  inputField: {
-    backgroundColor: "#FFFFFF",
-    padding: 12,
-    marginBottom: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#D0D0D0",
-    fontSize: 16,
-  },
-  addPairButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  addPairButtonText: {
-    color: "#4CAF50",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  recentConnectionsText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
-    marginTop: 20,
+    fontSize: 15,
+    fontWeight: "500",
+    marginTop: 8,
     color: "#333",
   },
-  recentConnectionsList: {
-    backgroundColor: "rgba(50, 28, 210, 0.54)",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 5,
+  selectedVehicleText: {
+    color: "#ffffff",
   },
-  recentConnectionItem: {
+
+  // Pairing section
+  pairingSection: {
+    marginBottom: 24,
+  },
+  inputField: {
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#CBD5E0",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  addPairButton: {
+    backgroundColor: "rgb(59, 26, 120)",
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: "#3563E9",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  addPairButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Connection cards
+  recentConnectionsList: {
+    marginBottom: 16,
+  },
+  connectionCard: {
+    backgroundColor: "#F8FAFC",
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    overflow: "hidden",
+  },
+  connectionDetails: {
+    padding: 16,
+  },
+  connectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 15, // Add some padding for spacing
-    borderBottomWidth: 1,
-    borderColor: "#E0E0E0",
-    backgroundColor: "#F9F9F9", // Optional: Better visibility
-    borderRadius: 8,
-    marginVertical: 8, // Add spacing between rows
-    elevation: 2, // For subtle shadow
+    marginBottom: 12,
   },
-  recentConnectionDetails: {
-    flex: 1, // Allow details to take up remaining space
-    marginRight: 10, // Add space between details and buttons
+  connectionId: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1E293B",
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  pairedBadge: {
+    backgroundColor: "#DCFCE7",
+  },
+  unpairedBadge: {
+    backgroundColor: "#FFE4E6",
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#166534",
+  },
+  vehicleInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  vehicleTypeText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#555",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  connectionDetails: {
-    flex: 1,
-  },
-  connectionText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  pairStatus: {
-    fontSize: 14,
-    color: "#888",
-    marginTop: 5,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap", // Allows wrapping
-    justifyContent: "space-between", // Distributes buttons evenly
-    padding: 10, // Adds padding around buttons
   },
   pairButton: {
-    backgroundColor: "#4CAF50",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3563E9",
     paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    margin: 5, // Adds space between buttons
+    paddingHorizontal: 14,
+    borderRadius: 6,
+    marginRight: 10,
   },
   pairButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    textAlign: "center", // Ensures text is centered
+    color: "#fff",
+    marginLeft: 4,
+    fontWeight: "500",
   },
   deleteButton: {
-    backgroundColor: "#FF5733",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#EF4444",
     paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    margin: 5, // Adds space between buttons
+    paddingHorizontal: 14,
+    borderRadius: 6,
   },
   deleteButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    textAlign: "center", // Ensures text is centered
+    color: "#fff",
+    marginLeft: 4,
+    fontWeight: "500",
   },
 
+  // Empty state
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#94A3B8",
+    marginTop: 16,
+    textAlign: "center",
+  },
+
+  // Modal styles
+  modal: {
+    margin: 0,
+    justifyContent: "flex-end",
+  },
   modalContainer: {
-    backgroundColor: "#FFFFFF",
-    padding: 20,
-    borderRadius: 15,
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    width: "90%",
-    alignSelf: "center",
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: "90%",
+  },
+  pairModalContainer: {
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: "70%",
   },
   closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
+    alignSelf: "flex-end",
+    marginBottom: 8,
   },
   modalTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#333333",
-    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 24,
+    textAlign: "center",
   },
+
+  // Profile modal inputs
   inputGroup: {
-    width: "100%",
-    marginBottom: 15,
+    marginBottom: 16,
   },
   inputLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#666666",
-    marginBottom: 5,
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#475569",
+    marginBottom: 8,
   },
-  inputField: {
-    width: "100%",
+  modalInput: {
+    backgroundColor: "#F8FAFC",
     borderWidth: 1,
-    borderColor: "#CCCCCC",
+    borderColor: "#CBD5E0",
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     fontSize: 16,
-    color: "#333333",
-    backgroundColor: "#F9F9F9",
+  },
+
+  // Profile image section
+  profileImageSection: {
+    marginBottom: 20,
+  },
+  profileImageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  modalProfileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+
+  // Document section
+  documentSection: {
+    marginBottom: 24,
   },
   uploadButton: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    paddingHorizontal: 15,
+    flexDirection: "row",
+    backgroundColor: "#3563E9",
     borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginBottom: 10,
-    width: "100%",
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: "#3563E9",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   uploadButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "600",
-    width: "100%",
-  },
-  saveButton: {
-    backgroundColor: "#28A745",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: "center",
-    width: "100%",
-    marginTop: 20,
-  },
-  saveButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "500",
   },
   imageList: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginTop: 10,
+    marginTop: 16,
   },
-  uploadedImage: {
-    width: 70,
-    height: 70,
-    margin: 5,
+  documentImageContainer: {
+    width: "30%",
+    aspectRatio: 1,
+    marginRight: "5%",
+    marginBottom: 12,
     borderRadius: 8,
+    overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#DDDDDD",
+    borderColor: "#E2E8F0",
   },
-
-  addPairButton: {
-    backgroundColor: "rgb(88 217 108)", // Blue background for the button
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-    elevation: 4, // Add shadow for depth
-    shadowColor: "rgb(88 217 108)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-
-  addPairButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  pairButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  pairButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  pairStatus: {
-    fontSize: 12,
-    color: "#666",
-    marginTop: 2,
-  },
-  pairModalContainer: {
-    padding: 25,
-    backgroundColor: "#FFFFFF", // Clean white background for clarity
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 15,
-    elevation: 12,
-    maxWidth: 450,
-    alignSelf: "center",
-  },
-
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 20,
-    textAlign: "center",
-    letterSpacing: 1.5, // Adds space for a modern look
-  },
-
-  methodButton: {
-    backgroundColor: "#3E8E41", // Darker green for professional tone
-    paddingVertical: 16,
-    borderRadius: 10,
-    marginVertical: 12,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-
-  methodButtonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "600",
-    letterSpacing: 1, // Slight letter spacing for modern touch
-  },
-
-  manualPairingContainer: {
-    alignItems: "center",
-    paddingBottom: 30,
-  },
-
-  carContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: 25,
-    position: "relative",
-  },
-
-  carImage: {
-    width: 160,
-    height: 160,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 6,
-    zIndex: 1,
-  },
-
-  leftTires: {
-    position: "absolute",
-    left: -25,
-    top: "30%",
-    transform: [{ translateY: -50 }],
-    justifyContent: "space-between",
-    height: 180,
-  },
-
-  rightTires: {
-    position: "absolute",
-    right: -25,
-    top: "30%",
-    transform: [{ translateY: -50 }],
-    justifyContent: "space-around",
-    height: 180,
-  },
-
-  tireInputContainer: {
-    width: 70,
-    height: 70,
-    marginBottom: 14,
-  },
-
-  tireInput: {
-    backgroundColor: "#F5F5F5", // Subtle light grey input background
-    borderWidth: 1.5,
-    borderColor: "#D1D1D1", // Softer border color
-    borderRadius: 10,
+  documentImage: {
     width: "100%",
     height: "100%",
-    textAlign: "center",
-    fontSize: 16,
-    color: "#333",
-    fontWeight: "500",
-    paddingVertical: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 1,
   },
 
-  connectButton: {
-    backgroundColor: "#3E8E41",
-    paddingVertical: 16,
-    paddingHorizontal: 50,
-    borderRadius: 10,
-    marginTop: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
+  // Action buttons
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-
-  connectButtonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
-
-  autoPairingContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 30,
-  },
-
-  autoPairingText: {
-    fontSize: 18,
-    color: "#4CAF50", // Green for active status
-    marginTop: 15,
-    textAlign: "center",
-    fontWeight: "500",
-  },
-
-  autoPairingIndicator: {
-    marginVertical: 20,
-  },
-  logoutButton: {
-    backgroundColor: "#FF4C4C", // Red color for logout
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+  saveButton: {
+    flex: 1,
+    backgroundColor: "rgb(76, 175, 80)",
     borderRadius: 8,
+    paddingVertical: 14,
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20, // Space from other elements
-    width: "100%", // Adjust width to fit nicely
-    alignSelf: "center", // Center horizontally
-    shadowColor: "#000", // Shadow for depth
+    marginRight: 8,
+    elevation: 2,
+    shadowColor: "#3563E9",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
-  logoutButtonText: {
-    color: "#FFFFFF", // White text color
+  saveButtonText: {
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center", // Center the text
+    fontWeight: "600",
+  },
+  logoutButton: {
+    flex: 1,
+    backgroundColor: "rgb(255, 77, 77)",
+    borderWidth: 1,
+    borderColor: "#CBD5E0",
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginLeft: 8,
+  },
+  logoutButtonText: {
+    color: "#475569",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Manual pairing styles
+  manualPairingContainer: {
+    alignItems: "center",
+  },
+  carContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  leftTires: {
+    marginRight: 16,
+  },
+  rightTires: {
+    marginLeft: 16,
+  },
+  tireInputContainer: {
+    marginVertical: 16,
+  },
+  tireInput: {
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#CBD5E0",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    width: 80,
+    textAlign: "center",
+  },
+  carImage: {
+    width: 160,
+    height: 100,
+  },
+  connectButton: {
+    backgroundColor: "#3563E9",
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: "#3563E9",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  connectButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Auto pairing styles
+  autoPairingContainer: {
+    alignItems: "center",
+    paddingVertical: 36,
+  },
+  pairingIndicator: {
+    marginVertical: 24,
+  },
+  autoPairingText: {
+    fontSize: 16,
+    color: "#475569",
+    textAlign: "center",
+  },
+
+  // Pairing method selection
+  methodButton: {
+    flexDirection: "row",
+    backgroundColor: "#3563E9",
+    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    width: "100%",
+    elevation: 2,
+    shadowColor: "#3563E9",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  methodButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  methodIcon: {
+    marginRight: 12,
   },
 });
-
 export default IndividualDriverDashboardPage;

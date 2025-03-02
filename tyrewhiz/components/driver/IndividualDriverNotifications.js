@@ -1,18 +1,29 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 const IndividualDriverNotifications = ({ notifications = [] }) => {
+  const [notificationList, setNotificationList] = useState(notifications);
+
+  const handleDeleteNotification = (index) => {
+    const updatedNotifications = notificationList.filter((_, i) => i !== index);
+    setNotificationList(updatedNotifications);
+  };
+
   return (
     <View style={styles.tabContent}>
       <Text style={styles.notificationTitle}>Notifications</Text>
-      {notifications.length > 0 ? (
+      {notificationList.length > 0 ? (
         <View style={styles.notificationsList}>
-          {notifications.map((notification, index) => (
+          {notificationList.map((notification, index) => (
             <View key={index} style={styles.notificationItem}>
-              <Text style={styles.notificationText}>
-                {notification.message}
-              </Text>
+              <Text style={styles.notificationText}>{notification.message}</Text>
               <Text style={styles.notificationDate}>{notification.date}</Text>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDeleteNotification(index)}
+              >
+                <Text style={styles.deleteText}>✖</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -42,23 +53,32 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 8,
-    // Box shadow for iOS
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
-
-    // Elevation for Android
     elevation: 5,
   },
   notificationText: {
     fontSize: 14,
-    color: "#ffff",
+    color: "#fff",
+    flex: 1, // Ensures text takes available space
   },
   notificationDate: {
     fontSize: 12,
-    color: "#888",
-    marginTop: 4,
+    color: "#ddd",
+    marginLeft: 10,
+  },
+  deleteButton: {
+    marginLeft: 10,
+    padding: 5,
+  },
+  deleteText: {
+    fontSize: 16,
+    color: "#fff",
   },
   noNotifications: {
     fontSize: 14,
@@ -68,3 +88,4 @@ const styles = StyleSheet.create({
 });
 
 export default IndividualDriverNotifications;
+

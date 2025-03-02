@@ -1,159 +1,164 @@
-import React, { useState, useEffect, useContext } from "react";
+import React from "react";
 import {
   View,
   Text,
-  Modal,
   StyleSheet,
   TouchableOpacity,
-  Pressable,
+  ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { useFocusEffect } from "@react-navigation/native";
-import { useTranslation } from "../TranslationContext"; // ✅ Import the global translation context
-
+import { useTranslation } from "../TranslationContext";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import drivertype from "../../assets/drivertype.png";
 const DriverPage = () => {
-  const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  const { translatedText, updateTranslations } = useTranslation(); // ✅ Use global translations
+  const { translatedText, updateTranslations } = useTranslation();
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setModalVisible(true);
-
-      // ✅ Fetch translations dynamically from context
-      updateTranslations([
-        "Choose Your Driver Type",
-        "Individual Driver",
-        "Professional Driver",
-        "Cancel",
-      ]);
-    }, [])
-  );
-
-  const navigateToIndividualDriverDashboardPage = () => {
-    setModalVisible(false);
-    navigation.navigate("IndividualDriverDashboardPage");
-  };
-
-  const navigateToProfessionalDriverDashboardPage = () => {
-    setModalVisible(false);
-    navigation.navigate("ProfessionalDriverDashboardPage");
-  };
-
-  useEffect(() => {
-    setModalVisible(true);
+  React.useEffect(() => {
+    updateTranslations([
+      "Pick a Driver Type",
+      "Personal",
+      "Business",
+      "Cancel",
+    ]);
   }, []);
 
+  const navigateToPage = (page) => {
+    navigation.navigate(page);
+  };
+
   return (
-    <View style={styles.container}>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              {translatedText["Choose Your Driver Type"] ||
-                "Choose Your Driver Type"}
-            </Text>
-
+    <ImageBackground
+      source={drivertype}
+      style={styles.backgroundImage}
+      imageStyle={{ resizeMode: "repeat" }}
+      blurRadius={1}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <Text style={styles.title}>
+            {translatedText["Pick a Driver Type"] || "Pick a Driver Type"}
+          </Text>
+          <View style={styles.verticalContainer}>
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={navigateToIndividualDriverDashboardPage}
+              activeOpacity={0.8}
+              onPress={() => navigateToPage("ProfessionalDriverDashboardPage")}
             >
+              <Icon name="briefcase" size={30} color="#fff" />
               <Text style={styles.optionButtonText}>
-                {translatedText["Individual Driver"] || "Individual Driver"}
+                {translatedText["Business"] || "Business"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={navigateToProfessionalDriverDashboardPage}
+              activeOpacity={0.8}
+              onPress={() => navigateToPage("IndividualDriverDashboardPage")}
             >
+              <Icon name="account" size={30} color="#fff" />
               <Text style={styles.optionButtonText}>
-                {translatedText["Professional Driver"] || "Professional Driver"}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setModalVisible(false);
-                navigation.goBack();
-              }}
-            >
-              <Text style={styles.closeButtonText}>
-                {translatedText["Cancel"] || "Cancel"}
+                {translatedText["Personal"] || "Personal"}
               </Text>
             </TouchableOpacity>
           </View>
-        </Pressable>
-      </Modal>
-    </View>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            activeOpacity={0.8}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.cancelButtonText}>
+              {translatedText["Cancel"] || "Cancel"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  ImageBackground: {
+    opacity: "0.4",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    width: "100%",
+    height: "100%",
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(112, 78, 184, 0.36)",
+  },
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#E5E5E5",
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-  },
-  modalContainer: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    width: "75%",
+    backgroundColor: "rgba(236, 232, 255, 0.96)",
     padding: 20,
+    borderRadius: 14,
     alignItems: "center",
-    width: "80%",
-    elevation: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 12,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "600",
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
     marginBottom: 20,
-    color: "#333",
+    color: "#222",
+    textAlign: "center",
+    letterSpacing: 1,
+  },
+  verticalContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
   },
   optionButton: {
-    backgroundColor: "rgb(111 78 184)",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
     alignItems: "center",
-    marginVertical: 10,
-    width: "100%",
+    backgroundColor: "#6F4EB8",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    justifyContent: "center",
+    shadowColor: "#6F4EB8",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
+    marginBottom: 14,
+    width: "90%",
   },
   optionButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "600",
+    marginTop: 8,
+    textTransform: "uppercase",
   },
-  closeButton: {
+  cancelButton: {
     marginTop: 20,
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: "#FF5252",
-    borderRadius: 10,
+    paddingHorizontal: 24,
+    backgroundColor: "#D9534F",
+    borderRadius: 12,
+    width: "90%",
+    alignItems: "center",
+    shadowColor: "#D9534F",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
   },
-  closeButtonText: {
+  cancelButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "700",
+    letterSpacing: 0.6,
   },
 });
 
