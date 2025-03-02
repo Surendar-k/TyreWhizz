@@ -310,6 +310,15 @@ const MonitoringPage = ({ navigation, route }) => {
         </View>
       );
     }
+    // Subscribe to the RxJS sensor data stream
+    const subscription = sensorDataStream.subscribe({
+      next: setSensorData, // Update state when new data arrives
+      error: (err) => console.error("Sensor data error:", err), // Handle errors
+    });
+
+    return () => subscription.unsubscribe(); // Cleanup on unmount
+
+
 
     // Extract data
     const { pressure, incontact_temp, ambient_temp, acc_x, acc_y } = sensorData;
@@ -770,8 +779,76 @@ const MonitoringPage = ({ navigation, route }) => {
           </ScrollView>
         </View>
       </View>
+  
+      {/* Dynamic Content */}
+      {renderContent()}
+  
+      {/* Real-Time Sensor Data */}
+      <View style={styles.sensorDataContainer}>
+        <Text style={styles.sensorTitle}>Real-Time Sensor Data:</Text>
+        {sensorData ? (
+          <>
+            <Text style={styles.sensorText}>Pressure: {sensorData.pressure} BAR</Text>
+            <Text style={styles.sensorText}>Ambient Temp: {sensorData.ambient_temp} °C</Text>
+            <Text style={styles.sensorText}>In-Contact Temp: {sensorData.incontact_temp} °C</Text>
+            <Text style={styles.sensorText}>Acceleration X: {sensorData.acc_x} m/s²</Text>
+            <Text style={styles.sensorText}>Acceleration Y: {sensorData.acc_y} m/s²</Text>
+            <Text style={styles.sensorText}>Acceleration Z: {sensorData.acc_z} m/s²</Text>
+          </>
+        ) : (
+          <Text style={styles.sensorText}>Waiting for data...</Text>
+        )}
+      </View>
+  
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={styles.fixedArrowLeft}
+          onPress={() => scrollViewRef.current?.scrollTo({ x: 0, animated: true })}
+        >
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+  
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.footerContent}
+          ref={scrollViewRef}
+        >
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => setSelectedFeature("temperature")}
+          >
+            <Ionicons name="thermometer" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => setSelectedFeature("pressure")}
+          >
+            <Ionicons name="cloudy" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => setSelectedFeature("objectdetection")}
+          >
+            <Ionicons name="speedometer" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => setSelectedFeature("status")}
+          >
+            <Ionicons name="bar-chart" size={24} color="#fff" />
+          </TouchableOpacity>
+        </ScrollView>
+  
+        <TouchableOpacity
+          style={styles.fixedArrowRight}
+          onPress={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+        >
+          <Ionicons name="arrow-forward" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
+  
 };
 const styles = StyleSheet.create({
   // Base container styles
