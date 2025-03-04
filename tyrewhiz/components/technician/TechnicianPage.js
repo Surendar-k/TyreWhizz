@@ -9,13 +9,18 @@ import {
   TextInput,
   Image,
   Button,
+  Platform,
+  Alert,
+  ActivityIndicator,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as DocumentPicker from "expo-document-picker";
 import { useFocusEffect } from "@react-navigation/native";
-import { useTranslation } from "../TranslationContext"; // Import translation context
+import { useTranslation } from "../TranslationContext";
 
 const TechnicianPage = () => {
   const [isMenuVisible, setMenuVisible] = useState(false);
@@ -25,7 +30,13 @@ const TechnicianPage = () => {
   const navigation = useNavigation();
   const [hasCertificate, setHasCertificate] = useState("No");
   const [certificateFile, setCertificateFile] = useState(null);
+  const [orgId, setOrgId] = useState("");
+  const [vehicleId, setVehicleId] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectedVehicles, setConnectedVehicles] = useState([]);
   const { translatedText, updateTranslations } = useTranslation();
+
+  // Update translations when component is focused
   useFocusEffect(
     React.useCallback(() => {
       updateTranslations([
@@ -64,7 +75,7 @@ const TechnicianPage = () => {
         "Image captured successfully!",
         "Error",
         "Failed to capture image",
-        "Connect with Your Customer's",
+        "Connect with Your Customers",
         "Connect to Vehicle",
         "Organization ID",
         "Vehicle ID",
@@ -78,7 +89,7 @@ const TechnicianPage = () => {
         "Notifications",
         "Connect",
         "Messages",
-        "Accept ",
+        "Accept",
         "Reject",
         "Accepted",
         "Rejected",
@@ -87,7 +98,7 @@ const TechnicianPage = () => {
         "Menu",
         "Current Plan",
         "days left",
-        "Subscription  Plans",
+        "Subscription Plans",
         "About TyreWhizz",
         "Profile",
         "Name",
@@ -103,15 +114,27 @@ const TechnicianPage = () => {
         "Edit Profile",
         "Logout",
         "TyreWhizz",
+        "Search...",
+        "Today",
+        "Filter Notifications",
+        "All",
+        "Requests",
+        "Updates",
+        "Need Help?",
+        "Contact Support",
       ]);
     }, [])
   );
 
+  // Initialize notifications with sample data
   const [notifications, setNotifications] = useState([]);
+  const [filteredNotifications, setFilteredNotifications] = useState([]);
+  const [notificationFilter, setNotificationFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (Object.keys(translatedText).length > 0) {
-      setNotifications([
+      const notificationsData = [
         {
           id: "1",
           title:
@@ -195,78 +218,36 @@ const TechnicianPage = () => {
           unread: false,
           type: "info",
         },
-      ]);
+      ];
+
+      setNotifications(notificationsData);
+      setFilteredNotifications(notificationsData);
     }
-  }, [translatedText]); // Re-run when translations update
+  }, [translatedText]);
 
-  // Handle Accept Request
-  const handleAcceptRequest = (id) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, status: "accepted" } // Store raw status
-          : notification
-      )
-    );
-  };
+  // Filter notifications based on search query and filter type
+  useEffect(() => {
+    let result = [...notifications];
 
-  // Handle Reject Request
-  const handleRejectRequest = (id) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, status: "rejected" }
-          : notification
-      )
-    );
-  };
+    // Apply type filter
+    if (notificationFilter !== "All") {
+      const filterType =
+        notificationFilter.toLowerCase() === "requests" ? "request" : "info";
+      result = result.filter((item) => item.type === filterType);
+    }
 
-  // Handle Delete Notification
-  const handleDeleteNotification = (id) => {
-    
-    setNotifications((prevNotifications) =>
-      prevNotifications.filter((notification) => notification.id !== id)
-    );
-   
-  };
-
-  const [vehicleId, setVehicleId] = useState("");
-
-  const requestCameraPermission = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      handleImageCapture(); // Your method to capture or select images
-    } else {
-      Alert.alert(
-        translatedText["Permission Required"] || "Permission Required",
-        translatedText["Camera access is required to capture vehicle images"] ||
-          "Camera access is required to capture vehicle images",
-        [{ text: translatedText["OK"] || "OK" }]
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.title.toLowerCase().includes(query) ||
+          item.message.toLowerCase().includes(query)
       );
     }
-  };
 
-  const requestWebcamPermission = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      
-      handleWebcamCapture(stream);
-    } catch (error) {
-      
-      alert(
-        translatedText["Camera access is required to capture vehicle images"] ||
-          "Camera access is required to capture vehicle images"
-      );
-    }
-  };
-
-  const requestCameraOrWebcamPermission = async () => {
-    if (Platform.OS === "web") {
-      await requestWebcamPermission();
-    } else {
-      await requestCameraPermission();
-    }
-  };
+    setFilteredNotifications(result);
+  }, [notifications, notificationFilter, searchQuery]);
 
   const [messages] = useState([
     {
@@ -344,69 +325,94 @@ const TechnicianPage = () => {
     daysLeft: 30,
   });
 
-  // Existing functions remain the same...
-  const toggleMenu = () => setMenuVisible(!isMenuVisible);
-  const toggleProfile = () => {
-    setProfileVisible(!isProfileVisible);
-    setIsEditing(false);
+  // Handle Connect to Vehicle
+  const handleConnect = () => {
+    if (!orgId || !vehicleId) {
+      Alert.alert("Error", "Please enter both Organization ID and Vehicle ID");
+      return;
+    }
+
+    setIsConnecting(true);
+
+    // Simulate API connection
+    setTimeout(() => {
+      const newVehicle = {
+        orgId,
+        vehicleId,
+        timestamp: new Date().toLocaleString(),
+      };
+
+      setConnectedVehicles((prevVehicles) => [...prevVehicles, newVehicle]);
+      setOrgId("");
+      setVehicleId("");
+      setIsConnecting(false);
+    }, 1500);
   };
 
-  const handleEdit = () => setIsEditing(!isEditing);
-  const handleSave = () => setIsEditing(false);
+  // Handle Accept Request
+  const handleAcceptRequest = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
+        notification.id === id
+          ? { ...notification, status: "accepted" }
+          : notification
+      )
+    );
+  };
 
-  const pickCertificate = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "/",
-    });
+  // Handle Reject Request
+  const handleRejectRequest = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
+        notification.id === id
+          ? { ...notification, status: "rejected" }
+          : notification
+      )
+    );
+  };
 
-    if (result.type === "success") {
-      setCertificateFile(result.uri);
+  // Handle Delete Notification
+  const handleDeleteNotification = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  };
+
+  // Camera/Webcam permissions
+  const requestCameraPermission = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      handleImageCapture();
+    } else {
+      Alert.alert(
+        translatedText["Permission Required"] || "Permission Required",
+        translatedText["Camera access is required to capture vehicle images"] ||
+          "Camera access is required to capture vehicle images",
+        [{ text: translatedText["OK"] || "OK" }]
+      );
     }
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      title: translatedText["TyreWhizz"] || "TyreWhizz",
-      headerStyle: {
-        backgroundColor: "#FF5733",
-      },
-      headerTintColor: "#fff",
-      headerLeft: () => (
-        <TouchableOpacity onPress={toggleMenu} style={styles.headerButton}>
-          <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <TouchableOpacity onPress={toggleProfile} style={styles.headerButton}>
-          <Ionicons name="person-circle" size={24} color="#fff" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
-  const EditableField = ({ label, value, field }) => (
-    <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>{translatedText[label] || label}:</Text>
-      {isEditing ? (
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={(text) => setUserData({ ...userData, [field]: text })}
-        />
-      ) : (
-        <Text style={styles.fieldValue}>{value}</Text>
-      )}
-    </View>
-  );
-
-  const handleCertificateSelection = (selection) => {
-    setHasCertificate(selection);
+  const requestWebcamPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      handleWebcamCapture(stream);
+    } catch (error) {
+      alert(
+        translatedText["Camera access is required to capture vehicle images"] ||
+          "Camera access is required to capture vehicle images"
+      );
+    }
   };
 
-  const handleLogout = () => {
-    setProfileVisible(false);
-    navigation.navigate("UserTypeSelectionPage");
+  const requestCameraOrWebcamPermission = async () => {
+    if (Platform.OS === "web") {
+      await requestWebcamPermission();
+    } else {
+      await requestCameraPermission();
+    }
   };
+
   const handleImageCapture = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
@@ -429,203 +435,360 @@ const TechnicianPage = () => {
     }
   };
 
-  const renderConnectContent = () => (
-    <View style={styles.contentContainer}>
-      <Text style={styles.title}>
-        {translatedText["Connect with Your Customer's"] ||
-          "Connect with Your Customer's"}
-      </Text>
+  const handleWebcamCapture = () => {
+    // Implementation for web platform if needed
+  };
 
-      {/* Connection Tab Content */}
-      {selectedTab === "connection" && (
-        <View style={styles.tabContent}>
-          <View style={styles.connectionForm}>
-            <Text style={styles.formTitle}>
-              {translatedText["Connect to Vehicle"] || "Connect to Vehicle"}
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder={
-                translatedText["Organization ID"] || "Organization ID"
-              }
-              value={orgId}
-              onChangeText={setOrgId}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder={translatedText["Vehicle ID"] || "Vehicle ID"}
-              value={vehicleId}
-              onChangeText={setVehicleId}
-            />
-            <TouchableOpacity
-              style={styles.connectButton}
-              onPress={handleConnect}
-              disabled={isConnecting}
-            >
-              {isConnecting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.connectButtonText}>
-                  {translatedText["Connect"] || "Connect"}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+  // Toggle Menu and Profile visibility
+  const toggleMenu = () => setMenuVisible(!isMenuVisible);
+  const toggleProfile = () => {
+    setProfileVisible(!isProfileVisible);
+    setIsEditing(false);
+  };
 
-          {/* Connected Vehicles List */}
-          {connectedVehicles.length > 0 && (
-            <View style={styles.connectedVehicles}>
-              <Text style={styles.sectionTitle}>
-                {translatedText["Connected Vehicles"] || "Connected Vehicles"}
-              </Text>
-              {connectedVehicles.map((vehicle, index) => (
-                <View key={index} style={styles.vehicleItem}>
-                  <View>
-                    <Text style={styles.vehicleText}>
-                      {translatedText["Organization"] || "Organization"}:{" "}
-                      {vehicle.orgId}
-                    </Text>
-                    <Text style={styles.vehicleText}>
-                      {translatedText["Vehicle ID"] || "Vehicle ID"}:{" "}
-                      {vehicle.vehicleId}
-                    </Text>
-                    <Text style={styles.timestampText}>
-                      {translatedText["Connected"] || "Connected"}:{" "}
-                      {vehicle.timestamp}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.monitorButton}
-                    onPress={() =>
-                      navigation.navigate("MonitoringPage", vehicle)
-                    }
-                  >
-                    <Text style={styles.monitorButtonText}>
-                      {translatedText["Monitor"] || "Monitor"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
+  const handleEdit = () => setIsEditing(!isEditing);
+  const handleSave = () => setIsEditing(false);
+
+  const pickCertificate = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "*/*",
+    });
+
+    if (result.type === "success") {
+      setCertificateFile(result.uri);
+    }
+  };
+
+  const handleCertificateSelection = (selection) => {
+    setHasCertificate(selection);
+  };
+
+  const handleLogout = () => {
+    setProfileVisible(false);
+    navigation.navigate("UserTypeSelectionPage");
+  };
+
+  // Configure navigation header
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: translatedText["TyreWhizz"] || "TyreWhizz",
+      headerStyle: {
+        backgroundColor: "#4361ee",
+      },
+      headerTintColor: "#fff",
+      headerLeft: () => (
+        <TouchableOpacity onPress={toggleMenu} style={styles.headerButton}>
+          <Ionicons name="menu" size={24} color="#fff" />
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity onPress={toggleProfile} style={styles.headerButton}>
+          <Ionicons name="person-circle" size={24} color="#fff" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, translatedText]);
+
+  // Component for editable profile fields
+  const EditableField = ({ label, value, field }) => (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>{translatedText[label] || label}:</Text>
+      {isEditing ? (
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={(text) => setUserData({ ...userData, [field]: text })}
+        />
+      ) : (
+        <Text style={styles.fieldValue}>{value}</Text>
       )}
-      <TextInput
-        style={styles.input}
-        placeholder={translatedText["Enter Vehicle ID"] || "Enter Vehicle ID"}
-        value={vehicleId}
-        onChangeText={setVehicleId}
-      />
-
-      <TouchableOpacity
-        style={[styles.button, styles.pair]}
-        onPress={() =>
-          navigation.navigate("MonitoringPage", { vehicleId: vehicleId })
-        }
-      >
-        <Text style={styles.buttonText}>
-          {translatedText["Pair"] || "Pair"}
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 
+  // Render Connect Content
+  const renderConnectContent = () => (
+    <View style={styles.contentContainer}>
+      <Text style={styles.sectionTitle}>
+        {translatedText["Connect with Your Customers"] ||
+          "Connect with Your Customers"}
+      </Text>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>
+          {translatedText["Connect to Vehicle"] || "Connect to Vehicle"}
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder={translatedText["Organization ID"] || "Organization ID"}
+          value={orgId}
+          onChangeText={setOrgId}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder={translatedText["Vehicle ID"] || "Vehicle ID"}
+          value={vehicleId}
+          onChangeText={setVehicleId}
+        />
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={handleConnect}
+          disabled={isConnecting}
+        >
+          {isConnecting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>
+              {translatedText["Connect"] || "Connect"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {connectedVehicles.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            {translatedText["Connected Vehicles"] || "Connected Vehicles"}
+          </Text>
+          {connectedVehicles.map((vehicle, index) => (
+            <View key={index} style={styles.vehicleCard}>
+              <View style={styles.vehicleInfo}>
+                <Text style={styles.vehicleTitle}>{vehicle.vehicleId}</Text>
+                <Text style={styles.vehicleSubtitle}>
+                  {translatedText["Organization"] || "Organization"}:{" "}
+                  {vehicle.orgId}
+                </Text>
+                <Text style={styles.vehicleTimestamp}>
+                  {translatedText["Connected"] || "Connected"}:{" "}
+                  {vehicle.timestamp}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.monitorButton}
+                onPress={() => navigation.navigate("MonitoringPage", vehicle)}
+              >
+                <Text style={styles.buttonText}>
+                  {translatedText["Monitor"] || "Monitor"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>
+          {translatedText["Quick Connect"] || "Quick Connect"}
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder={translatedText["Enter Vehicle ID"] || "Enter Vehicle ID"}
+          value={vehicleId}
+          onChangeText={setVehicleId}
+        />
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() =>
+            navigation.navigate("MonitoringPage", { vehicleId: vehicleId })
+          }
+        >
+          <Text style={styles.buttonText}>
+            {translatedText["Pair"] || "Pair"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.helpCard}>
+        <Text style={styles.helpCardTitle}>
+          {translatedText["Need Help?"] || "Need Help?"}
+        </Text>
+        <TouchableOpacity style={styles.secondaryButton}>
+          <Text style={styles.secondaryButtonText}>
+            {translatedText["Contact Support"] || "Contact Support"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  // Render Notifications Content
+  const renderNotificationsContent = () => (
+    <View style={styles.contentContainer}>
+      <View style={styles.searchContainer}>
+        <Ionicons
+          name="search"
+          size={20}
+          color="#666"
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={translatedText["Search..."] || "Search..."}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      <View style={styles.filterContainer}>
+        <Text style={styles.filterLabel}>
+          {translatedText["Filter Notifications"] || "Filter Notifications"}:
+        </Text>
+        <View style={styles.filterButtons}>
+          {["All", "Requests", "Updates"].map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              style={[
+                styles.filterButton,
+                notificationFilter === filter && styles.activeFilterButton,
+              ]}
+              onPress={() => setNotificationFilter(filter)}
+            >
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  notificationFilter === filter &&
+                    styles.activeFilterButtonText,
+                ]}
+              >
+                {translatedText[filter] || filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {filteredNotifications.length > 0 ? (
+        filteredNotifications.map((notification) => (
+          <View
+            key={notification.id}
+            style={[
+              styles.notificationCard,
+              notification.unread && styles.unreadNotification,
+            ]}
+          >
+            <View style={styles.notificationHeader}>
+              <View style={styles.notificationTitleContainer}>
+                <Text style={styles.notificationTitle}>
+                  {notification.title}
+                </Text>
+                {notification.unread && <View style={styles.unreadDot} />}
+              </View>
+              <TouchableOpacity
+                onPress={() => handleDeleteNotification(notification.id)}
+              >
+                <Ionicons name="close" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.notificationTime}>
+              {notification.time === "2 hours ago" ||
+              notification.time === "3 hours ago" ||
+              notification.time === "5 hours ago"
+                ? translatedText["Today"] || "Today"
+                : notification.time}
+            </Text>
+
+            <Text style={styles.notificationMessage}>
+              {notification.message}
+            </Text>
+
+            {notification.type === "request" && !notification.status && (
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  style={styles.acceptButton}
+                  onPress={() => handleAcceptRequest(notification.id)}
+                >
+                  <Text style={styles.buttonText}>
+                    {translatedText["Accept"] || "Accept"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.rejectButton}
+                  onPress={() => handleRejectRequest(notification.id)}
+                >
+                  <Text style={styles.buttonText}>
+                    {translatedText["Reject"] || "Reject"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {notification.status && (
+              <View
+                style={[
+                  styles.statusBadge,
+                  notification.status === "accepted"
+                    ? styles.acceptedBadge
+                    : styles.rejectedBadge,
+                ]}
+              >
+                <Text style={styles.statusText}>
+                  {notification.status === "accepted"
+                    ? translatedText["Accepted"] || "Accepted"
+                    : translatedText["Rejected"] || "Rejected"}
+                </Text>
+              </View>
+            )}
+          </View>
+        ))
+      ) : (
+        <View style={styles.emptyStateContainer}>
+          <Ionicons name="notifications-off" size={48} color="#ccc" />
+          <Text style={styles.emptyStateText}>
+            {translatedText["No notifications found"] ||
+              "No notifications found"}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+
+  // Render Messages Content
+  const renderMessagesContent = () => (
+    <View style={styles.contentContainer}>
+      <View style={styles.searchContainer}>
+        <Ionicons
+          name="search"
+          size={20}
+          color="#666"
+          style={styles.searchIcon}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={translatedText["Search..."] || "Search..."}
+        />
+      </View>
+
+      {messages.map((message) => (
+        <TouchableOpacity
+          key={message.id}
+          style={[styles.messageCard, message.unread && styles.unreadMessage]}
+        >
+          <View style={styles.messageHeader}>
+            <Text style={styles.messageSender}>{message.sender}</Text>
+            <Text style={styles.messageTime}>{message.time}</Text>
+          </View>
+          <Text style={styles.messagePreview} numberOfLines={2}>
+            {message.message}
+          </Text>
+          {message.unread && <View style={styles.unreadMessageDot} />}
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  // Render Tab Content
   const renderTabContent = () => {
     switch (selectedTab) {
       case "Notifications":
-        return (
-          <View style={styles.contentContainer}>
-            {notifications.map((notification) => (
-              <View
-                key={notification.id}
-                style={[
-                  styles.notificationItem,
-                  notification.unread && styles.unread,
-                ]}
-              >
-                <View style={styles.notificationHeader}>
-                  <Text style={styles.notificationTitle}>
-                    {notification.title}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => handleDeleteNotification(notification.id)}
-                    style={styles.deleteButton}
-                  >
-                    <Ionicons
-                      name="close-circle-outline"
-                      size={24}
-                      color="rgb(28 10 62)"
-                    />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.notificationTime}>{notification.time}</Text>
-                <Text style={styles.notificationMessage}>
-                  {notification.message}
-                </Text>
-
-                {notification.type === "request" && !notification.status && (
-                  <View style={styles.actionButtons}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.acceptButton]}
-                      onPress={() => handleAcceptRequest(notification.id)}
-                    >
-                      <Text style={styles.actionButtonText}>Accept</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.rejectButton]}
-                      onPress={() => handleRejectRequest(notification.id)}
-                    >
-                      <Text style={styles.actionButtonText}>
-                        {translatedText["Reject"] || "Reject"}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-
-                {notification.status && (
-                  <Text
-                    style={[
-                      styles.statusText,
-                      notification.status === "accepted"
-                        ? styles.acceptedText
-                        : styles.rejectedText,
-                    ]}
-                  >
-                    {notification.status === "accepted"
-                      ? translatedText["Accepted"] || "Accepted"
-                      : translatedText["Rejected"] || "Rejected"}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </View>
-        );
-
+        return renderNotificationsContent();
       case "Connect":
         return renderConnectContent();
-
       case "Messages":
-        return (
-          <View style={styles.contentContainer}>
-            {messages.map((message) => (
-              <View
-                key={message.id}
-                style={[styles.messageItem, message.unread && styles.unread]}
-              >
-                <View style={styles.messageHeader}>
-                  <Text style={styles.messageSender}>{message.sender}</Text>
-                  <Text style={styles.messageTime}>{message.time}</Text>
-                </View>
-                <Text style={styles.messageText}>{message.message}</Text>
-              </View>
-            ))}
-          </View>
-        );
-
+        return renderMessagesContent();
       default:
         return (
           <View style={styles.contentContainer}>
-            <Text style={styles.tabContent}>
+            <Text style={styles.emptyStateText}>
               {translatedText["No content available"] || "No content available"}
             </Text>
           </View>
@@ -633,690 +796,840 @@ const TechnicianPage = () => {
     }
   };
 
-  // Rest of the component remains the same...
   return (
-    <View style={styles.container}>
-      {/* Existing JSX structure remains the same... */}
+    <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor="#4361ee" barStyle="light-content" />
+
       <View style={styles.header}>
-        <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
-          <Ionicons name="menu" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.welcometitle}>TyreWhizz</Text>
-        <TouchableOpacity style={styles.profileButton} onPress={toggleProfile}>
-          <Ionicons name="person-circle" size={24} color="#fff" />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
+          {translatedText["TyreWhizz"] || "TyreWhizz"}
+        </Text>
       </View>
+
       <View style={styles.roleContainer}>
-        <Text style={styles.role}>
-          {" "}
+        <Text style={styles.roleText}>
           {translatedText["Logged in as: Technician"] ||
             "Logged in as: Technician"}
         </Text>
       </View>
 
-      <ScrollView>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              selectedTab === "Notifications" && styles.selectedTab,
-            ]}
-            onPress={() => setSelectedTab("Notifications")}
-          >
-            <Ionicons name="notifications" size={24} color="rgb(28 10 62)" />
-            <Text style={styles.tabButtonText}>
-              {" "}
-              {translatedText["Notifications"] || "Notifications"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              selectedTab === "Connect" && styles.selectedTab,
-            ]}
-            onPress={() => setSelectedTab("Connect")}
-          >
-            <Ionicons name="people" size={24} color="rgb(28 10 62)" />
-            <Text style={styles.tabButtonText}>
-              {translatedText["Connect"] || "Connect"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              selectedTab === "Messages" && styles.selectedTab,
-            ]}
-            onPress={() => setSelectedTab("Messages")}
-          >
-            <Ionicons name="mail" size={24} color="rgb(28 10 62)" />
-            <Text style={styles.tabButtonText}>
-              {translatedText["Messages"] || "Messages"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.tabContentContainer}>{renderTabContent()}</View>
-
-        <Modal
-          visible={isMenuVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={toggleMenu}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            selectedTab === "Notifications" && styles.activeTabButton,
+          ]}
+          onPress={() => setSelectedTab("Notifications")}
         >
-          <View style={styles.modalBackground}>
-            <View style={styles.menuContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {translatedText["Menu"] || "Menu"}
-                </Text>
-                <TouchableOpacity onPress={toggleMenu}>
-                  <Ionicons name="close" size={24} color="#FF5733" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.menuSection}>
-                <Text style={styles.menuSectionTitle}>
-                  {translatedText["Current Plan"] || "Current Plan"}
-                </Text>
-                <View style={styles.planInfo}>
-                  <Text style={styles.planType}>{userData.currentPlan}</Text>
-                  <Text style={styles.daysLeft}>
-                    {userData.daysLeft}{" "}
-                    {translatedText["days left"] || "days left"}
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.menuItem}>
-                <Ionicons name="card-outline" size={24} color="#FF5733" />
-                <Text style={styles.menuItemText}>
-                  {translatedText["Subscription Plans"] || "Subscription Plans"}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem}>
-                <Ionicons
-                  name="information-circle-outline"
-                  size={24}
-                  color="#FF5733"
-                />
-                <Text style={styles.menuItemText}>
-                  {translatedText["About TyreWhizz"] || "About TyreWhizz"}
-                </Text>
+          <Ionicons
+            name="notifications"
+            size={24}
+            color={selectedTab === "Notifications" ? "#4361ee" : "#666"}
+          />
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === "Notifications" && styles.activeTabText,
+            ]}
+          >
+            {translatedText["Notifications"] || "Notifications"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            selectedTab === "Connect" && styles.activeTabButton,
+          ]}
+          onPress={() => setSelectedTab("Connect")}
+        >
+          <Ionicons
+            name="link"
+            size={24}
+            color={selectedTab === "Connect" ? "#4361ee" : "#666"}
+          />
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === "Connect" && styles.activeTabText,
+            ]}
+          >
+            {translatedText["Connect"] || "Connect"}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            selectedTab === "Messages" && styles.activeTabButton,
+          ]}
+          onPress={() => setSelectedTab("Messages")}
+        >
+          <Ionicons
+            name="chatbubbles"
+            size={24}
+            color={selectedTab === "Messages" ? "#4361ee" : "#666"}
+          />
+          <Text
+            style={[
+              styles.tabButtonText,
+              selectedTab === "Messages" && styles.activeTabText,
+            ]}
+          >
+            {translatedText["Messages"] || "Messages"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.content}>{renderTabContent()}</ScrollView>
+
+      {/* Menu Modal */}
+      <Modal
+        visible={isMenuVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleMenu}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.menuModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {translatedText["Menu"] || "Menu"}
+              </Text>
+              <TouchableOpacity onPress={toggleMenu}>
+                <Ionicons name="close" size={24} color="#4361ee" />
               </TouchableOpacity>
             </View>
-          </View>
-        </Modal>
 
-        <Modal
-          visible={isProfileVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={toggleProfile}
-        >
-          <View style={styles.modalBackground}>
-            <View style={styles.profileContainer}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {translatedText["Profile"] || "Profile"}
+            <View style={styles.menuSection}>
+              <Text style={styles.menuSectionTitle}>
+                {translatedText["Current Plan"] || "Current Plan"}
+              </Text>
+              <View style={styles.planCard}>
+                <Text style={styles.planTitle}>{userData.currentPlan}</Text>
+                <Text style={styles.planDetails}>
+                  {userData.daysLeft}{" "}
+                  {translatedText["days left"] || "days left"}
                 </Text>
-                <TouchableOpacity onPress={toggleProfile}>
-                  <Ionicons name="close" size={24} color="#FF5733" />
-                </TouchableOpacity>
               </View>
-              <ScrollView style={styles.profileContent}>
-                <View style={styles.profileImageContainer}>
-                  <Ionicons name="person-circle" size={80} color="#FF5733" />
-                </View>
-                <EditableField
-                  label={translatedText["Name"] || "Name"}
-                  value={userData.name}
-                  field="name"
-                />
-                <EditableField
-                  label={translatedText["Email"] || "Email"}
-                  value={userData.email}
-                  field="email"
-                />
-                <EditableField
-                  label={translatedText["Phone"] || "Phone"}
-                  value={userData.phone}
-                  field="phone"
-                />
-                <EditableField
-                  label={translatedText["Specialization"] || "Specialization"}
-                  value={userData.specialization}
-                  field="specialization"
-                />
-                <EditableField
-                  label={translatedText["Experience"] || "Experience"}
-                  value={userData.experience}
-                  field="experience"
-                />
+            </View>
 
-                <View style={styles.fieldContainer}>
-                  <Text style={styles.fieldLabel}>
-                    {translatedText["Certificate"] || "Certificate"}:
-                  </Text>
-                  {isEditing ? (
-                    <View style={styles.certSelection}>
-                      <TouchableOpacity
-                        onPress={() => handleCertificateSelection("Yes")}
-                        style={[
-                          styles.certButton,
-                          hasCertificate === "Yes" && styles.selectedButton,
-                        ]}
-                      >
-                        <Text style={styles.certButtonText}>
-                          {translatedText["Yes"] || "Yes"}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() => handleCertificateSelection("No")}
-                        style={[
-                          styles.certButton,
-                          hasCertificate === "No" && styles.selectedButton,
-                        ]}
-                      >
-                        <Text style={styles.certButtonText}>
-                          {translatedText["No"] || "No"}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <Text style={styles.fieldValue}>
-                      {translatedText[hasCertificate] || hasCertificate}
-                    </Text>
-                  )}
-                  {hasCertificate === "Yes" && (
-                    <View style={styles.uploadContainer}>
-                      <Button
-                        title={
-                          translatedText["Upload Certificate"] ||
-                          "Upload Certificate"
-                        }
-                        onPress={pickCertificate}
-                      />
-                      {certificateFile && (
-                        <Image
-                          source={{ uri: certificateFile }}
-                          style={styles.uploadedImage}
-                        />
-                      )}
-                    </View>
-                  )}
-                </View>
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="card" size={24} color="#4361ee" />
+              <Text style={styles.menuItemText}>
+                {translatedText["Subscription Plans"] || "Subscription Plans"}
+              </Text>
+            </TouchableOpacity>
 
-                <View style={styles.buttonContainer}>
-                  {isEditing ? (
-                    <TouchableOpacity
-                      style={styles.saveButton}
-                      onPress={handleSave}
-                    >
-                      <Text style={styles.buttonText}>
-                        {translatedText["Save Changes"] || "Save Changes"}
-                      </Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={handleEdit}
-                    >
-                      <Text style={styles.buttonText}>
-                        {translatedText["Edit Profile"] || "Edit Profile"}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
+            <TouchableOpacity style={styles.menuItem}>
+              <Ionicons name="information-circle" size={24} color="#4361ee" />
+              <Text style={styles.menuItemText}>
+                {translatedText["About TyreWhizz"] || "About TyreWhizz"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Ionicons name="log-out" size={24} color="#fff" />
+              <Text style={styles.logoutButtonText}>
+                {translatedText["Logout"] || "Logout"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Profile Modal */}
+      <Modal
+        visible={isProfileVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={toggleProfile}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.profileModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {translatedText["Profile"] || "Profile"}
+              </Text>
+              <TouchableOpacity onPress={toggleProfile}>
+                <Ionicons name="close" size={24} color="#4361ee" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalContent}>
+              <View style={styles.profileImageContainer}>
+                <View style={styles.profileImageWrapper}>
+                  <Ionicons name="person" size={64} color="#fff" />
                 </View>
-                <View>
+                {isEditing && (
                   <TouchableOpacity
-                    style={styles.logoutButton}
-                    onPress={handleLogout}
+                    style={styles.changePhotoButton}
+                    onPress={requestCameraOrWebcamPermission}
                   >
-                    <Text style={styles.buttonText}>
-                      {translatedText["Logout"] || "Logout"}
+                    <Text style={styles.changePhotoText}>
+                      <Ionicons name="camera" size={16} color="#4361ee" />{" "}
+                      Change
                     </Text>
                   </TouchableOpacity>
+                )}
+              </View>
+
+              <EditableField label="Name" value={userData.name} field="name" />
+              <EditableField
+                label="Email"
+                value={userData.email}
+                field="email"
+              />
+              <EditableField
+                label="Phone"
+                value={userData.phone}
+                field="phone"
+              />
+              <EditableField
+                label="Specialization"
+                value={userData.specialization}
+                field="specialization"
+              />
+              <EditableField
+                label="Experience"
+                value={userData.experience}
+                field="experience"
+              />
+
+              <View style={styles.fieldContainer}>
+                <Text style={styles.fieldLabel}>
+                  {translatedText["Certificate"] || "Certificate"}:
+                </Text>
+                {isEditing ? (
+                  <View style={styles.certificateOptions}>
+                    <TouchableOpacity
+                      style={[
+                        styles.certificateOption,
+                        hasCertificate === "Yes" && styles.selectedOption,
+                      ]}
+                      onPress={() => handleCertificateSelection("Yes")}
+                    >
+                      <Text
+                        style={[
+                          styles.certificateOptionText,
+                          hasCertificate === "Yes" && styles.selectedOptionText,
+                        ]}
+                      >
+                        {translatedText["Yes"] || "Yes"}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.certificateOption,
+                        hasCertificate === "No" && styles.selectedOption,
+                      ]}
+                      onPress={() => handleCertificateSelection("No")}
+                    >
+                      <Text
+                        style={[
+                          styles.certificateOptionText,
+                          hasCertificate === "No" && styles.selectedOptionText,
+                        ]}
+                      >
+                        {translatedText["No"] || "No"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Text style={styles.fieldValue}>{hasCertificate}</Text>
+                )}
+              </View>
+
+              {isEditing && hasCertificate === "Yes" && (
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={pickCertificate}
+                >
+                  <Ionicons name="document" size={20} color="#fff" />
+                  <Text style={styles.uploadButtonText}>
+                    {translatedText["Upload Certificate"] ||
+                      "Upload Certificate"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              {certificateFile && (
+                <View style={styles.filePreview}>
+                  <Ionicons name="document-text" size={24} color="#4361ee" />
+                  <Text style={styles.filePreviewText}>
+                    {certificateFile.split("/").pop()}
+                  </Text>
                 </View>
-              </ScrollView>
-            </View>
+              )}
+
+              {isEditing ? (
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.buttonText}>
+                    {translatedText["Save Changes"] || "Save Changes"}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={handleEdit}
+                >
+                  <Text style={styles.buttonText}>
+                    {translatedText["Edit Profile"] || "Edit Profile"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={handleLogout}
+              >
+                <Text style={styles.logoutButtonText}>
+                  {translatedText["Logout"] || "Logout"}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
-        </Modal>
-      </ScrollView>
-    </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
-  contentContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "flex-start",
-  },
-
-  roleContainer: {
-    padding: 10,
-    backgroundColor: "rgba(162, 150, 186, 0.29)",
-    alignItems: "center",
-  },
-  role: { fontSize: 18, color: "rgb(42 10 62)" },
-
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  tabContent: {
-    flex: 1,
-    marginTop: 20,
-  },
-  connectionForm: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
-  formTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 15,
-  },
-  input: {
-    height: 50,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 15,
-    marginBottom: 15,
-    fontSize: 16,
-  },
-  connectButton: {
-    height: 50,
-    backgroundColor: "#4CAF50",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  connectButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  connectedVehicles: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-  vehicleItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 15,
-    marginBottom: 10,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
-  vehicleText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  timestampText: {
-    fontSize: 14,
-    color: "#999",
-  },
-  monitorButton: {
-    backgroundColor: "#2196F3",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  monitorButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  button: {
-    backgroundColor: "#4CAF50",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 50,
-    borderRadius: 8,
-    marginTop: 20
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
-  // Layout & Containers
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f8f9fa",
   },
-  tabContentContainer: {
-    padding: 15,
-  },
-  buttonContainer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  uploadContainer: {
-    marginTop: 10,
-  },
-
-  // Header Styles
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: "#4361ee",
     alignItems: "center",
-    backgroundColor: "rgb(28 10 62)",
-    paddingVertical: 15,
-    paddingHorizontal: 10,
   },
-  title: {
-    color: "rgb(144 104 232)",
-    fontSize: 30,
-    fontWeight: "bold",
-    padding: 10,
-    fontFamily: "cursive",
-  },
-  welcometitle: {
-    color: "#ffff",
+  headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    color: "#fff",
   },
-  menuButton: {
-    padding: 5,
+  headerButton: {
+    paddingHorizontal: 15,
   },
-  profileButton: {
-    padding: 5,
+  roleContainer: {
+    padding: 8,
+    backgroundColor: "#e6f0ff",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#d6e4ff",
   },
-
-  // Tab Navigation
-  tabContainer: {
+  roleText: {
+    color: "#4361ee",
+    fontWeight: "500",
+  },
+  tabBar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#C6C6C649",
-    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    backgroundColor: "#fff",
   },
   tabButton: {
     flex: 1,
+    padding: 12,
     alignItems: "center",
-    padding: 10,
+  },
+  activeTabButton: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#4361ee",
   },
   tabButtonText: {
-    fontSize: 16,
+    color: "#666",
+    marginTop: 4,
+    fontSize: 12,
+  },
+  activeTabText: {
+    color: "#4361ee",
+    fontWeight: "bold",
+  },
+  content: {
+    flex: 1,
+  },
+  contentContainer: {
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
     color: "#333",
   },
-  selectedTab: {
-    backgroundColor: "rgb(144 104 232)",
-  },
-  tabContent: {
-    fontSize: 16,
-    color: "rgb(201 201 201)",
-  },
-
-  // Notifications
-  notificationItem: {
-    backgroundColor: "rgb(224 221 244)",
-    padding: 15,
-    marginBottom: 10,
+  card: {
+    backgroundColor: "#fff",
     borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#333",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
+    backgroundColor: "#f8f9fa",
+  },
+  primaryButton: {
+    backgroundColor: "#4361ee",
+    padding: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  section: {
+    marginBottom: 24,
+  },
+  vehicleCard: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  vehicleInfo: {
+    flex: 1,
+  },
+  vehicleTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  vehicleSubtitle: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  vehicleTimestamp: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 4,
+  },
+  monitorButton: {
+    backgroundColor: "#4361ee",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  helpCard: {
+    backgroundColor: "#f0f4ff",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: "rgb(28 10 62)",
+    borderLeftColor: "#4361ee",
+  },
+  helpCardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#333",
+  },
+  secondaryButton: {
+    borderWidth: 1,
+    borderColor: "#4361ee",
+    padding: 12,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  secondaryButtonText: {
+    color: "#4361ee",
+    fontWeight: "bold",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    padding: 10,
+  },
+  filterContainer: {
+    marginBottom: 16,
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  filterButtons: {
+    flexDirection: "row",
+  },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: "#f0f0f0",
+    marginRight: 8,
+  },
+  activeFilterButton: {
+    backgroundColor: "#4361ee",
+  },
+  filterButtonText: {
+    color: "#666",
+  },
+  activeFilterButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  notificationCard: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  unreadNotification: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#4361ee",
   },
   notificationHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  notificationTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   notificationTitle: {
-    fontWeight: "bold",
     fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginRight: 8,
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#4361ee",
   },
   notificationTime: {
-    color: "#666",
     fontSize: 12,
+    color: "#888",
+    marginBottom: 8,
   },
   notificationMessage: {
-    color: "#333",
     fontSize: 14,
-  },
-  deleteButton: {
-    padding: 5,
+    color: "#444",
+    marginBottom: 12,
   },
   actionButtons: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 10,
-  },
-  actionButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 5,
-    marginLeft: 10,
+    justifyContent: "space-between",
   },
   acceptButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#28a745",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    flex: 1,
+    marginRight: 8,
+    alignItems: "center",
   },
   rejectButton: {
-    backgroundColor: "rgb(255 1 1)",
+    backgroundColor: "#dc3545",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    flex: 1,
+    marginLeft: 8,
+    alignItems: "center",
   },
-  actionButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+  statusBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    alignSelf: "flex-start",
+    marginTop: 8,
+  },
+  acceptedBadge: {
+    backgroundColor: "#d4edda",
+  },
+  rejectedBadge: {
+    backgroundColor: "#f8d7da",
   },
   statusText: {
-    marginTop: 5,
     fontWeight: "bold",
-    textAlign: "right",
   },
-  acceptedText: {
-    color: "#4CAF50",
+  emptyStateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 32,
   },
-  rejectedText: {
-    color: "rgb(28 10 62)",
+  emptyStateText: {
+    fontSize: 16,
+    color: "#888",
+    marginTop: 16,
+    textAlign: "center",
   },
-
-  // Messages
-  messageItem: {
+  messageCard: {
     backgroundColor: "#fff",
-    padding: 15,
-    marginBottom: 10,
     borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    position: "relative",
+  },
+  unreadMessage: {
     borderLeftWidth: 4,
-    borderLeftColor: "#ddd",
+    borderLeftColor: "#4361ee",
   },
   messageHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
+    alignItems: "center",
+    marginBottom: 8,
   },
   messageSender: {
-    fontWeight: "bold",
     fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
   },
   messageTime: {
-    color: "#666",
     fontSize: 12,
+    color: "#888",
   },
-  messageText: {
-    color: "#333",
+  messagePreview: {
     fontSize: 14,
+    color: "#444",
   },
-
-  // Modal Styles
-  modalBackground: {
+  unreadMessageDot: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#4361ee",
+  },
+  modalOverlay: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  menuModal: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: "80%",
+  },
+  profileModal: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: "90%",
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 20,
-    width: "100%",
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    paddingBottom: 16,
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#FF5733",
+    color: "#333",
   },
-
-  // Menu Modal
-  menuContainer: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    height: "70%",
+  modalContent: {
+    flex: 1,
   },
   menuSection: {
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    paddingBottom: 10,
+    marginBottom: 24,
   },
   menuSectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 12,
+    color: "#333",
+  },
+  planCard: {
+    backgroundColor: "#f0f4ff",
+    borderRadius: 8,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#4361ee",
+  },
+  planTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 4,
+  },
+  planDetails: {
+    fontSize: 14,
+    color: "#666",
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
   menuItemText: {
-    fontSize: 14,
-    marginLeft: 10,
-  },
-  planInfo: {
-    marginBottom: 20,
-  },
-  planType: {
-    fontSize: 14,
-  },
-  daysLeft: {
-    fontSize: 12,
-    color: "#777",
-  },
-
-  // Profile Modal
-  profileContainer: {
-    backgroundColor: "#fff",
-    padding: 20,
-    width: "80%",
-    borderRadius: 10,
-  },
-  profileContent: {
-    maxHeight: "80%",
-  },
-  profileImageContainer: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  fieldContainer: {
-    marginBottom: 10,
-  },
-  fieldLabel: {
-    fontWeight: "bold",
-  },
-  fieldValue: {
+    marginLeft: 16,
     fontSize: 16,
     color: "#333",
   },
-
-  // Form Elements
-  input: {
-    height: 40,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    paddingLeft: 10,
-    borderRadius: 5,
-  },
-  certSelection: {
+  logoutButton: {
+    backgroundColor: "#dc3545",
+    padding: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    marginTop: 24,
     flexDirection: "row",
+    justifyContent: "center",
   },
-  certButton: {
-    padding: 10,
-    margin: 5,
-    backgroundColor: "#ddd",
-    borderRadius: 5,
-  },
-  selectedButton: {
-    backgroundColor: "#FF5733",
-  },
-  certButtonText: {
+  logoutButtonText: {
     color: "#fff",
+    fontWeight: "bold",
+    marginLeft: 8,
   },
-
-  // Images
-  uploadedImage: {
+  profileImageContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  profileImageWrapper: {
     width: 100,
     height: 100,
-    marginTop: 10,
+    borderRadius: 50,
+    backgroundColor: "#4361ee",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
   },
-  pair: {
-    fontFamily: "curse",
-    color: "#ffff",
+  changePhotoButton: {
+    padding: 8,
   },
-  // Buttons
-  editButton: {
-    backgroundColor: "#FF5733",
-    padding: 10,
-    borderRadius: 5,
+  changePhotoText: {
+    color: "#4361ee",
+    fontWeight: "500",
   },
-  saveButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
+  fieldContainer: {
+    marginBottom: 16,
   },
-  buttonText: {
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#333",
+  },
+  fieldValue: {
+    fontSize: 16,
+    color: "#444",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  certificateOptions: {
+    flexDirection: "row",
+  },
+  certificateOption: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: "#f0f0f0",
+    marginRight: 12,
+  },
+  selectedOption: {
+    backgroundColor: "#4361ee",
+  },
+  certificateOptionText: {
+    color: "#666",
+  },
+  selectedOptionText: {
     color: "#fff",
     fontWeight: "bold",
   },
-  pairButton: {
-    backgroundColor: "#4CAF50",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 15,
+  uploadButton: {
+    backgroundColor: "#4361ee",
+    padding: 12,
+    borderRadius: 6,
     alignItems: "center",
+    marginVertical: 8,
+    flexDirection: "row",
+    justifyContent: "center",
   },
-
-  // Shared States
-  unread: {
-    borderLeftColor: "rgb(28 10 62)",
+  uploadButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    marginLeft: 8,
   },
-  logoutButton: {
-    backgroundColor: "#ef4444", // Red
+  filePreview: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center", // Centers content horizontally
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 15,
+    backgroundColor: "#f0f4ff",
+    padding: 12,
+    borderRadius: 6,
+    marginVertical: 8,
   },
-  logoutText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+  filePreviewText: {
+    marginLeft: 8,
+    color: "#4361ee",
+    flex: 1,
   },
 });
 

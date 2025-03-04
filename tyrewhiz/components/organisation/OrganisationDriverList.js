@@ -118,7 +118,7 @@ const OrganisationDriverList = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://192.168.61.69:5000/api/drivers?user_id=${userId}`, // Correct query param
+        `http://localhost:5000/api/drivers?user_id=${userId}`, // Correct query param
         {
           method: "GET",
           headers: {
@@ -189,7 +189,7 @@ const OrganisationDriverList = ({ navigation }) => {
           onPress: async () => {
             try {
               const response = await fetch(
-                `http://192.168.61.69:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
+                `http://localhost:5000/api/drivers/${id}?user_id=${userId}`, // Pass user_id correctly
                 {
                   method: "DELETE",
                   headers: {
@@ -236,7 +236,7 @@ const OrganisationDriverList = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch("http://192.168.61.69:5000/api/drivers", {
+      const response = await fetch("http://localhost:5000/api/drivers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -305,7 +305,7 @@ const OrganisationDriverList = ({ navigation }) => {
       };
 
       const response = await fetch(
-        `http://192.168.61.69:5000/api/drivers/${selectedDriver.id}`,
+        `http://localhost:5000/api/drivers/${selectedDriver.id}`,
         {
           method: "PUT",
           headers: {

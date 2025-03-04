@@ -72,7 +72,7 @@ const MonitoringPage = ({ navigation, route }) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [tireRotationDate, setTireRotationDate] = useState("Not Available");
   const [recommendedPSI, setRecommendedPSI] = useState(32);
-  const [roadCondition, setRoadCondition] = useState("Clear");
+  const [tyreAge, setTyreAge] = useState("New");
   const [nearestService, setNearestService] = useState("Fetching...");
 
   // Get the appropriate vehicle image based on type
@@ -183,37 +183,26 @@ const MonitoringPage = ({ navigation, route }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://147.93.108.7:5000/api/sensor");
-        console.log("API Response Data:", response.data);
+        console.log("API Response Data:", response.data); // Debug output
 
-        // Ensure response contains expected fields
-        if (
-          !response.data ||
-          response.data.pressure === undefined ||
-          response.data.incontact_temp === undefined ||
-          response.data.ambient_temp === undefined
-        ) {
-          throw new Error("Missing required sensor data.");
+        // Ensure data is valid before updating state
+        if (response.data && Object.keys(response.data).length > 0) {
+          setSensorData(response.data);
+          localStorage.setItem("lastSensorData", JSON.stringify(response.data)); // Store last valid data
         }
-
-        setSensorData(response.data);
-        setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error.message);
-        // Use mock data for demo if API fails
-        setSensorData({
-          pressure: 32,
-          incontact_temp: 35,
-          ambient_temp: 28,
-          acc_x: 0.1,
-          acc_y: 0.2,
-        });
-        setLoading(false);
+        console.error("Error fetching sensor data:", error);
+
+        // Retrieve last stored data if available
+        const lastData = localStorage.getItem("lastSensorData");
+        if (lastData) {
+          setSensorData(JSON.parse(lastData));
+        }
       }
     };
 
     fetchData();
     const intervalId = setInterval(fetchData, 5000);
-
     return () => clearInterval(intervalId);
   }, []);
 
@@ -310,15 +299,6 @@ const MonitoringPage = ({ navigation, route }) => {
         </View>
       );
     }
-    // Subscribe to the RxJS sensor data stream
-    const subscription = sensorDataStream.subscribe({
-      next: setSensorData, // Update state when new data arrives
-      error: (err) => console.error("Sensor data error:", err), // Handle errors
-    });
-
-    return () => subscription.unsubscribe(); // Cleanup on unmount
-
-
 
     // Extract data
     const { pressure, incontact_temp, ambient_temp, acc_x, acc_y } = sensorData;
@@ -642,12 +622,15 @@ const MonitoringPage = ({ navigation, route }) => {
                 </View>
 
                 {/* Road Condition Card */}
+                {/* Tyre Age Card */}
                 <View style={styles.dashboardInfoCard}>
                   <View style={styles.cardHeader}>
-                    <FontAwesome name="road" size={20} color="#75c300" />
-                    <Text style={styles.cardTitle}>Road Condition</Text>
+                    <FontAwesome name="heart" size={20} color="#75c300" />
+                    <Text style={styles.cardTitle}>Tyre Age</Text>{" "}
+                    {/* Updated Title */}
                   </View>
-                  <Text style={styles.cardValue}>{roadCondition}</Text>
+                  <Text style={styles.cardValue}>{tyreAge}</Text>{" "}
+                  {/* Updated Variable */}
                 </View>
 
                 {/* Service Station Card */}
@@ -702,6 +685,7 @@ const MonitoringPage = ({ navigation, route }) => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -721,8 +705,12 @@ const MonitoringPage = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Dynamic Content */}
-        {renderContent()}
+        {/* Main Content */}
+        <View style={styles.contentWrapper}>
+          <ScrollView contentContainerStyle={styles.content}>
+            {renderContent()}
+          </ScrollView>
+        </View>
 
         {/* Footer Navigation */}
         <View style={styles.footer}>
@@ -779,76 +767,8 @@ const MonitoringPage = ({ navigation, route }) => {
           </ScrollView>
         </View>
       </View>
-  
-      {/* Dynamic Content */}
-      {renderContent()}
-  
-      {/* Real-Time Sensor Data */}
-      <View style={styles.sensorDataContainer}>
-        <Text style={styles.sensorTitle}>Real-Time Sensor Data:</Text>
-        {sensorData ? (
-          <>
-            <Text style={styles.sensorText}>Pressure: {sensorData.pressure} BAR</Text>
-            <Text style={styles.sensorText}>Ambient Temp: {sensorData.ambient_temp} °C</Text>
-            <Text style={styles.sensorText}>In-Contact Temp: {sensorData.incontact_temp} °C</Text>
-            <Text style={styles.sensorText}>Acceleration X: {sensorData.acc_x} m/s²</Text>
-            <Text style={styles.sensorText}>Acceleration Y: {sensorData.acc_y} m/s²</Text>
-            <Text style={styles.sensorText}>Acceleration Z: {sensorData.acc_z} m/s²</Text>
-          </>
-        ) : (
-          <Text style={styles.sensorText}>Waiting for data...</Text>
-        )}
-      </View>
-  
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.fixedArrowLeft}
-          onPress={() => scrollViewRef.current?.scrollTo({ x: 0, animated: true })}
-        >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-  
-        <ScrollView
-          horizontal
-          contentContainerStyle={styles.footerContent}
-          ref={scrollViewRef}
-        >
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => setSelectedFeature("temperature")}
-          >
-            <Ionicons name="thermometer" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => setSelectedFeature("pressure")}
-          >
-            <Ionicons name="cloudy" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => setSelectedFeature("objectdetection")}
-          >
-            <Ionicons name="speedometer" size={24} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => setSelectedFeature("status")}
-          >
-            <Ionicons name="bar-chart" size={24} color="#fff" />
-          </TouchableOpacity>
-        </ScrollView>
-  
-        <TouchableOpacity
-          style={styles.fixedArrowRight}
-          onPress={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-        >
-          <Ionicons name="arrow-forward" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
-  
 };
 const styles = StyleSheet.create({
   // Base container styles
@@ -858,8 +778,16 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgrounfdColor: "#121212",
   },
+  contentWrapper: {
+    flex: 1, // Ensures the content takes up available space
+  },
+  content: {
+    flexGrow: 1, // Allows content to be scrollable while keeping footer at bottom
+    paddingBottom: 60, // Prevents overlap with footer
+  },
+
   scrollContainer: {
     flex: 1,
     paddingBottom: 20,
@@ -930,23 +858,27 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(117, 195, 0, 0.1)", // Subtle accent background
+    borderRadius: 15,
+    padding: 10,
   },
   topLeft: {
-    top: "25%",
+    top: "20%", // Move front tires slightly higher
     left: "8%",
   },
   topRight: {
-    top: "25%",
+    top: "20%", // Move front tires slightly higher
     right: "8%",
   },
   bottomLeft: {
-    bottom: "25%",
+    bottom: "20%", // Move back tires slightly lower
     left: "8%",
   },
   bottomRight: {
-    bottom: "25%",
+    bottom: "20%", // Move back tires slightly lower
     right: "8%",
   },
+
   tireDataContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -1028,31 +960,31 @@ const styles = StyleSheet.create({
 
   // Footer navigation styles
   footer: {
-    backgroundColor: "#000000",
-    borderTopWidth: 1,
-    borderTopColor: "#2a2a2a",
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    backgroundColor: "#111",
     paddingVertical: 10,
   },
   footerContent: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     paddingHorizontal: 10,
   },
   footerButton: {
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginHorizontal: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
   footerButtonActive: {
-    backgroundColor: "#75c300",
+    backgroundColor: "#333",
+    borderRadius: 10,
   },
   footerButtonText: {
-    color: "#ffffff",
+    color: "#fff",
     fontSize: 12,
-    marginTop: 5,
   },
-
   // Dashboard styles
   dashboardContainer: {
     padding: 15,
@@ -1063,11 +995,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   statusCard: {
-    backgroundColor: "#1e1e1e",
-    borderRadius: 12,
+    backgroundColor: "#2A2A2A", // Slightly lighter background
+    borderRadius: 15, // More rounded corners
     padding: 15,
     alignItems: "center",
     width: "31%",
+    elevation: 3, // Subtle elevation
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    borderLeftWidth: 3,
+    borderLeftColor: "transparent", // Prepare for conditional coloring
   },
   warningCard: {
     borderLeftWidth: 3,
@@ -1087,12 +1026,13 @@ const styles = StyleSheet.create({
   dashboardAlertBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#333", // Dark background
     borderLeftWidth: 4,
-    borderLeftColor: "#ffc107",
+    borderLeftColor: "#FFC107", // Warning color
     padding: 12,
     marginVertical: 15,
-    borderRadius: 8,
+    borderRadius: 10,
+    elevation: 3,
   },
   dashboardAlertText: {
     color: "#ffffff",
@@ -1109,11 +1049,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   dashboardInfoCard: {
-    backgroundColor: "#1e1e1e",
-    borderRadius: 12,
+    backgroundColor: "#2A2A2A", // Consistent dark background
+    borderRadius: 15, // More rounded corners
     padding: 15,
     width: "48%",
     marginBottom: 15,
+    elevation: 3, // Subtle elevation
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: "rgba(117, 195, 0, 0.2)", // Subtle accent border
   },
   cardHeader: {
     flexDirection: "row",
@@ -1156,8 +1103,12 @@ const styles = StyleSheet.create({
 
   // Object detection styles
   objectDetectionContainer: {
-    position: "absolute",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)", // Semi-transparent background
+    borderRadius: 15,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "rgba(117, 195, 0, 0.3)", // Subtle accent border
   },
   leftSide: {
     left: "10%",
@@ -1206,10 +1157,14 @@ const styles = StyleSheet.create({
   },
   objectInfoContainer: {
     position: "absolute",
-    bottom: 0,
+    bottom: 0, // Ensures it's at the bottom
     left: 0,
     right: 0,
+    alignItems: "center", // Centers the content
+    paddingVertical: 10, // Adds some spacing for better visibility
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Optional: Semi-transparent background for better contrast
   },
+
   sensorStatusContainer: {
     marginTop: 8,
   },

@@ -101,7 +101,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post("http://192.168.61.69:5000/api/signup", data);
+        const response = await axios.post("http://localhost:5000/api/signup", data);
         showModal(response.data.message, false);
 
         // Reset state
@@ -120,7 +120,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     // Login flow
     try {
-      const response = await axios.post("http://192.168.61.69:5000/api/login", data);
+      const response = await axios.post("http://localhost:5000/api/login", data);
       const { userType, token,userId } = response.data;
   
       if (!token) {

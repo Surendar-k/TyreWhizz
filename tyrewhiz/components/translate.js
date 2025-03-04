@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;// Replace with your actual API key
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY; // Ensure this is set in your environment
 
 export const fetchTranslation = async (texts, targetLang) => {
-  if (!GOOGLE_MAPS_API_KEY ) {
+  if (!GOOGLE_MAPS_API_KEY) {
     console.error("❌ ERROR: Missing Google Translate API Key.");
     return texts;
   }
@@ -19,27 +19,30 @@ export const fetchTranslation = async (texts, targetLang) => {
   }
 
   try {
-    // Convert input to an array if it's a single string
+    // Ensure input is an array
     const textArray = Array.isArray(texts) ? texts : [texts];
 
-    // Correct API request format
     const response = await axios.post(
       `https://translation.googleapis.com/language/translate/v2`,
-      { q: textArray }, // ✅ Correct: Sending texts in the request body
       {
-        params: {
-          target: targetLang, // ✅ Correct language parameter
-          key: GOOGLE_MAPS_API_KEY ,
-        },
+        q: textArray,
+        target: targetLang,
+        format: "text", // Ensures plain text translation
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+        params: { key: GOOGLE_MAPS_API_KEY },
       }
     );
 
-    if (!response.data?.data?.translations) {
+    const translations = response?.data?.data?.translations;
+
+    if (!translations) {
       console.error("❌ ERROR: Invalid response from Google API:", response.data);
       return texts;
     }
 
-    return response.data.data.translations.map((t) => t.translatedText);
+    return translations.map((t) => t.translatedText);
   } catch (error) {
     console.error("❌ Translation API Error:", error?.response?.data || error.message);
 
@@ -50,6 +53,5 @@ export const fetchTranslation = async (texts, targetLang) => {
     return texts; // Return original text if translation fails
   }
 };
-
 
 export default fetchTranslation;

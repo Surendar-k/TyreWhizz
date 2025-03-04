@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,45 +9,59 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Import navigation hook
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
 import * as Location from "expo-location";
 import { WebView } from "react-native-webview";
 import { useTranslation } from "../TranslationContext";
-import { useFocusEffect } from "@react-navigation/native";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 const TechLocation = () => {
-  const navigation = useNavigation(); // Get navigation instance
+  const navigation = useNavigation();
   const [location, setLocation] = useState(null);
   const [locationName, setLocationName] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { translatedText, updateTranslations } = useTranslation(); // ✅ Added Translation Support
-  
-   useFocusEffect(React.useCallback(() =>{
-    updateTranslations([
-     "Permission to access location was denied","Unable to fetch location name","Error fetching location name:","Unable to fetch location name","No shops found", "No mechanic shops were found nearby.","Error",
-        "Failed to fetch nearby shops. Check API key and permissions.","Fetching location and nearby mechanic shops...","Nearby Mechanics","Your Location: ",
-        "Fetching location name...","Rating: ","Address not available","N/A","Address:"
-    ])
-  }));
+  const { translatedText, updateTranslations } = useTranslation();
+
+  useFocusEffect(
+    useCallback(() => {
+      updateTranslations([
+        "Permission to access location was denied",
+        "Unable to fetch location name",
+        "Error fetching location name:",
+        "No shops found",
+        "No mechanic shops were found nearby.",
+        "Error",
+        "Failed to fetch nearby shops. Check API key and permissions.",
+        "Fetching location and nearby mechanic shops...",
+        "Nearby Mechanics",
+        "Your Location: ",
+        "Fetching location name...",
+        "Rating: ",
+        "Address not available",
+        "N/A",
+        "Address:",
+      ]);
+    }, [updateTranslations])
+  );
 
   useEffect(() => {
     const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg(translatedText["Permission to access location was denied"]||"Permission to access location was denied");
+        setErrorMsg(
+          translatedText["Permission to access location was denied"] ||
+            "Permission to access location was denied"
+        );
         setLoading(false);
         return;
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location.coords);
+      let locationData = await Location.getCurrentPositionAsync({});
+      setLocation(locationData.coords);
     };
-
     getLocation();
   }, []);
 
@@ -59,33 +73,32 @@ const TechLocation = () => {
   }, [location]);
 
   const fetchLocationName = async () => {
-    const { latitude, longitude } = location;
-
+    if (!location) return;
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json`,
         {
           params: {
-            latlng: `${latitude},${longitude}`,
+            latlng: `${location.latitude},${location.longitude}`,
             key: GOOGLE_MAPS_API_KEY,
           },
         }
       );
-
-      if (response.data.results.length > 0) {
-        setLocationName(response.data.results[0].formatted_address);
-      } else {
-        setLocationName(translatedText["Unable to fetch location name"]||"Unable to fetch location name");
-      }
+      setLocationName(
+        response.data.results[0]?.formatted_address ||
+          translatedText["Unable to fetch location name"] ||
+          "Unable to fetch location name"
+      );
     } catch (error) {
-      console.error(translatedText["Error fetching location name:"]||"Error fetching location name:", error);
-      setLocationName(translatedText["Unable to fetch location name"]||"Unable to fetch location name");
+      setLocationName(
+        translatedText["Unable to fetch location name"] ||
+          "Unable to fetch location name"
+      );
     }
   };
 
   const fetchNearbyShops = async () => {
-    const { latitude, longitude } = location;
-
+    if (!location) return;
     setLoading(true);
     try {
       const response = await axios.get(
@@ -93,24 +106,26 @@ const TechLocation = () => {
         {
           params: {
             query: "mechanic shop",
-            location: `${latitude},${longitude}`,
+            location: `${location.latitude},${location.longitude}`,
             radius: 10000,
             key: GOOGLE_MAPS_API_KEY,
           },
         }
       );
-
-      if (response.data.results.length === 0) {
-        Alert.alert(translatedText["No shops found", "No mechanic shops were found nearby."]||"No shops found", "No mechanic shops were found nearby.");
-      } else {
-        setShops(response.data.results);
+      setShops(response.data.results || []);
+      if (!response.data.results.length) {
+        Alert.alert(
+          translatedText["No shops found"] || "No shops found",
+          translatedText["No mechanic shops were found nearby."] ||
+            "No mechanic shops were found nearby."
+        );
       }
     } catch (error) {
-      console.error("Error fetching shops:", error);
       Alert.alert(
-        translatedText["Error",
-        "Failed to fetch nearby shops. Check API key and permissions."]||"Error",
-        "Failed to fetch nearby shops. Check API key and permissions."
+        translatedText["Error"] || "Error",
+        translatedText[
+          "Failed to fetch nearby shops. Check API key and permissions."
+        ] || "Failed to fetch nearby shops. Check API key and permissions."
       );
     } finally {
       setLoading(false);
@@ -129,14 +144,16 @@ const TechLocation = () => {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text>{translatedText["Fetching location and nearby mechanic shops..."]||"Fetching location and nearby mechanic shops..."}</Text>
+        <Text>
+          {translatedText["Fetching location and nearby mechanic shops..."] ||
+            "Fetching location and nearby mechanic shops..."}
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header Section */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -144,10 +161,10 @@ const TechLocation = () => {
         >
           <Text style={styles.headerText}>{"<"}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{translatedText["Nearby Mechanics"]||"Nearby Mechanics"}</Text>
+        <Text style={styles.headerTitle}>
+          {translatedText["Nearby Mechanics"] || "Nearby Mechanics"}
+        </Text>
       </View>
-
-      {/* Map Section */}
       <View style={styles.mapContainer}>
         {Platform.OS === "web" ? (
           <iframe
@@ -166,20 +183,26 @@ const TechLocation = () => {
           />
         )}
       </View>
-
-      {/* List Section */}
       <ScrollView style={styles.listSection}>
         <Text style={styles.userLocation}>
-          {translatedText["Your Location: "]||"Your Location: "}{locationName || translatedText["Fetching location name..."]||"Fetching location name..."}
+          {translatedText["Your Location: "] || "Your Location: "}
+          {locationName ||
+            translatedText["Fetching location name..."] ||
+            "Fetching location name..."}
         </Text>
-
         <View style={styles.listContainer}>
           {shops.map((shop, index) => (
             <View key={index} style={styles.shopCard}>
               <Text style={styles.shopName}>{shop.name}</Text>
-              <Text>{translatedText["Rating: "]||"Rating: "}{shop.rating || translatedText["N/A"]||"N/A"}</Text>
               <Text>
-                {translatedText["Address:"]||"Address:"}{shop.formatted_address || translatedText["Address not available"]||"Address not available"}
+                {translatedText["Rating: "] || "Rating: "}
+                {shop.rating || translatedText["N/A"] || "N/A"}
+              </Text>
+              <Text>
+                {translatedText["Address:"] || "Address:"}{" "}
+                {shop.formatted_address ||
+                  translatedText["Address not available"] ||
+                  "Address not available"}
               </Text>
             </View>
           ))}

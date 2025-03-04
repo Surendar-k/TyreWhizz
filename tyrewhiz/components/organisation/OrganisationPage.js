@@ -128,13 +128,13 @@ const fetchFleetData = async () => {
   
 
     const [driversRes, vehiclesRes] = await Promise.all([
-      fetch(`http://192.168.61.69:5000/api/drivers?user_id=${userId}`, {
+      fetch(`http://localhost:5000/api/drivers?user_id=${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://192.168.61.69:5000/api/vehicles", {
+      fetch("http://localhost:5000/api/vehicles", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
