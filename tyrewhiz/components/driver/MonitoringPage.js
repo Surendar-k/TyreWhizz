@@ -18,7 +18,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from "../TranslationContext";
 import * as Location from "expo-location";
 import axios from "axios";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const cartopimg = require("../../assets/car-top-view.png");
 const biketopimg = require("../../assets/biketopimg.png"); // You'll need to add this asset
 const trucktopimg = require("../../assets/trucktopimg.png"); // You'll need to add this asset
@@ -185,16 +185,18 @@ const MonitoringPage = ({ navigation, route }) => {
         const response = await axios.get("http://147.93.108.7:5000/api/sensor");
         console.log("API Response Data:", response.data); // Debug output
 
-        // Ensure data is valid before updating state
         if (response.data && Object.keys(response.data).length > 0) {
           setSensorData(response.data);
-          localStorage.setItem("lastSensorData", JSON.stringify(response.data)); // Store last valid data
+          await AsyncStorage.setItem(
+            "lastSensorData",
+            JSON.stringify(response.data)
+          ); // Store last valid data
         }
       } catch (error) {
         console.error("Error fetching sensor data:", error);
 
         // Retrieve last stored data if available
-        const lastData = localStorage.getItem("lastSensorData");
+        const lastData = await AsyncStorage.getItem("lastSensorData");
         if (lastData) {
           setSensorData(JSON.parse(lastData));
         }
@@ -203,6 +205,7 @@ const MonitoringPage = ({ navigation, route }) => {
 
     fetchData();
     const intervalId = setInterval(fetchData, 5000);
+
     return () => clearInterval(intervalId);
   }, []);
 
@@ -277,17 +280,6 @@ const MonitoringPage = ({ navigation, route }) => {
   };
 
   const renderContent = () => {
-    if (loading) {
-      return (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#75c300" />
-          <Text style={styles.loadingText}>
-            {translatedText["Loading data..."] || "Loading data..."}
-          </Text>
-        </View>
-      );
-    }
-
     if (!sensorData) {
       return (
         <View style={styles.centered}>
@@ -299,9 +291,17 @@ const MonitoringPage = ({ navigation, route }) => {
         </View>
       );
     }
-
+    sensorData.pressure = parseFloat(sensorData.pressure).toFixed(2);
+    sensorData.incontact_temp = parseFloat(sensorData.incontact_temp).toFixed(
+      2
+    );
+    sensorData.ambient_temp = parseFloat(sensorData.ambient_temp).toFixed(2);
+    sensorData.acc_x = parseFloat(sensorData.acc_x).toFixed(2);
+    sensorData.acc_y = parseFloat(sensorData.acc_y).toFixed(2);
+    sensorData.acc_z = parseFloat(sensorData.acc_z).toFixed(2);
     // Extract data
-    const { pressure, incontact_temp, ambient_temp, acc_x, acc_y } = sensorData;
+    const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } =
+      sensorData;
 
     switch (selectedFeature) {
       case "pressure":
@@ -322,18 +322,16 @@ const MonitoringPage = ({ navigation, route }) => {
                   <CircularProgress
                     size={80}
                     width={8}
-                    fill={tire.pressure * 2}
-                    tintColor={getTirePressureStatus(tire.pressure).color}
+                    fill={pressure * 2}
+                    tintColor={getTirePressureStatus(pressure).color}
                     backgroundColor="#2a2a2a"
                     rotation={0}
                     backgroundWidth={5}
                   >
                     {() => (
                       <View style={styles.tireDataContainer}>
-                        <Text style={styles.tirePressureText}>
-                          {tire.pressure}
-                        </Text>
-                        <Text style={styles.tireUnitText}>PSI</Text>
+                        <Text style={styles.tirePressureText}>{pressure}</Text>
+                        <Text style={styles.tireUnitText}>{pressure}PSI</Text>
                       </View>
                     )}
                   </CircularProgress>
@@ -343,10 +341,10 @@ const MonitoringPage = ({ navigation, route }) => {
                   <Text
                     style={[
                       styles.tireStatusText,
-                      { color: getTirePressureStatus(tire.pressure).color },
+                      { color: getTirePressureStatus(pressure).color },
                     ]}
                   >
-                    {getTirePressureStatus(tire.pressure).status}
+                    {getTirePressureStatus(pressure).status}
                   </Text>
                 </View>
               ))}
@@ -362,7 +360,7 @@ const MonitoringPage = ({ navigation, route }) => {
                 <Text style={styles.infoLabel}>Average Pressure:</Text>
                 <Text style={styles.infoValue}>
                   {(
-                    tires.reduce((sum, tire) => sum + tire.pressure, 0) /
+                    tires.reduce((sum, tire) => sum + pressure, 0) /
                     tires.length
                   ).toFixed(1)}{" "}
                   PSI
@@ -413,7 +411,10 @@ const MonitoringPage = ({ navigation, route }) => {
                   >
                     {() => (
                       <View style={styles.tireDataContainer}>
-                        <Text style={styles.tirePressureText}>{tire.temp}</Text>
+                        <Text style={styles.tirePressureText}>
+                          {incontact_temp}
+                        </Text>
+
                         <Text style={styles.tireUnitText}>°C</Text>
                       </View>
                     )}
@@ -575,7 +576,7 @@ const MonitoringPage = ({ navigation, route }) => {
                   <Text style={styles.statusLabel}>Avg. PSI</Text>
                   <Text style={styles.statusValue}>
                     {(
-                      tires.reduce((sum, tire) => sum + tire.pressure, 0) /
+                      tires.reduce((sum, tire) => sum + pressure, 0) /
                       tires.length
                     ).toFixed(1)}
                   </Text>

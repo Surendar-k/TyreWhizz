@@ -25,6 +25,8 @@ import { useTranslation } from "../TranslationContext";
 const TechnicianPage = () => {
   const [isMenuVisible, setMenuVisible] = useState(false);
   const [isProfileVisible, setProfileVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [originalUserData, setOriginalUserData] = useState({...userData});
   const [isEditing, setIsEditing] = useState(false);
   const [selectedTab, setSelectedTab] = useState("Notifications");
   const navigation = useNavigation();
@@ -35,7 +37,25 @@ const TechnicianPage = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectedVehicles, setConnectedVehicles] = useState([]);
   const { translatedText, updateTranslations } = useTranslation();
+  const handleProfileImageChange = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
 
+      if (!result.canceled) {
+        setProfileImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      Alert.alert(
+        translatedText["Error"] || "Error", 
+        translatedText["Failed to select image"] || "Failed to select image"
+      );
+    }
+  };
   // Update translations when component is focused
   useFocusEffect(
     React.useCallback(() => {
