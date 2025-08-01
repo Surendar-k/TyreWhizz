@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -51,8 +51,6 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     }, [])
   );
 
-  
-
   const handleAuthAction = async () => {
     if (!email || !password) {
       showModal("Email and password are required.", true);
@@ -86,9 +84,7 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
     }
 
     const data = { email, password, userType };
-    
-    
-  
+
     // Signup flow
     if (isSignup) {
       if (password !== confirmPassword) {
@@ -101,7 +97,10 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
       }
 
       try {
-        const response = await axios.post("http://localhost:5000/api/signup", data);
+        const response = await axios.post(
+          "http://localhost:5000/api/signup",
+          data
+        );
         showModal(response.data.message, false);
 
         // Reset state
@@ -120,9 +119,12 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
     // Login flow
     try {
-      const response = await axios.post("http://localhost:5000/api/login", data);
-      const { userType, token,userId } = response.data;
-  
+      const response = await axios.post(
+        "http://localhost:5000/api/login",
+        data
+      );
+      const { userType, token, userId } = response.data;
+
       if (!token) {
         showModal("Login failed: No token received.", true);
         return;
@@ -130,9 +132,9 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
 
       // Store token securely
       await AsyncStorage.setItem("token", token);
-     
+
       await AsyncStorage.setItem("userId", userId.toString()); // Ensure userId is stored correctly
-  
+
       showModal(response.data.message, false);
 
       // Navigate based on userType
@@ -174,17 +176,17 @@ const RoleBasedAuthPage = ({ route, navigation }) => {
   const storeUserData = async (token, userId) => {
     try {
       if (token && userId) {
-        await AsyncStorage.setItem('token', token);
-        await AsyncStorage.setItem('userId', userId.toString()); // Ensure userId is a string
-        console.log('User data stored successfully');
+        await AsyncStorage.setItem("token", token);
+        await AsyncStorage.setItem("userId", userId.toString()); // Ensure userId is a string
+        console.log("User data stored successfully");
       } else {
-        console.error('Missing token or userId');
+        console.error("Missing token or userId");
       }
     } catch (error) {
-      console.error('Error storing user data:', error);
+      console.error("Error storing user data:", error);
     }
   };
-  
+
   // Show modal for errors and messages
   const showModal = (message, isError) => {
     setPopupMessage(message);

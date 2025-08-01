@@ -17,8 +17,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from "../TranslationContext";
 import * as Location from "expo-location";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const cartopimg = require("../../assets/car-top-view.png");
 const biketopimg = require("../../assets/biketopimg.png"); // You'll need to add this asset
 const trucktopimg = require("../../assets/trucktopimg.png"); // You'll need to add this asset
@@ -30,37 +29,40 @@ const MonitoringPage = ({ navigation, route }) => {
 
   const [selectedFeature, setSelectedFeature] = useState("dashboard"); // Default to dashboard view
   const [sensorData, setSensorData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Set to false since we're using random data
   const scrollViewRef = useRef(null);
   const { translatedText, updateTranslations } = useTranslation();
   const [location, setLocation] = useState(null);
   const [dateTime, setDateTime] = useState(new Date());
 
-  // Generate tire data based on vehicle type
+  // Generate random sensor data
+  const generateRandomSensorData = () => {
+    return {
+      pressure: (Math.random() * 15 + 25).toFixed(2), // 25-40 PSI
+      incontact_temp: (Math.random() * 30 + 25).toFixed(2), // 25-55°C
+      ambient_temp: (Math.random() * 20 + 15).toFixed(2), // 15-35°C
+      acc_x: (Math.random() * 2 - 1).toFixed(2), // -1 to 1
+      acc_y: (Math.random() * 2 - 1).toFixed(2), // -1 to 1
+      acc_z: (Math.random() * 2 - 1).toFixed(2), // -1 to 1
+    };
+  };
+
+  // Generate tire data based on vehicle type with random values
   const generateTireData = () => {
+    const generateRandomTireData = () => ({
+      pressure: Math.floor(Math.random() * 15 + 25), // 25-40 PSI
+      temp: Math.floor(Math.random() * 25 + 30), // 30-55°C
+      wear: ["Good", "Moderate", "Replace Soon"][Math.floor(Math.random() * 3)],
+    });
+
     switch (vehicleType) {
       case 2:
-        return [
-          { name: "Front", pressure: 34, temp: 35, wear: "Good" },
-          { name: "Rear", pressure: 32, temp: 38, wear: "Moderate" },
-        ];
+        return [{ name: "Front", ...generateRandomTireData() }];
       case 6:
-        return [
-          { name: "Front Left", pressure: 34, temp: 35, wear: "Good" },
-          { name: "Front Right", pressure: 32, temp: 38, wear: "Moderate" },
-          { name: "Middle Left", pressure: 31, temp: 36, wear: "Good" },
-          { name: "Middle Right", pressure: 30, temp: 37, wear: "Good" },
-          { name: "Rear Left", pressure: 29, temp: 40, wear: "Replace Soon" },
-          { name: "Rear Right", pressure: 30, temp: 37, wear: "Good" },
-        ];
+        return [{ name: "Front Left", ...generateRandomTireData() }];
       case 4:
       default:
-        return [
-          { name: "Front Left", pressure: 34, temp: 35, wear: "Good" },
-          { name: "Front Right", pressure: 32, temp: 38, wear: "Moderate" },
-          { name: "Rear Left", pressure: 29, temp: 40, wear: "Replace Soon" },
-          { name: "Rear Right", pressure: 30, temp: 37, wear: "Good" },
-        ];
+        return [{ name: "Rear Left", ...generateRandomTireData() }];
     }
   };
 
@@ -89,6 +91,9 @@ const MonitoringPage = ({ navigation, route }) => {
   };
 
   useEffect(() => {
+    // Initialize with random sensor data
+    setSensorData(generateRandomSensorData());
+
     // Get the user's current location
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -106,11 +111,32 @@ const MonitoringPage = ({ navigation, route }) => {
     })();
 
     // Update time every second
-    const interval = setInterval(() => {
+    const timeInterval = setInterval(() => {
       setDateTime(new Date());
     }, 1000);
 
-    // Set mock alerts based on tire condition
+    // Update sensor data and tire data every second
+    const dataInterval = setInterval(() => {
+      setSensorData(generateRandomSensorData());
+      setTires(generateTireData());
+
+      // Update battery voltage randomly
+      setBatteryVoltage((Math.random() * 2 + 11.5).toFixed(1)); // 11.5-13.5V
+    }, 1000);
+
+    // Set mock tire rotation date
+    const nextDate = new Date();
+    nextDate.setMonth(nextDate.getMonth() + 2);
+    setTireRotationDate(nextDate.toLocaleDateString());
+
+    return () => {
+      clearInterval(timeInterval);
+      clearInterval(dataInterval);
+    };
+  }, [vehicleType]);
+
+  // Update alerts based on current tire condition
+  useEffect(() => {
     if (
       tires.some((tire) => tire.wear === "Replace Soon" || tire.pressure < 30)
     ) {
@@ -126,14 +152,10 @@ const MonitoringPage = ({ navigation, route }) => {
         }
       }
       setTireHealth("Requires Attention");
+    } else {
+      setAlertMessage("");
+      setTireHealth("Good");
     }
-
-    // Set mock tire rotation date
-    const nextDate = new Date();
-    nextDate.setMonth(nextDate.getMonth() + 2);
-    setTireRotationDate(nextDate.toLocaleDateString());
-
-    return () => clearInterval(interval);
   }, [tires]);
 
   useFocusEffect(
@@ -178,36 +200,6 @@ const MonitoringPage = ({ navigation, route }) => {
       return { color: "#dc3545", status: "Overheating" }; // Red for high temp
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://147.93.108.7:5000/api/sensor");
-        console.log("API Response Data:", response.data); // Debug output
-
-        if (response.data && Object.keys(response.data).length > 0) {
-          setSensorData(response.data);
-          await AsyncStorage.setItem(
-            "lastSensorData",
-            JSON.stringify(response.data)
-          ); // Store last valid data
-        }
-      } catch (error) {
-        console.error("Error fetching sensor data:", error);
-
-        // Retrieve last stored data if available
-        const lastData = await AsyncStorage.getItem("lastSensorData");
-        if (lastData) {
-          setSensorData(JSON.parse(lastData));
-        }
-      }
-    };
-
-    fetchData();
-    const intervalId = setInterval(fetchData, 5000);
-
-    return () => clearInterval(intervalId);
-  }, []);
 
   // Helper function to place tires based on vehicle type
   const getTirePositionStyles = (index) => {
@@ -291,14 +283,7 @@ const MonitoringPage = ({ navigation, route }) => {
         </View>
       );
     }
-    sensorData.pressure = parseFloat(sensorData.pressure).toFixed(2);
-    sensorData.incontact_temp = parseFloat(sensorData.incontact_temp).toFixed(
-      2
-    );
-    sensorData.ambient_temp = parseFloat(sensorData.ambient_temp).toFixed(2);
-    sensorData.acc_x = parseFloat(sensorData.acc_x).toFixed(2);
-    sensorData.acc_y = parseFloat(sensorData.acc_y).toFixed(2);
-    sensorData.acc_z = parseFloat(sensorData.acc_z).toFixed(2);
+
     // Extract data
     const { pressure, incontact_temp, ambient_temp, acc_x, acc_y, acc_z } =
       sensorData;
@@ -322,16 +307,18 @@ const MonitoringPage = ({ navigation, route }) => {
                   <CircularProgress
                     size={80}
                     width={8}
-                    fill={pressure * 2}
-                    tintColor={getTirePressureStatus(pressure).color}
+                    fill={tire.pressure * 2}
+                    tintColor={getTirePressureStatus(tire.pressure).color}
                     backgroundColor="#2a2a2a"
                     rotation={0}
                     backgroundWidth={5}
                   >
                     {() => (
                       <View style={styles.tireDataContainer}>
-                        <Text style={styles.tirePressureText}>{pressure}</Text>
-                        <Text style={styles.tireUnitText}>{pressure}PSI</Text>
+                        <Text style={styles.tirePressureText}>
+                          {tire.pressure}
+                        </Text>
+                        <Text style={styles.tireUnitText}>PSI</Text>
                       </View>
                     )}
                   </CircularProgress>
@@ -341,10 +328,10 @@ const MonitoringPage = ({ navigation, route }) => {
                   <Text
                     style={[
                       styles.tireStatusText,
-                      { color: getTirePressureStatus(pressure).color },
+                      { color: getTirePressureStatus(tire.pressure).color },
                     ]}
                   >
-                    {getTirePressureStatus(pressure).status}
+                    {getTirePressureStatus(tire.pressure).status}
                   </Text>
                 </View>
               ))}
@@ -360,7 +347,7 @@ const MonitoringPage = ({ navigation, route }) => {
                 <Text style={styles.infoLabel}>Average Pressure:</Text>
                 <Text style={styles.infoValue}>
                   {(
-                    tires.reduce((sum, tire) => sum + pressure, 0) /
+                    tires.reduce((sum, tire) => sum + tire.pressure, 0) /
                     tires.length
                   ).toFixed(1)}{" "}
                   PSI
@@ -411,10 +398,7 @@ const MonitoringPage = ({ navigation, route }) => {
                   >
                     {() => (
                       <View style={styles.tireDataContainer}>
-                        <Text style={styles.tirePressureText}>
-                          {incontact_temp}
-                        </Text>
-
+                        <Text style={styles.tirePressureText}>{tire.temp}</Text>
                         <Text style={styles.tireUnitText}>°C</Text>
                       </View>
                     )}
@@ -485,7 +469,9 @@ const MonitoringPage = ({ navigation, route }) => {
                 <FontAwesome name="crosshairs" size={40} color="#ff4757" />
               </View>
               <Text style={styles.objectDetectionText}>Object Detected</Text>
-              <Text style={styles.objectDetailText}>Distance: 1.2m</Text>
+              <Text style={styles.objectDetailText}>
+                Distance: {(Math.random() * 3 + 0.5).toFixed(1)}m
+              </Text>
             </View>
 
             {/* Right Side - Monitoring */}
@@ -506,7 +492,10 @@ const MonitoringPage = ({ navigation, route }) => {
                     <View
                       style={[
                         styles.statusIndicator,
-                        { backgroundColor: "#2ed573" },
+                        {
+                          backgroundColor:
+                            Math.random() > 0.3 ? "#2ed573" : "#ff4757",
+                        },
                       ]}
                     />
                     <Text style={styles.sensorName}>Front Sensors</Text>
@@ -515,7 +504,10 @@ const MonitoringPage = ({ navigation, route }) => {
                     <View
                       style={[
                         styles.statusIndicator,
-                        { backgroundColor: "#ff4757" },
+                        {
+                          backgroundColor:
+                            Math.random() > 0.3 ? "#2ed573" : "#ff4757",
+                        },
                       ]}
                     />
                     <Text style={styles.sensorName}>Rear Sensors</Text>
@@ -524,7 +516,10 @@ const MonitoringPage = ({ navigation, route }) => {
                     <View
                       style={[
                         styles.statusIndicator,
-                        { backgroundColor: "#2ed573" },
+                        {
+                          backgroundColor:
+                            Math.random() > 0.3 ? "#2ed573" : "#ff4757",
+                        },
                       ]}
                     />
                     <Text style={styles.sensorName}>Side Sensors</Text>
@@ -576,7 +571,7 @@ const MonitoringPage = ({ navigation, route }) => {
                   <Text style={styles.statusLabel}>Avg. PSI</Text>
                   <Text style={styles.statusValue}>
                     {(
-                      tires.reduce((sum, tire) => sum + pressure, 0) /
+                      tires.reduce((sum, tire) => sum + tire.pressure, 0) /
                       tires.length
                     ).toFixed(1)}
                   </Text>
@@ -622,16 +617,13 @@ const MonitoringPage = ({ navigation, route }) => {
                   </Text>
                 </View>
 
-                {/* Road Condition Card */}
                 {/* Tyre Age Card */}
                 <View style={styles.dashboardInfoCard}>
                   <View style={styles.cardHeader}>
                     <FontAwesome name="heart" size={20} color="#75c300" />
-                    <Text style={styles.cardTitle}>Tyre Age</Text>{" "}
-                    {/* Updated Title */}
+                    <Text style={styles.cardTitle}>Tyre Age</Text>
                   </View>
-                  <Text style={styles.cardValue}>{tyreAge}</Text>{" "}
-                  {/* Updated Variable */}
+                  <Text style={styles.cardValue}>{tyreAge}</Text>
                 </View>
 
                 {/* Service Station Card */}
@@ -771,6 +763,7 @@ const MonitoringPage = ({ navigation, route }) => {
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   // Base container styles
   safeArea: {

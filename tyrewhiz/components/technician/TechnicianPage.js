@@ -26,7 +26,8 @@ const TechnicianPage = () => {
   const [isMenuVisible, setMenuVisible] = useState(false);
   const [isProfileVisible, setProfileVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const [originalUserData, setOriginalUserData] = useState({...userData});
+
+ 
   const [isEditing, setIsEditing] = useState(false);
   const [selectedTab, setSelectedTab] = useState("Notifications");
   const navigation = useNavigation();
@@ -51,7 +52,7 @@ const TechnicianPage = () => {
       }
     } catch (error) {
       Alert.alert(
-        translatedText["Error"] || "Error", 
+        translatedText["Error"] || "Error",
         translatedText["Failed to select image"] || "Failed to select image"
       );
     }
@@ -339,9 +340,9 @@ const TechnicianPage = () => {
     name: "Arjun",
     email: "Arjun@example.com",
     phone: "+91 9857852471",
-    specialization: translatedText["Tyre Expert"] || "Tyre Expert",
-    experience: translatedText["5 years"] || "5 years",
-    currentPlan: translatedText["Basic"] || "Basic",
+    specialization: translatedText?.["Tyre Expert"] || "Tyre Expert",
+    experience: translatedText?.["5 years"] || "5 years",
+    currentPlan: translatedText?.["Basic"] || "Basic",
     daysLeft: 30,
   });
 
@@ -516,7 +517,7 @@ const TechnicianPage = () => {
       {isEditing ? (
         <TextInput
           style={styles.input}
-          value={value}
+          value={userData[field]} // 🔹 Ensure userData[field] exists
           onChangeText={(text) => setUserData({ ...userData, [field]: text })}
         />
       ) : (
